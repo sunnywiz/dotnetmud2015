@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "signalRTest", "signalRTest\signalRTest.csproj", "{02385DE3-1959-4DE7-A730-CB82569ADDA9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JavascriptClient", "JavascriptClient\JavascriptClient.csproj", "{D0B0BF22-48FE-4F7A-A719-98D3AF532B39}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{02385DE3-1959-4DE7-A730-CB82569ADDA9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{02385DE3-1959-4DE7-A730-CB82569ADDA9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{02385DE3-1959-4DE7-A730-CB82569ADDA9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{02385DE3-1959-4DE7-A730-CB82569ADDA9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D0B0BF22-48FE-4F7A-A719-98D3AF532B39}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D0B0BF22-48FE-4F7A-A719-98D3AF532B39}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D0B0BF22-48FE-4F7A-A719-98D3AF532B39}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D0B0BF22-48FE-4F7A-A719-98D3AF532B39}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
