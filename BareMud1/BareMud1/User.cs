@@ -6,18 +6,15 @@ namespace BareMud1
 {
     public class User : StdObject, IInteractive
     {
-        private TextWriter _outputStream;
+        private readonly MudHub _mudHub;
+        private readonly string _connectionId = null; 
 
-        public User()
+        public User(MudHub mudHub, string connectionId, string nick)
         {
-            _outputStream = new StringWriter(new StringBuilder());
-            Short = "generic user";
-            Long = "This is a generic user";
-        }
-
-        public void RegisterOutputStream(TextWriter @out)
-        {
-            _outputStream = @out; 
+            _mudHub = mudHub;
+            _connectionId = connectionId; 
+            Short = nick;
+            Long = "The amazing " + nick; 
         }
 
         public void ReceiveInput(string line)
@@ -52,7 +49,7 @@ namespace BareMud1
 
         public void SendOutput(string text)
         {
-            _outputStream.WriteLineAsync(text);
+            _mudHub.Clients.Client(_connectionId).sendToClient(text); 
         }
     }
 }

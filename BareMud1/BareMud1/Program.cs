@@ -1,30 +1,26 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Owin.Hosting;
 
 namespace BareMud1
 {
     class Program
     {
+        public static Room StartRoom; 
+
         static void Main(string[] args)
         {
             // Do some stuff to bring the mud up and bring up a player object
             Console.WriteLine("type 'quit' to exit");
 
-            var room = new Room();
-            var userObject = new User();
-            (userObject as IInteractive).RegisterOutputStream(Console.Out);
-            userObject.MoveTo(room);
-            
-            userObject.ReceiveInput("look");
+            StartRoom = new Room(); 
 
-            string line; 
-            while ((line = Console.ReadLine()) != "quit")
+            string url = "http://localhost:8080";
+            using (WebApp.Start(url))
             {
-                Task.Factory.StartNew(() =>
-                    {
-                        userObject.ReceiveInput(line);
-                    });
+                Console.WriteLine("Server running on {0}", url);
+                Console.ReadLine();
             }
         }
     }
