@@ -46,7 +46,8 @@
             // Set initial focus to message input box.
             $('#message').focus();
             // Start the connection.
-            $.connection.hub.start().done(function () {
+            $.connection.hub.start({ transport: 'longPolling' }).done(function () {
+                chat.server.nickname($('#displayname').val());
                 $('#sendmessage').click(function () {
                     // Call the Send method on the hub.
                     chat.server.userCommand($('#message').val());

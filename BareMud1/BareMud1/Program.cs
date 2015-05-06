@@ -12,8 +12,6 @@ namespace BareMud1
         static void Main(string[] args)
         {
             // Do some stuff to bring the mud up and bring up a player object
-            Console.WriteLine("type 'quit' to exit");
-
             StartRoom = new Room(); 
 
             string url = "http://localhost:8080";

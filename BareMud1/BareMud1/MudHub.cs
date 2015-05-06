@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Microsoft.AspNet.SignalR;
 
@@ -30,6 +31,12 @@ namespace BareMud1
             }
         }
 
+        public override System.Threading.Tasks.Task OnConnected()
+        {
+            Console.WriteLine("incoming connection {0}", Context.ConnectionId);
+            this.Clients.Client(Context.ConnectionId).sendToClient("Greetings Human");
+            return base.OnConnected();
+        }
         // client:  .sendToClient(message)
     }
 }
