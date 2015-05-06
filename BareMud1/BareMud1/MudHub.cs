@@ -6,9 +6,9 @@ namespace BareMud1
 {
     public class MudHub : Hub
     {
-        public Dictionary<string, IInteractive> UserDictionary;
+        public static Dictionary<string, IInteractive> UserDictionary;
 
-        public MudHub()
+        static MudHub()
         {
             UserDictionary = new Dictionary<string, IInteractive>();
         }
@@ -16,7 +16,7 @@ namespace BareMud1
         public void nickname(string nick)
         {
             string connectionId = this.Context.ConnectionId;
-            var user = new User(this, connectionId, nick);
+            var user = new User(connectionId, nick);
             UserDictionary[connectionId] = user;
             user.MoveTo(Program.StartRoom);
             user.ReceiveInput("look");

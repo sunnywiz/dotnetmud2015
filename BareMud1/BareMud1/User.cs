@@ -6,12 +6,10 @@ namespace BareMud1
 {
     public class User : StdObject, IInteractive
     {
-        private readonly MudHub _mudHub;
         private readonly string _connectionId = null; 
 
-        public User(MudHub mudHub, string connectionId, string nick)
+        public User(string connectionId, string nick)
         {
-            _mudHub = mudHub;
             _connectionId = connectionId; 
             Short = nick;
             Long = "The amazing " + nick; 
@@ -49,7 +47,7 @@ namespace BareMud1
 
         public void SendOutput(string text)
         {
-            _mudHub.Clients.Client(_connectionId).sendToClient(text); 
+            new MudHub().Clients.Client(_connectionId).sendToClient(text); 
         }
     }
 }
