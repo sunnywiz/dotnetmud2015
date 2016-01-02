@@ -1,0 +1,76 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <style>
+      body {
+        margin: 0px;
+        padding: 0px;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="myCanvas" width="500" height="500"></canvas>
+<script>
+      function loadImages(sources, callback) {
+        var images = {};
+        var loadedImages = 0;
+        var numImages = 0;
+        // get num of sources
+        for(var src in sources) {
+          numImages++;
+        }
+        for(var src in sources) {
+          images[src] = new Image();
+          images[src].onload = function() {
+            if(++loadedImages >= numImages) {
+              callback(images);
+            }
+          };
+          images[src].src = sources[src];
+        }
+      }
+      var canvas = document.getElementById('myCanvas');
+      var context = canvas.getContext('2d');
+
+      var sources = {
+        ship1: 'ship1.png',
+      };
+	  
+      loadImages(sources, function(images) {
+
+        var ships = []; 
+		for (var i=0; i<100; i++) { 
+			var ship = { 
+				x: Math.random()*500, 
+				y: Math.random()*500, 
+				dx: Math.random()*10-5,
+				dy: Math.random()*10-5, 
+				image: images.ship1
+			};
+			ships.push(ship); 
+		}
+
+		function animate() { 
+			context.clearRect(0,0,canvas.width,canvas.height);
+			for (var i=0; i<ships.length; i++) { 
+			    var ship = ships[i];
+			    context.drawImage(ship.image,ship.x-ship.image.width/2,ship.y-ship.image.height/2);
+				context.fillRect(ship.x,ship.y,1,1);
+				
+				ship.x = ship.x + ship.dx; 
+				ship.y = ship.y + ship.dy; 
+				if (ship.x > canvas.width) { ship.x = 0; }
+				if (ship.y > canvas.height) { ship.y = 0; }
+				if (ship.x < 0) { ship.x = canvas.width-1; }
+				if (ship.y < 0) { ship.y = canvas.height-1; }
+			}
+			requestAnimationFrame(animate);
+		}
+		
+		requestAnimationFrame(animate);
+
+      });
+
+    </script>  </body>
+</html>      
+
