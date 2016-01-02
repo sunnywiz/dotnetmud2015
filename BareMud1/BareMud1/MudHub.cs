@@ -35,6 +35,17 @@ namespace BareMud1
             }
         }
 
+        public void getPollFromServer()
+        {
+            Console.WriteLine("poll request for {0}", Context.ConnectionId);
+            IInteractive interactive;
+            if (UserDictionary.TryGetValue(Context.ConnectionId, out interactive))
+            {
+                var result = interactive.DoPoll();
+                this.Clients.Caller.sendPollToClient(result);
+            }
+        }
+
         public override System.Threading.Tasks.Task OnConnected()
         {
             if (_instance == null) _instance = this; 
