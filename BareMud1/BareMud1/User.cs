@@ -47,7 +47,10 @@ namespace BareMud1
 
         public void SendOutput(string text)
         {
-            new MudHub().Clients.Client(_connectionId).sendToClient(text); 
+            var clients = MudHub.Instance.Clients;
+            var myClient = clients.Client(_connectionId);
+            if (myClient == null) return; 
+            myClient.sendToClient(text); 
         }
     }
 }
