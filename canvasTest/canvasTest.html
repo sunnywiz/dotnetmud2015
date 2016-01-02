@@ -9,7 +9,7 @@
     </style>
   </head>
   <body>
-    <canvas id="myCanvas" width="500" height="500"></canvas>
+    <canvas id="myCanvas" width="1000" height="700"></canvas>
 <script>
       function loadImages(sources, callback) {
         var images = {};
@@ -43,32 +43,67 @@
 			var ship = { 
 				x: Math.random()*500, 
 				y: Math.random()*500, 
-				dx: Math.random()*10-5,
-				dy: Math.random()*10-5, 
+				dx: Math.random()*100-5,
+				dy: Math.random()*100-5, 
+				r: Math.random() * 360, 
+				dr: Math.random() * 30,
 				image: images.ship1
 			};
 			ships.push(ship); 
 		}
 
-		function animate() { 
+		var prevtimestamp = null; 
+		context.font = "20px Arial"; 
+		// timestamp is milliseconds since we started..
+		function animate(timestamp) { 
+			requestAnimationFrame(animate);
+		    var elapsed = 1;
+			var avgelapsed = 1; 
+            var FPS = 1; 			
+			if (prevtimestamp) { 
+			   elapsed = (timestamp-prevtimestamp);
+			   if (elapsed > 1000) return; 
+			   avgelapsed = elapsed * 0.01 + avgelapsed * 0.99; 
+			   FPS = Math.round(1000/avgelapsed); 
+			}
+			prevtimestamp = timestamp; 
+			
 			context.clearRect(0,0,canvas.width,canvas.height);
+			for (var x=0; x<canvas.width; x+=10) { 
+				context.fillRect(x,0,1,canvas.height);
+			}
+			for (var y=0; y<canvas.height; y+=10) { 
+			    context.fillRect(0,y,canvas.width,1);
+			}
 			for (var i=0; i<ships.length; i++) { 
 			    var ship = ships[i];
-			    context.drawImage(ship.image,ship.x-ship.image.width/2,ship.y-ship.image.height/2);
-				context.fillRect(ship.x,ship.y,1,1);
 				
-				ship.x = ship.x + ship.dx; 
-				ship.y = ship.y + ship.dy; 
+				context.save(); 
+				context.translate(ship.x, ship.y);
+				context.rotate(-ship.r * Math.PI / 180);
+				
+			    context.drawImage(ship.image,-ship.image.width/2,-ship.image.height/2);
+				
+				// var message=Math.round(ship.dx)+" "+Math.round(ship.dy)+" "+Math.round(ship.r)+" "+Math.round(ship.dr);
+				// context.fillText(message,0,0);
+				
+				context.restore(); 
+				
+				ship.x = ship.x + ship.dx * (elapsed/1000); 
+				ship.y = ship.y + ship.dy * (elapsed/1000); 
+				ship.r = ship.r + ship.dr * (elapsed/1000);
+				
 				if (ship.x > canvas.width) { ship.x = 0; }
 				if (ship.y > canvas.height) { ship.y = 0; }
 				if (ship.x < 0) { ship.x = canvas.width-1; }
 				if (ship.y < 0) { ship.y = canvas.height-1; }
+				if (ship.r < 0) { ship.r = 360; }
+				if (ship.r > 360) { ship.r = 0; }
 			}
-			requestAnimationFrame(animate);
+    		context.fillText(FPS+" FPS " + Math.round(avgelapsed)+"ms ",0,canvas.height);
 		}
 		
-		requestAnimationFrame(animate);
-
+		requestAnimationFrame(animate)
       });
 
     </script>  </body>
