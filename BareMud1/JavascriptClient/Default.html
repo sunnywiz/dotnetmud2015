@@ -44,17 +44,6 @@
                 $('#discussion').append('<li>' + encodedMsg + '</li>');
             };
 
-            chat.client.sendPollToClient = function (data) {
-                if (data.length > 0) {
-                    $("#pollResult").empty();
-                    for (var i = 0; i < data.length; i++) {
-                        var x = data[i];
-                        $("#pollResult").append("<div>" + x.Id + " " + x.Name + " " + x.Value + "</div>");
-                    }
-                    chat.server.getPollFromServer(); 
-                }
-            };
-
             // Get the user name and store it to prepend to messages.
             $('#displayname').val(prompt('Enter your name:', ''));
             // Set initial focus to message input box.
@@ -62,7 +51,6 @@
             // Start the connection.
             $.connection.hub.start({ transport: 'longPolling' }).done(function () {
                 chat.server.nickname($('#displayname').val());
-                chat.server.getPollFromServer(); 
                 $('#sendmessage').click(function () {
                     // Call the Send method on the hub.
                     chat.server.userCommand($('#message').val());
