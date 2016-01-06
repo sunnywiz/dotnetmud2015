@@ -7,8 +7,8 @@
     <ProjectGuid>{534FADA0-A56D-47AA-9788-9340B2FA9166}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>BareMud1</RootNamespace>
-    <AssemblyName>BareMud1</AssemblyName>
+    <RootNamespace>DotNetMud</RootNamespace>
+    <AssemblyName>DotNetMud</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -81,8 +81,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MudLib\Lobby.cs" />
     <Compile Include="MudLib\SampleGameSpecifics.cs" />
     <Compile Include="Server\Driver.cs" />
+    <Compile Include="Server\IGameSpecifics.cs" />
     <Compile Include="Server\IInteractive.cs" />
     <Compile Include="Server\MudHub.cs" />
     <Compile Include="Program.cs" />

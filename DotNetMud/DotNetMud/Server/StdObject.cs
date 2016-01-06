@@ -1,15 +1,18 @@
-using System;
 using System.Collections.Generic;
 
-namespace BareMud1
+namespace DotNetMud.Server
 {
+    /// <summary>
+    /// This is the "standard mud object" that all mud objects should inherit from. 
+    /// 
+    /// </summary>
     public class StdObject
     {
         // every object has a short and long
         public string Short { get; set; }
         public string Long { get; set; } 
         // and every object has an ID
-        public string UniqueName { get; }
+        public string URI { get; }
 
         private List<StdObject> _inventory;
         private StdObject _parentObject = null;
@@ -17,13 +20,13 @@ namespace BareMud1
 
         public override string ToString()
         {
-            return UniqueName;
+            return URI;
         }
 
         public StdObject()
         {
             _inventory = new List<StdObject>();
-            UniqueName = this.GetType().FullName +'#'+ (++_idSequence);
+            URI = this.GetType().FullName +'#'+ (++_idSequence);
         }
 
         public StdObject[] GetInventory()

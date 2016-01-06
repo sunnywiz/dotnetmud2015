@@ -2,8 +2,12 @@ using System;
 using System.Collections.Generic;
 using Microsoft.AspNet.SignalR;
 
-namespace BareMud1
+namespace DotNetMud.Server
 {
+    /// <summary>
+    /// This is what most mud code would know as the driver - the O/S of the mud, as it were. 
+    /// It tries to offload what it can from MudHub
+    /// </summary>
     public class Driver
     {
         private static Driver _instance;

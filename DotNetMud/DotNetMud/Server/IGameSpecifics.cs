@@ -1,14 +1,11 @@
-using System.Collections.Generic;
-using System.IO;
-
-namespace BareMud1
+namespace DotNetMud.Server
 {
-    public interface IInteractive
-    {
-        void ReceiveInput(string line);
-        void SendOutput(string text);
-    }
-
+    /// <summary>
+    /// This is what the game implementation implements.  These are the hooks into custom logic that the driver
+    /// needs.  Things like, what's the player object, and what to do when a user first connects, etc. 
+    /// 
+    /// In days of old, this was implemented by "master.cs". 
+    /// </summary>
     public interface IGameSpecifics
     {
         /// <summary>

@@ -1,20 +1,13 @@
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
+using DotNetMud.Server;
 
-namespace BareMud1
+namespace DotNetMud.MudLib
 {
     public class User : StdObject, IInteractive
     {
-        public User()
-        {
-
-        }
-
         public void ReceiveInput(string line)
         {
+            // TODO: expand receiveInput to do things based on environment or this object or whatever. 
             if (line == "look")
             {
                 DoLook();

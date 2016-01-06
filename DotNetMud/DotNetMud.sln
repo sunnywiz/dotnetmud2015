@@ -1,7 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BareMud1", "BareMud1\BareMud1.csproj", "{534FADA0-A56D-47AA-9788-9340B2FA9166}"
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNetMud", "DotNetMud\DotNetMud.csproj", "{534FADA0-A56D-47AA-9788-9340B2FA9166}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JavascriptClient", "JavascriptClient\JavascriptClient.csproj", "{D0B0BF22-48FE-4F7A-A719-98D3AF532B39}"
 EndProject

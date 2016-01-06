@@ -1,16 +1,12 @@
 using System;
-using System.Linq;
-using BareMud1.MudLib;
+using DotNetMud.MudLib;
 using Microsoft.AspNet.SignalR;
-using Microsoft.AspNet.SignalR.Hubs;
 
-namespace BareMud1
+namespace DotNetMud.Server
 {
     /// <summary>
     /// This is the raw implementation of "chatting with clients over Signal/R. 
-    /// It knows about various game details, and knows about connection Id's of players. 
-    /// 
-    /// This is also where old-style mud driver calls like "get me the list of players" gets implemented. 
+    /// It tries to pawn whatever it can over to driver.cs
     /// </summary>
     public class MudHub : Hub
     {

@@ -1,19 +1,15 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using DotNetMud.MudLib;
 using Microsoft.Owin.Hosting;
 
-namespace BareMud1
+namespace DotNetMud
 {
     class Program
     {
-        public static Room StartRoom; 
-
         static void Main(string[] args)
         {
-            // Do some stuff to bring the mud up and bring up a player object
-            StartRoom = new Room(); 
-
             string url = "http://localhost:8080";
             using (WebApp.Start(url))
             {

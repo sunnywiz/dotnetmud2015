@@ -9,16 +9,26 @@
             padding: 20px;
             margin: 20px;
         }
+
+        .fromServer {
+
+        }
+
+        .fromUser {            
+            font-family: monospace;
+            font-weight: bold; 
+        }
+
+        .fromUser:before {
+            content: ">> ";
+        }
     </style>
 </head>
 <body>
 <div class="container">
-    
+    <div id="discussion"></div>
     <input type="text" id="message"/>
     <input type="button" id="sendmessage" value="Send"/>
-    <input type="hidden" id="displayname"/>
-    <div id="pollResult"></div>
-    <ul id="discussion"></ul>
 </div>
     <!--Script references. -->
     <!--Reference the jQuery library. -->
@@ -39,20 +49,30 @@
             // Create a function that the hub can call to broadcast messages.
             chat.client.sendToClient = function (message) {
                 // Html encode display name and message.
-                var encodedMsg = $('<div />').text(message).html();
+                var encodedMsg = $('<div class="fromServer" />').text(message);
                 // Add the message to the page.
-                $('#discussion').append('<li>' + encodedMsg + '</li>');
+                $('#discussion').append(encodedMsg);
             };
+
+            function sendUserInputToHub() {
+                // Call the Send method on the hub.
+                var message = $('#message').val(); 
+                var encodedMsg = $('<div class="fromUser" />').text(message);
+                $('#discussion').append(encodedMsg);
+                chat.server.userCommand(message);
+                // Clear text box and reset focus for next comment.
+                $('#message').val('').focus();
+            }
 
             // Set initial focus to message input box.
             $('#message').focus();
             // Start the connection.
-            $.connection.hub.start({ transport: 'longPolling' }).done(function () {
-                $('#sendmessage').click(function () {
-                    // Call the Send method on the hub.
-                    chat.server.userCommand($('#message').val());
-                    // Clear text box and reset focus for next comment.
-                    $('#message').val('').focus();
+            $.connection.hub.start().done(function () {
+                $('#sendmessage').click(sendUserInputToHub);
+                $('#message').keyup(function (e) {
+                    if (e.keyCode == 13) {
+                        sendUserInputToHub();
+                    }
                 });
             });
         });

@@ -1,7 +1,7 @@
 using Microsoft.Owin.Cors;
 using Owin;
 
-namespace BareMud1
+namespace DotNetMud
 {
     class Startup
     {

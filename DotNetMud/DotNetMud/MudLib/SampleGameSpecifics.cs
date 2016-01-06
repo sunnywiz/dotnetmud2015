@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DotNetMud.Server;
 
-namespace BareMud1.MudLib
+namespace DotNetMud.MudLib
 {
     public class SampleGameSpecifics : IGameSpecifics
     {
