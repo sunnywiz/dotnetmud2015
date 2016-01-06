@@ -8,4 +8,9 @@ namespace BareMud1
         void ReceiveInput(string line);
         void SendOutput(string text);
     }
+
+    public interface IGameSpecifics
+    {
+        IInteractive CreateNewPlayer();
+    }
 }

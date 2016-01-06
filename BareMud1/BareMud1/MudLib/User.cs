@@ -8,13 +8,9 @@ namespace BareMud1
 {
     public class User : StdObject, IInteractive
     {
-        private readonly string _connectionId = null; 
-
-        public User(string connectionId, string nick)
+        public User()
         {
-            _connectionId = connectionId; 
-            Short = nick;
-            Long = "The amazing " + nick; 
+
         }
 
         public void ReceiveInput(string line)
@@ -49,10 +45,10 @@ namespace BareMud1
 
         public void SendOutput(string text)
         {
-            var clients = MudHub.Instance.Clients;
-            var myClient = clients.Client(_connectionId);
-            if (myClient == null) return; 
-            myClient.sendToClient(text); 
+            //var clients = MudHub.Instance.Clients;
+            //var myClient = clients.Client(_connectionId);
+            //if (myClient == null) return; 
+            //myClient.sendToClient(text); 
         }
     }
 }
