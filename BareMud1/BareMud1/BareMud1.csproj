@@ -81,7 +81,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MudLib\SampleMaster.cs" />
+    <Compile Include="MudLib\SampleGameSpecifics.cs" />
+    <Compile Include="Server\Driver.cs" />
     <Compile Include="Server\IInteractive.cs" />
     <Compile Include="Server\MudHub.cs" />
     <Compile Include="Program.cs" />

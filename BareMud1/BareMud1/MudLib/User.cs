@@ -45,7 +45,7 @@ namespace BareMud1
 
         public void SendOutput(string text)
         {
-            MudHub.Instance.SendTextToPlayerObject(this, text);
+            Driver.Instance.SendTextToPlayerObject(this, text);
         }
     }
 }

@@ -1,8 +1,8 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using BareMud1.MudLib;
 using Microsoft.AspNet.SignalR;
+using Microsoft.AspNet.SignalR.Hubs;
 
 namespace BareMud1
 {
@@ -14,64 +14,44 @@ namespace BareMud1
     /// </summary>
     public class MudHub : Hub
     {
-        private static MudHub _instance;
-        private static IGameSpecifics _master;
-        private static Dictionary<string, IInteractive> _connectionToPlayer;
-        private static Dictionary<IInteractive, string> _playerToConnection;    
+        private static IGameSpecifics _gameSpecifics; 
 
         public MudHub()
         {
             Console.WriteLine("MudHub Ctor");
-            if (_instance == null)
+            if (_gameSpecifics == null)
             {
-                _instance = this;
-                // I'm not sure this is right.    
-                _master = new SampleMaster();
-                _connectionToPlayer = new Dictionary<string, IInteractive>();
-                _playerToConnection = new Dictionary<IInteractive, string>();
+                _gameSpecifics = new SampleGameSpecifics();
             }
         }
 
-        public static MudHub Instance
-        {
-            get { return _instance; }
-        }
+        // For the most part, whenever this gets something to do, it could/should send it off 
+        // to Driver.   exception:  when its bootstrapping Driver. 
+
+        // There's some cases where driver needs to send stuff to a client.  That's done by 
+        // a captured hubcontext, it does NOT call back into here.. yet. 
 
         public void userCommand(string cmd)
         {
-            IInteractive player ;
-            if (_connectionToPlayer.TryGetValue(Context.ConnectionId, out player))
-            {
-                player.ReceiveInput(cmd);
-            }
+            Driver.Instance.ReceiveUserCommand(Context.ConnectionId, cmd);
         }
 
         public override System.Threading.Tasks.Task OnConnected()
         {
-            if (_instance == null) _instance = this;
+            if (Driver.Instance.Context == null)
+            {
+                Driver.Instance.Context = GlobalHost.ConnectionManager.GetHubContext<MudHub>();
+                Driver.Instance.GameSpecifics = _gameSpecifics; 
+            }
 
-            var interactive = _master.CreateNewPlayer();
-            Console.WriteLine("incoming connection {0} assigned to {1}", Context.ConnectionId,interactive);
-            _connectionToPlayer[Context.ConnectionId] = interactive;
-            _playerToConnection[interactive] = Context.ConnectionId; 
+            var interactive = _gameSpecifics.CreateNewPlayer();
+            Console.WriteLine("incoming connection {0} assigned to {1}", Context.ConnectionId, interactive);
+            Driver.Instance.RegisterInteractive(interactive,Context.ConnectionId);
 
+            _gameSpecifics.WelcomeNewPlayer(interactive); 
             return base.OnConnected();
-
         }
-
         // TODO: move an interactive connection to a new mud object
 
-        public void SendTextToPlayerObject(IInteractive player, string message)
-        {
-            string connectionId;
-            if (_playerToConnection.TryGetValue(player, out connectionId))
-            {
-                var client = Clients.Client(connectionId);
-                if (client != null)
-                {
-                    client.sendToClient(message);
-                }
-            }
-        }
     }
 }
