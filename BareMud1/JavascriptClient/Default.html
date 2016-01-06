@@ -50,7 +50,6 @@
             $('#message').focus();
             // Start the connection.
             $.connection.hub.start({ transport: 'longPolling' }).done(function () {
-                chat.server.nickname($('#displayname').val());
                 $('#sendmessage').click(function () {
                     // Call the Send method on the hub.
                     chat.server.userCommand($('#message').val());

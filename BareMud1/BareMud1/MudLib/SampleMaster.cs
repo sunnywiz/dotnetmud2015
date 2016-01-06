@@ -10,7 +10,8 @@ namespace BareMud1.MudLib
     {
         public IInteractive CreateNewPlayer()
         {
-            return new User();
+            var user = new User();
+            return user; 
         }
     }
 }

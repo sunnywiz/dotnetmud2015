@@ -9,16 +9,21 @@ namespace BareMud1
         public string Short { get; set; }
         public string Long { get; set; } 
         // and every object has an ID
-        public string Id { get; private set; }
+        public string UniqueName { get; }
 
         private List<StdObject> _inventory;
         private StdObject _parentObject = null;
-        public static long _idSequence = 0L; 
+        public static long _idSequence = 0L;
+
+        public override string ToString()
+        {
+            return UniqueName;
+        }
 
         public StdObject()
         {
             _inventory = new List<StdObject>();
-            Id = this.GetType().Name + (++_idSequence);
+            UniqueName = this.GetType().FullName +'#'+ (++_idSequence);
         }
 
         public StdObject[] GetInventory()
