@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Microsoft.AspNet.SignalR;
 
@@ -9,11 +10,13 @@ namespace BareMud1
 
         private readonly Dictionary<string, IInteractive> _connectionToPlayer;
         private readonly Dictionary<IInteractive, string> _playerToConnection;
+        private readonly Dictionary<string, Action<string>> _registeredNextInputRedirects;
 
         public Driver()
         {
             _connectionToPlayer = new Dictionary<string, IInteractive>();
             _playerToConnection = new Dictionary<IInteractive, string>();
+            _registeredNextInputRedirects = new Dictionary<string, Action<string>>();
         }
 
         public static Driver Instance
@@ -21,7 +24,7 @@ namespace BareMud1
             get
             {
                 if (_instance == null) _instance = new Driver();
-                return _instance; 
+                return _instance;
             }
         }
 
@@ -41,6 +44,13 @@ namespace BareMud1
             IInteractive player;
             if (_connectionToPlayer.TryGetValue(connectionId, out player))
             {
+                Action<string> action;
+                if (_registeredNextInputRedirects.TryGetValue(connectionId, out action) && action != null)
+                {
+                    _registeredNextInputRedirects.Remove(connectionId);
+                    action(cmd);
+                    return;
+                }
                 player.ReceiveInput(cmd);
             }
         }
@@ -60,5 +70,13 @@ namespace BareMud1
             }
         }
 
+        public void RedirectNextUserInput(IInteractive player, Action<string> action)
+        {
+            string connectionId;
+            if (_playerToConnection.TryGetValue(player, out connectionId))
+            {
+                _registeredNextInputRedirects[connectionId] = action;
+            }
+        }
     }
 }

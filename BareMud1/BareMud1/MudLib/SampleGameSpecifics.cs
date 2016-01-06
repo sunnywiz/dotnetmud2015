@@ -22,6 +22,16 @@ namespace BareMud1.MudLib
             newPlayer.SendOutput("");
             newPlayer.SendOutput("What name shall i know you by? ");
             // TODO: implement Driver.InputTo(interactive, function() ) to be able to capture user's input       
+
+            Driver.Instance.RedirectNextUserInput(newPlayer, (string text) =>
+            {
+                var np2 = newPlayer as User;
+                np2.Short = text;
+                np2.Long = "The Amazing " + text;
+                np2.SendOutput("Welcome, "+text);
+                np2.MoveTo(Lobby.Instance);
+                np2.ReceiveInput("look");
+            });
         }
     }
 }
