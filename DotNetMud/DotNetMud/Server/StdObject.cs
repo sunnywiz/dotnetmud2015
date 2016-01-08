@@ -12,21 +12,28 @@ namespace DotNetMud.Server
         public string Short { get; set; }
         public string Long { get; set; } 
         // and every object has an ID
-        public string URI { get; }
 
-        private List<StdObject> _inventory;
+        // TODO: maybe make an internal constructor? 
+        public string ObjectId { get; }  // set by driver on creation
+        public string TypeUri { get; internal set; }
+
+        private readonly List<StdObject> _inventory;
         private StdObject _parentObject = null;
         public static long _idSequence = 0L;
 
         public override string ToString()
         {
-            return URI;
+            return ObjectId;
         }
 
-        public StdObject()
+        /// <summary>
+        /// internal constructor - only driver (really) should be able to create a stdobject
+        /// this is so we can do object tracking. 
+        /// </summary>
+        internal StdObject()
         {
             _inventory = new List<StdObject>();
-            URI = this.GetType().FullName +'#'+ (++_idSequence);
+            ObjectId = this.GetType().FullName +'#'+ (++_idSequence);
         }
 
         public StdObject[] GetInventory()

@@ -11,7 +11,7 @@ namespace DotNetMud.MudLib
     {
         public IInteractive CreateNewPlayer()
         {
-            return new User(); 
+            return Driver.Instance.CreateNewStdObject("builtin://DotNetMud.MudLib.User") as IInteractive; 
         }
 
         public void WelcomeNewPlayer(IInteractive newPlayer)
@@ -30,7 +30,7 @@ namespace DotNetMud.MudLib
                 np2.Short = text;
                 np2.Long = "The Amazing " + text;
                 np2.SendOutput("Welcome, "+text);
-                np2.MoveTo(Lobby.Instance);
+                np2.MoveTo(Driver.Instance.FindSingletonByUri("builtin://DotNetMud.MudLib.Lobby"));
                 np2.ReceiveInput("look");
             });
         }
