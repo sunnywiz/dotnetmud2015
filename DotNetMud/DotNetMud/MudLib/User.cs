@@ -115,15 +115,52 @@ namespace DotNetMud.MudLib
                 },
                 Priority = 100
             };
+            yield return new UserAction()
+            {
+                Verb = "say",
+                Action = (uaec) =>
+                {
+                    DoSay(uaec);
+                },
+                Priority = 100
+            };
 
+        }
+
+        private void DoSay(UserActionExecutionContext uaec)
+        {
+            // TODO: needs to add look at a player / object
+            var parent = uaec.Player.Parent;
+            if (parent == null)
+            {
+                Driver.Instance.SendTextToPlayerObject(uaec.Player, "Your words fall into the void.");
+                return; 
+            }
+            foreach (var ob in parent.GetInventory())
+            {
+                var x = ob as User;
+                if (x != null)
+                {
+                    // TODO: should probably have a raw string rather than string.join of an array here. 
+                    if (x == uaec.Player)
+                    {
+                        Driver.Instance.SendTextToPlayerObject(x, "You say: " + String.Join(" ", uaec.Parameters));
+                    }
+                    else
+                    {
+                        Driver.Instance.SendTextToPlayerObject(x,$"{uaec.Player.Short} says: {String.Join(" ",uaec.Parameters)}");
+                    }
+                }
+            }
         }
 
         private void DoLook(UserActionExecutionContext uaec)
         {
+            // TODO: needs to add look at a player / object
             var parent = uaec.Player.Parent;
             if (parent == null)
             {
-                SendOutput("You are hanging in the void.");
+                Driver.Instance.SendTextToPlayerObject(uaec.Player,"You are hanging in the void.");
                 return;
             }
             Driver.Instance.SendTextToPlayerObject(uaec.Player,parent.Short);
