@@ -1,44 +1,145 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Media;
 using DotNetMud.Server;
 
 namespace DotNetMud.MudLib
 {
-    public class User : StdObject, IInteractive
+    public class User : StdObject, IInteractive, IProvideUserActions
     {
+        // TODO: provide a sane way for a monster to prevent a user from proceeding.  Might need monster override of direction
+        private Dictionary<string, UserAction> _verbs;
+
         public void ReceiveInput(string line)
         {
-            // TODO: expand receiveInput to do things based on environment or this object or whatever. 
-            if (line == "look")
+            if (String.IsNullOrWhiteSpace(line)) return;
+            var split = line.Split(new char[] {' '}, StringSplitOptions.RemoveEmptyEntries).ToList();
+
+            if (split.Count > 0)
             {
-                DoLook();
+                var verb = split[0];
+                split.RemoveAt(0);
+                if (String.IsNullOrWhiteSpace(verb)) return;
+                verb = verb.Trim().ToLowerInvariant();
+
+                if (_verbs == null)
+                {
+                    CollectVerbs();
+                }
+
+                UserAction userAction;
+                if (_verbs.TryGetValue(verb, out userAction))
+                {
+                    var uaec = new UserActionExecutionContext()
+                    {
+                        Player = this,
+                        Verb = verb,
+                        UserAction = userAction,
+                        Parameters = split
+                    };
+                    userAction.Action(uaec);
+                }
+                else
+                {
+                    SendOutput("unknown command.");
+                }
             }
-            else
+
+        }
+
+        private void CollectVerbs()
+        {
+            // go gather the verbs! 
+            // things in your inventory override things in your environment override things in the room override things built in to you. 
+            _verbs = new Dictionary<string, UserAction>();
+            GetMoreVerbs(this);
+            foreach (var ob in this.GetInventory())
             {
-                SendOutput("unknown command");
+                var x = ob as IProvideUserActions;
+                if (x != null)
+                {
+                    GetMoreVerbs(x);
+                }
+            }
+            if (this.Parent != null)
+            {
+                foreach (var ob in this.Parent.GetInventory())
+                {
+                    var x = ob as IProvideUserActions;
+                    if (x != null && x != this)
+                    {
+                        GetMoreVerbs(x);
+                    }
+                }
+                var y = this.Parent as IProvideUserActions; 
+                if (y != null) GetMoreVerbs(y);
             }
         }
 
-        private void DoLook()
+        private void GetMoreVerbs(IProvideUserActions ob)
         {
-            var parent = this.Parent;
-            if (parent == null)
+            foreach (var action in ob.GetUserActions())
             {
-                SendOutput("You are hanging in the void.");
-                return; 
+                var key = action.Verb;
+                if (String.IsNullOrEmpty(key)) continue;
+                key = key.Trim().ToLowerInvariant();
+                UserAction existingUa;
+                if (_verbs.TryGetValue(key, out existingUa))
+                {
+                    if (existingUa.Priority > action.Priority) continue; // not overwriting
+                }
+                Console.WriteLine("GetMoreVerbs: registering verb {0} for player {1}",key,this.Short);
+                _verbs[key] = action;
             }
-            SendOutput(parent.Short);
-            SendOutput(parent.Long);
-            SendOutput("Here you see: ");
-            foreach (var obj in parent.GetInventory())
-            {
-                if (obj == this) continue; 
-                SendOutput(String.Format("  {0}", obj.Short));
-            }
+        }
+
+        public override void OnMoved(StdObject oldLocation, StdObject newLocation)
+        {
+            _verbs = null;
         }
 
         public void SendOutput(string text)
         {
             Driver.Instance.SendTextToPlayerObject(this, text);
+        }
+
+        public IEnumerable<UserAction> GetUserActions()
+        {
+            yield return new UserAction()
+            {
+                Verb = "look",
+                Action = (uaec) =>
+                {
+                    DoLook(uaec);
+                },
+                Priority = 100
+            };
+
+        }
+
+        private void DoLook(UserActionExecutionContext uaec)
+        {
+            var parent = uaec.Player.Parent;
+            if (parent == null)
+            {
+                SendOutput("You are hanging in the void.");
+                return;
+            }
+            Driver.Instance.SendTextToPlayerObject(uaec.Player,parent.Short);
+            Driver.Instance.SendTextToPlayerObject(uaec.Player,parent.Long);
+            var first = true; 
+            foreach (var obj in parent.GetInventory())
+            {
+                if (obj == uaec.Player) continue;
+                if (first)
+                {
+                    Driver.Instance.SendTextToPlayerObject(uaec.Player, "Here you see: ");
+                    first = false; 
+                }
+                Driver.Instance.SendTextToPlayerObject(uaec.Player, $"  {obj.Short}");
+            }
+            if (first) Driver.Instance.SendTextToPlayerObject(uaec.Player, "There is nothing to see here.");
         }
     }
 }

@@ -81,8 +81,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MudLib\IProvideUserActions.cs" />
     <Compile Include="MudLib\Lobby.cs" />
     <Compile Include="MudLib\SampleGameSpecifics.cs" />
+    <Compile Include="MudLib\UserAction.cs" />
+    <Compile Include="MudLib\UserActionExecutionContext.cs" />
     <Compile Include="Server\Driver.cs" />
     <Compile Include="Server\IGameSpecifics.cs" />
     <Compile Include="Server\IInteractive.cs" />

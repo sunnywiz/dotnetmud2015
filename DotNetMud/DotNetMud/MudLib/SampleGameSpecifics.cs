@@ -23,7 +23,6 @@ namespace DotNetMud.MudLib
             {
                 var np2 = newPlayer as User;
                 np2.Short = text;
-                np2.Long = "The Amazing " + text;
                 np2.SendOutput("Welcome, "+text);
                 var room = Driver.Instance.FindSingletonByUri("builtin://DotNetMud.MudLib.Lobby");
                 if (room != null)

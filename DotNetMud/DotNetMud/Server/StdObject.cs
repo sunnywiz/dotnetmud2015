@@ -10,7 +10,8 @@ namespace DotNetMud.Server
     {
         // every object has a short and long
         public string Short { get; set; }
-        public string Long { get; set; } 
+
+        public virtual string Long => string.Empty;
         // and every object has an ID
 
         // TODO: maybe make an internal constructor? 
@@ -54,6 +55,7 @@ namespace DotNetMud.Server
 
         public void MoveTo(StdObject target)
         {
+            var oldParentOb = _parentObject; 
             if (_parentObject != null)
             {
                 _parentObject._inventory.Remove(this); 
@@ -63,6 +65,20 @@ namespace DotNetMud.Server
                 target._inventory.Add(this);
                 this._parentObject = target;
             }
+            this.OnMoved(oldParentOb, target);
+        }
+
+        public virtual void OnMoved(StdObject oldLocation, StdObject newLocation)
+        {
+            // override this to be told when you're moved. 
+        }
+
+        /// <summary>
+        /// TODO: RegisterVerbs should probably be in a samplemud-specific location, rather than StdObject.   Unless we involve the driver in this. 
+        /// </summary>
+        public virtual void RegisterVerbs()
+        {
+            // override this to add verbs 
         }
     }
 }
