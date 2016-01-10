@@ -84,11 +84,6 @@ namespace DotNetMud.MudLib
                 var key = action.Verb;
                 if (String.IsNullOrEmpty(key)) continue;
                 key = key.Trim().ToLowerInvariant();
-                UserAction existingUa;
-                if (_verbs.TryGetValue(key, out existingUa))
-                {
-                    if (existingUa.Priority > action.Priority) continue; // not overwriting
-                }
                 Console.WriteLine("GetMoreVerbs: registering verb {0} for player {1}",key,this.Short);
                 _verbs[key] = action;
             }
@@ -112,8 +107,7 @@ namespace DotNetMud.MudLib
                 Action = (uaec) =>
                 {
                     DoLook(uaec);
-                },
-                Priority = 100
+                }
             };
             yield return new UserAction()
             {
@@ -121,10 +115,23 @@ namespace DotNetMud.MudLib
                 Action = (uaec) =>
                 {
                     DoSay(uaec);
-                },
-                Priority = 100
+                }
             };
-
+            yield return new UserAction()
+            {
+                Verb = "who", 
+                Action = (uaec) =>
+                {
+                    var users = Driver.Instance.ListOfInteractives(); 
+                    Driver.Instance.SendTextToPlayerObject(uaec.Player,$"There are {users.Length} users logged in:");
+                    foreach (var user in users)
+                    {
+                        var x = user as User; 
+                        if (x != null)
+                        Driver.Instance.SendTextToPlayerObject(uaec.Player,$"  {x.Short}");
+                    }
+                }
+            };
         }
 
         private void DoSay(UserActionExecutionContext uaec)

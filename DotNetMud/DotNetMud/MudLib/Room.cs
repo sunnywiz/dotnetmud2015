@@ -54,7 +54,7 @@ namespace DotNetMud.MudLib
         {
             foreach (var direction in _directionsToRooms)
             {
-                yield return new UserAction() { Verb = direction.Key, Action = (uaec)=> { MoveUserToRoom(uaec); }, Priority = 100};
+                yield return new UserAction() { Verb = direction.Key, Action = (uaec)=> { MoveUserToRoom(uaec); }};
             }
         }
 

@@ -189,5 +189,10 @@ namespace DotNetMud.Server
                 }
             }
         }
+
+        public IInteractive[] ListOfInteractives()
+        {
+            return _connectionToPlayer.Values.ToArray(); 
+        }
     }
 }
