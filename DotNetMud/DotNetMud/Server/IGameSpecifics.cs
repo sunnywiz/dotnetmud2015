@@ -22,5 +22,11 @@ namespace DotNetMud.Server
         /// </summary>
         /// <param name="newPlayer"></param>
         void WelcomeNewPlayer(IInteractive newPlayer);
+
+        /// <summary>
+        /// Let the game know that somebody got disconnected. 
+        /// </summary>
+        /// <param name="wasItIntentional"></param>
+        void PlayerGotDisconnected(IInteractive playerObject, bool wasItIntentional); 
     }
 }

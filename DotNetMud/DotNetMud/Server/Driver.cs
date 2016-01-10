@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using DotNetMud.MudLib;
 using Microsoft.AspNet.SignalR;
 
 namespace DotNetMud.Server
@@ -18,6 +19,7 @@ namespace DotNetMud.Server
         private readonly Dictionary<IInteractive, string> _playerToConnection;
         private readonly Dictionary<string, Action<string>> _registeredNextInputRedirects;
         private readonly List<StdObject> _allObjects;
+        private readonly IGameSpecifics _gameSpecifics;
 
         public Driver()
         {
@@ -25,6 +27,7 @@ namespace DotNetMud.Server
             _playerToConnection = new Dictionary<IInteractive, string>();
             _registeredNextInputRedirects = new Dictionary<string, Action<string>>();
             _allObjects = new List<StdObject>();
+            _gameSpecifics = new SampleGameSpecifics();
         }
 
         public static Driver Instance
@@ -39,7 +42,6 @@ namespace DotNetMud.Server
         #region INTERNAL things are called from MudHub  -- not accessible to master / rest of the game
 
         internal IHubContext Context;
-        internal IGameSpecifics GameSpecifics { get; set; }
 
         internal void RegisterInteractive(IInteractive player, string connectionId)
         {
@@ -62,6 +64,24 @@ namespace DotNetMud.Server
                 }
                 player.ReceiveInput(cmd);
             }
+        }
+
+        internal void ReceiveDisconnection(string connectionId, bool stopCalled)
+        {
+            Console.WriteLine("ReceivedDisconnection: {0} stopCalled {1}", connectionId, stopCalled);
+            IInteractive player;
+            if (_connectionToPlayer.TryGetValue(connectionId, out player))
+            {
+                _gameSpecifics.PlayerGotDisconnected(player, stopCalled);
+            }
+        }
+
+        internal void ReceiveNewPlayer(string connectionId)
+        {
+            var interactive = _gameSpecifics.CreateNewPlayer();
+            Console.WriteLine("incoming connection {0} assigned to {1}", connectionId, interactive);
+            RegisterInteractive(interactive, connectionId);
+            _gameSpecifics.WelcomeNewPlayer(interactive);
         }
 
         #endregion
@@ -137,6 +157,37 @@ namespace DotNetMud.Server
             }
             Console.WriteLine("CreateNewStdObject: {0} => scheme {1} not known", parsed.Scheme);
             return null;
+        }
+
+        /// <summary>
+        /// Do as much as I can to forget about an object. 
+        /// </summary>
+        /// <param name="ob"></param>
+        public void RemoveStdObjectFromGame(StdObject ob)
+        {
+            ob.MoveTo(null);
+            ob.IsDestroyed = true;
+            _allObjects.Remove(ob);
+        }
+
+        /// <summary>
+        /// Tell all the interactives (people who can receive messages) in a room something. 
+        /// </summary>
+        /// <param name="room"></param>
+        /// <param name="message"></param>
+        public void TellRoom(StdObject room, string message)
+        {
+            if (room != null && !String.IsNullOrEmpty(message))
+            {
+                foreach (var ob in room.GetInventory())
+                {
+                    var ob2 = ob as IInteractive;
+                    if (ob2 != null)
+                    {
+                        ob2.SendOutput(message);
+                    }
+                }
+            }
         }
     }
 }

@@ -34,7 +34,10 @@ namespace DotNetMud.Server
         {
             _inventory = new List<StdObject>();
             ObjectId = this.GetType().FullName +'#'+ (++_idSequence);
+            IsDestroyed = false;
         }
+
+        public bool IsDestroyed { get; internal set; }
 
         public StdObject[] GetInventory()
         {

@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using DotNetMud.Server;
 
 namespace DotNetMud.MudLib
@@ -22,7 +18,6 @@ namespace DotNetMud.MudLib
             newPlayer.SendOutput("than for actual gaming.   ");
             newPlayer.SendOutput("");
             newPlayer.SendOutput("What name shall i know you by? ");
-            // TODO: implement Driver.InputTo(interactive, function() ) to be able to capture user's input       
 
             Driver.Instance.RedirectNextUserInput(newPlayer, (string text) =>
             {
@@ -30,9 +25,25 @@ namespace DotNetMud.MudLib
                 np2.Short = text;
                 np2.Long = "The Amazing " + text;
                 np2.SendOutput("Welcome, "+text);
-                np2.MoveTo(Driver.Instance.FindSingletonByUri("builtin://DotNetMud.MudLib.Lobby"));
+                var room = Driver.Instance.FindSingletonByUri("builtin://DotNetMud.MudLib.Lobby");
+                if (room != null)
+                {
+                    Driver.Instance.TellRoom(room, $"{np2.Short} arrives in a puff of smoke!");
+                    np2.MoveTo(room);
+                }
+
                 np2.ReceiveInput("look");
             });
+        }
+
+        public void PlayerGotDisconnected(IInteractive playerObject, bool wasItIntentional)
+        {
+            var ob2 = (playerObject as StdObject);
+            if (ob2 != null)
+            {
+                if (ob2.Parent != null) Driver.Instance.TellRoom(ob2.Parent,$"{ob2.Short} vanishes in a puff of smoke.");
+                Driver.Instance.RemoveStdObjectFromGame(ob2);
+            }
         }
     }
 }
