@@ -132,6 +132,30 @@ namespace DotNetMud.MudLib
                     }
                 }
             };
+            yield return new UserAction()
+            {
+                Verb = "shout",
+                Action = (uaec) =>
+                {
+                    var users = Driver.Instance.ListOfInteractives();
+                    foreach (var user in users)
+                    {
+                        var x = user as User;
+                        if (x != null)
+                        {
+                            if (x == uaec.Player)
+                                Driver.Instance.SendTextToPlayerObject(uaec.Player,
+                                    $"You shout: {String.Join(" ", uaec.Parameters)}");
+
+                            else
+
+                                Driver.Instance.SendTextToPlayerObject(x,
+                                    $"{uaec.Player.Short} shouts: {String.Join(" ", uaec.Parameters)}");
+
+                        }
+                    }
+                }
+            };
         }
 
         private void DoSay(UserActionExecutionContext uaec)
