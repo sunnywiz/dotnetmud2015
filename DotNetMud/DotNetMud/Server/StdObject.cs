@@ -55,6 +55,7 @@ namespace DotNetMud.Server
 
         public void MoveTo(StdObject target)
         {
+            // TODO: it feels like inventory, movement, etc - are all mudlib specific things, rather than Driver things.
             var oldParentOb = _parentObject; 
             if (_parentObject != null)
             {
@@ -73,12 +74,5 @@ namespace DotNetMud.Server
             // override this to be told when you're moved. 
         }
 
-        /// <summary>
-        /// TODO: RegisterVerbs should probably be in a samplemud-specific location, rather than StdObject.   Unless we involve the driver in this. 
-        /// </summary>
-        public virtual void RegisterVerbs()
-        {
-            // override this to add verbs 
-        }
     }
 }
