@@ -49,6 +49,11 @@
             isRotateLeft: false
         };
 
+        var gravityPoints = [
+            { x: 250, y: 100, m: 50 },
+            { x: 600, y: 400, m: 80 }
+        ];
+
         function keyDownHandler() {
             var keyPressed = String.fromCharCode(event.keyCode);
             if (keyPressed == 'W') {
@@ -95,12 +100,19 @@
                 }
                 prevtimestamp = timestamp;
 
-                context.clearRect(0, 0, canvas.width, canvas.height);
-                for (var x = 0; x < canvas.width; x += 10) {
+                // context.clearRect(0, 0, canvas.width, canvas.height);
+                for (var x = 0; x < canvas.width; x += 100) {
                     context.fillRect(x, 0, 1, canvas.height);
                 }
-                for (var y = 0; y < canvas.height; y += 10) {
+                for (var y = 0; y < canvas.height; y += 100) {
                     context.fillRect(0, y, canvas.width, 1);
+                }
+
+                for (var i = 0; i < gravityPoints.length; i++) {
+                    var g = gravityPoints[i];
+                    context.beginPath();
+                    context.arc(g.x, g.y, g.m, 0, 2 * Math.PI, false);
+                    context.stroke();
                 }
 
                 context.save();
@@ -114,7 +126,7 @@
                 context.beginPath();
                 context.moveTo(0, 0);
                 context.lineTo(ship.dx, ship.dy);
-                context.stroke(); 
+                context.stroke();
 
 
                 // start control section
@@ -126,6 +138,7 @@
                     ship.dy = ship.dy + vecy * (elapsed / 1000);
                     context.beginPath();
                     context.moveTo(0, 0);
+                    context.strokeStyle = "#0000ff";
                     context.lineTo(vecx, vecy);
                     context.moveTo(0, 0);
                     context.stroke();
@@ -138,8 +151,29 @@
                     ship.r = ship.r - (elapsed / 1000) * ship.rotatespeed;
                     while (ship.r > 360) ship.r = ship.r - 360; 
                 }
+
+                // ship is affected by gravity
+                for (var i = 0; i < gravityPoints.length; i++) {
+                    var dx = gravityPoints[i].x - ship.x;
+                    var dy = gravityPoints[i].y - ship.y;
+                    var rsq = dx * dx + dy * dy;
+                    if (rsq < 1) rsq = 1; 
+                    dx = dx * gravityPoints[i].m * 10 / rsq;
+                    dy = dy * gravityPoints[i].m * 10 / rsq;
+
+                    ship.dx = ship.dx + dx * (elapsed/1000);
+                    ship.dy = ship.dy + dy * (elapsed/1000);
+
+                    context.beginPath();
+                    context.strokeStyle = "#ff0000";
+                    context.moveTo(0, 0);
+                    context.lineTo(dx, dy);
+                    context.stroke(); 
+                }
+
                 context.restore();
 
+                // ship floats in space based on velocity
                 ship.x = ship.x + ship.dx * (elapsed / 1000);
                 ship.y = ship.y + ship.dy * (elapsed / 1000);
 
