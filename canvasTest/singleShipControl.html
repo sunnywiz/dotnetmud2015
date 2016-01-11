@@ -1,0 +1,167 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <style>
+        body {
+            margin: 0px;
+            padding: 0px;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="myCanvas" width="1000" height="700"></canvas>
+    <script>
+        function loadImages(sources, callback) {
+            var images = {};
+            var loadedImages = 0;
+            var numImages = 0;
+            // get num of sources
+            for (var src in sources) {
+                numImages++;
+            }
+            for (var src in sources) {
+                images[src] = new Image();
+                images[src].onload = function () {
+                    if (++loadedImages >= numImages) {
+                        callback(images);
+                    }
+                };
+                images[src].src = sources[src];
+            }
+        }
+        var canvas = document.getElementById('myCanvas');
+        var context = canvas.getContext('2d');
+
+        var sources = {
+            ship1: 'ship1.png'
+        };
+
+        var ship = {
+            thrust: 50,    //  pixels/sec/sec
+            rotatespeed: 180, // degrees per second
+            x: 500,
+            y: 500,
+            dx: 0,
+            dy: 0,
+            r: 0,    // direction pointed
+            isThrusting: false,
+            isRotateRight: false,
+            isRotateLeft: false
+        };
+
+        function keyDownHandler() {
+            var keyPressed = String.fromCharCode(event.keyCode);
+            if (keyPressed == 'W') {
+                ship.isThrusting = true; 
+            } else if (keyPressed == 'A') {
+                ship.isRotatingLeft = true; 
+            } else if (keyPressed == 'D') {
+                ship.isRotatingRight = true; 
+            }
+        }
+
+        function keyUpHandler() {
+            var keyPressed = String.fromCharCode(event.keyCode);
+            if (keyPressed == 'W') {
+                ship.isThrusting = false;
+            } else if (keyPressed == 'A') {
+                ship.isRotatingLeft = false;
+            } else if (keyPressed == 'D') {
+                ship.isRotatingRight = false;
+            }
+        }
+
+        document.addEventListener("keydown", keyDownHandler, false);
+        document.addEventListener("keyup", keyUpHandler, false);
+
+        loadImages(sources, function (images) {
+
+            var prevtimestamp = null;
+            context.font = "20px Arial";
+
+            // timestamp is milliseconds since we started..
+            function animate(timestamp) {
+
+                requestAnimationFrame(animate);
+
+                var elapsed = 1;
+                var avgelapsed = 1;
+                var FPS = 1;
+                if (prevtimestamp) {
+                    elapsed = (timestamp - prevtimestamp);
+                    if (elapsed > 1000) return;
+                    avgelapsed = elapsed * 0.01 + avgelapsed * 0.99;
+                    FPS = Math.round(1000 / avgelapsed);
+                }
+                prevtimestamp = timestamp;
+
+                context.clearRect(0, 0, canvas.width, canvas.height);
+                for (var x = 0; x < canvas.width; x += 10) {
+                    context.fillRect(x, 0, 1, canvas.height);
+                }
+                for (var y = 0; y < canvas.height; y += 10) {
+                    context.fillRect(0, y, canvas.width, 1);
+                }
+
+                context.save();
+                context.translate(ship.x, ship.y);
+                context.rotate((180-ship.r) * Math.PI / 180);
+                context.drawImage(images.ship1, -images.ship1.width / 2, -images.ship1.height / 2);
+                context.restore();
+                context.save();
+
+                context.translate(ship.x, ship.y); 
+                context.beginPath();
+                context.moveTo(0, 0);
+                context.lineTo(ship.dx, ship.dy);
+                context.stroke(); 
+
+
+                // start control section
+
+                if (ship.isThrusting) {
+                    var vecx = Math.sin(ship.r * Math.PI / 180) * ship.thrust;
+                    var vecy = Math.cos(ship.r * Math.PI / 180) * ship.thrust;
+                    ship.dx = ship.dx + vecx * (elapsed / 1000);
+                    ship.dy = ship.dy + vecy * (elapsed / 1000);
+                    context.beginPath();
+                    context.moveTo(0, 0);
+                    context.lineTo(vecx, vecy);
+                    context.moveTo(0, 0);
+                    context.stroke();
+
+                } else if (ship.isRotatingLeft) {
+                    // elapsed ms
+                    ship.r = ship.r + (elapsed / 1000) * ship.rotatespeed;
+                    while (ship.r < 0) ship.r = ship.r + 360; 
+                } else if (ship.isRotatingRight) {
+                    ship.r = ship.r - (elapsed / 1000) * ship.rotatespeed;
+                    while (ship.r > 360) ship.r = ship.r - 360; 
+                }
+                context.restore();
+
+                ship.x = ship.x + ship.dx * (elapsed / 1000);
+                ship.y = ship.y + ship.dy * (elapsed / 1000);
+
+                while (ship.x > canvas.width) {
+                    ship.x = ship.x - canvas.width;
+                }
+                while (ship.y > canvas.height) {
+                    ship.y = ship.y - canvas.height;
+                }
+                while (ship.x < 0) {
+                    ship.x = ship.x + canvas.width;
+                }
+                while (ship.y < 0) {
+                    ship.y = ship.y + canvas.height;
+                }
+
+                context.fillText(FPS + " FPS " + Math.round(avgelapsed) + "ms ", 0, canvas.height);
+            }
+            requestAnimationFrame(animate);
+
+        });
+
+    </script>
+</body>
+</html>
