@@ -13,6 +13,11 @@ namespace DotNetMud.Web.Controllers
             return View();
         }
 
+        public ActionResult Client()
+        {
+            return View(); 
+        }
+
         public ActionResult About()
         {
             ViewBag.Message = "Your application description page.";
