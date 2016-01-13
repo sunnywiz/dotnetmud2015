@@ -1,6 +1,7 @@
 using System;
+using DotNetMud.Core;
 
-namespace DotNetMud.Server
+namespace DotNetMud.Core
 {
     public interface IDriverFunctions
     {

@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace DotNetMud.Server
+namespace DotNetMud.Core
 {
     /// <summary>
     /// This is the "standard mud object" that all mud objects should inherit from. 
@@ -16,7 +16,7 @@ namespace DotNetMud.Server
 
         // TODO: maybe make an internal constructor? 
         public string ObjectId { get; }  // set by driver on creation
-        public string TypeUri { get; internal set; }
+        public string TypeUri { get; set; }
 
         private readonly List<StdObject> _inventory;
         private StdObject _parentObject = null;
@@ -31,14 +31,14 @@ namespace DotNetMud.Server
         /// internal constructor - only driver (really) should be able to create a stdobject
         /// this is so we can do object tracking. 
         /// </summary>
-        internal StdObject()
+        public StdObject()
         {
             _inventory = new List<StdObject>();
             ObjectId = this.GetType().FullName +'#'+ (++_idSequence);
             IsDestroyed = false;
         }
 
-        public bool IsDestroyed { get; internal set; }
+        public bool IsDestroyed { get; set; }
 
         public StdObject[] GetInventory()
         {
