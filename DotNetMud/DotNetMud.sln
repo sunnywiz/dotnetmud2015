@@ -18,6 +18,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Configurations", "Configura
 		PublishScripts\Configurations\DotNetMudWeb-WAWS-dev.json = PublishScripts\Configurations\DotNetMudWeb-WAWS-dev.json
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNetMud.Core", "DotNetMud.Core\DotNetMud.Core.csproj", "{9B7D6FDF-F366-4276-BC66-2700DEB2F000}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -32,6 +34,10 @@ Global
 		{181DD4C1-7537-46D7-8D88-8EB4B565A4F1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{181DD4C1-7537-46D7-8D88-8EB4B565A4F1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{181DD4C1-7537-46D7-8D88-8EB4B565A4F1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9B7D6FDF-F366-4276-BC66-2700DEB2F000}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9B7D6FDF-F366-4276-BC66-2700DEB2F000}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9B7D6FDF-F366-4276-BC66-2700DEB2F000}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9B7D6FDF-F366-4276-BC66-2700DEB2F000}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -88,6 +88,7 @@
     <Compile Include="MudLib\UserAction.cs" />
     <Compile Include="MudLib\UserActionExecutionContext.cs" />
     <Compile Include="Server\Driver.cs" />
+    <Compile Include="Server\IDriverFunctions.cs" />
     <Compile Include="Server\IGameSpecifics.cs" />
     <Compile Include="Server\IInteractive.cs" />
     <Compile Include="Server\MudHub.cs" />
@@ -102,7 +103,12 @@
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\DotNetMud.Core\DotNetMud.Core.csproj">
+      <Project>{9b7d6fdf-f366-4276-bc66-2700deb2f000}</Project>
+      <Name>DotNetMud.Core</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

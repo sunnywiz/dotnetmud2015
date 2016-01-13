@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using DotNetMud.Core;
 using DotNetMud.MudLib;
 using Microsoft.AspNet.SignalR;
 
@@ -11,7 +12,7 @@ namespace DotNetMud.Server
     /// This is what most mud code would know as the driver - the O/S of the mud, as it were. 
     /// It tries to offload what it can from MudHub
     /// </summary>
-    public class Driver
+    public class Driver : IHubToDriver, IDriverFunctions
     {
         private static Driver _instance;
 
@@ -43,13 +44,13 @@ namespace DotNetMud.Server
 
         internal IHubContext Context;
 
-        internal void RegisterInteractive(IInteractive player, string connectionId)
+        public void RegisterInteractive(IInteractive player, string connectionId)
         {
             _connectionToPlayer[connectionId] = player;
             _playerToConnection[player] = connectionId;
         }
 
-        internal void ReceiveUserCommand(string connectionId, string cmd)
+        public void ReceiveUserCommand(string connectionId, string cmd)
         {
             Console.WriteLine("ReceivedUserCommand: {0} sent {1}",connectionId, cmd);
             IInteractive player;
@@ -66,7 +67,7 @@ namespace DotNetMud.Server
             }
         }
 
-        internal void ReceiveDisconnection(string connectionId, bool stopCalled)
+        public void ReceiveDisconnection(string connectionId, bool stopCalled)
         {
             Console.WriteLine("ReceivedDisconnection: {0} stopCalled {1}", connectionId, stopCalled);
             IInteractive player;
@@ -76,7 +77,7 @@ namespace DotNetMud.Server
             }
         }
 
-        internal void ReceiveNewPlayer(string connectionId)
+        public void ReceiveNewPlayer(string connectionId)
         {
             var interactive = _gameSpecifics.CreateNewPlayer();
             Console.WriteLine("incoming connection {0} assigned to {1}", connectionId, interactive);
