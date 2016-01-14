@@ -1,0 +1,19 @@
+
+REFACTOR
+    Create a new web app.  Don't do azure yet.  
+    Move all the code over to the web app
+    Get it up and running with the client still in the outside thing. 
+    Add autofac
+    Add autofac - SignalR
+    Pull out everything but mudhub into external library B (decide on a name later)
+    Get it up and running
+    Get A talking to B via IoC. 
+    Pull out mudlib-client stuff + all related to external libary C (decide on name) 
+    Get it up and running
+    Get it using IoC
+    Pull out mudlib to D 
+    Get it up and running
+    Get it using IoC. 
+    Celebrate! 
+
+    
