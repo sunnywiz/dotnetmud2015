@@ -3,10 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using DotNetMud.Core;
-using DotNetMud.MudLib;
-using Microsoft.AspNet.SignalR;
 
-namespace DotNetMud.Server
+namespace DotNetMud.Core
 {
     /// <summary>
     /// This is what most mud code would know as the driver - the O/S of the mud, as it were. 
@@ -28,7 +26,7 @@ namespace DotNetMud.Server
             _playerToConnection = new Dictionary<IInteractive, string>();
             _registeredNextInputRedirects = new Dictionary<string, Action<string>>();
             _allObjects = new List<StdObject>();
-            _gameSpecifics = new SampleGameSpecifics();
+//             _gameSpecifics = new SampleGameSpecifics();
         }
 
         public static Driver Instance

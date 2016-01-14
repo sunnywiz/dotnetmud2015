@@ -87,7 +87,6 @@
     <Compile Include="MudLib\SampleGameSpecifics.cs" />
     <Compile Include="MudLib\UserAction.cs" />
     <Compile Include="MudLib\UserActionExecutionContext.cs" />
-    <Compile Include="Server\Driver.cs" />
     <Compile Include="Server\MudHub.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
