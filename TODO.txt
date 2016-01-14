@@ -1,13 +1,18 @@
 
 [ ] REFACTOR
     CREATED Create a new web app.  Don't do azure yet.  
-    [ ] Move all the code over to the web app
-    Get it up and running with the client still in the outside thing. 
-    Add autofac
-    Add autofac - SignalR
+    DONE Move all the code over to the web app
+    DONE Get it up and running with the client still in the outside thing. 
+	[ ] Move the client over to inside the website with a ref from the homepage
+	Remove CORS? 
+	Deploy online? 
+	---
     Pull out everything but mudhub into external library B (decide on a name later)
     Get it up and running
-    Get A talking to B via IoC. 
+    Add autofac
+    Add autofac - SignalR
+	Configure the MudHub to get a single driver instance via IOC.Get()
+	Get MudHub to get it through the ctor
     Pull out mudlib-client stuff + all related to external libary C (decide on name) 
     Get it up and running
     Get it using IoC

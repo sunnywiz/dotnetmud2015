@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using DotNetMud.MudLib;
 using Microsoft.AspNet.SignalR;
@@ -13,7 +14,7 @@ namespace DotNetMud.Server
     {
         public MudHub()
         {
-            Console.WriteLine("MudHub Ctor");
+            Trace.WriteLine("MudHub Ctor");
         }
 
         // For the most part, whenever this gets something to do, it could/should send it off 
@@ -29,6 +30,7 @@ namespace DotNetMud.Server
 
         public override Task OnConnected()
         {
+            Trace.WriteLine("OnConnected");
             DriverShouldCaptureSignalRContext();
             Driver.Instance.ReceiveNewPlayer(Context.ConnectionId);
             return base.OnConnected();
