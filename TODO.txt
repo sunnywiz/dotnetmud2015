@@ -3,7 +3,7 @@
     CREATED Create a new web app.  Don't do azure yet.  
     DONE Move all the code over to the web app
     DONE Get it up and running with the client still in the outside thing. 
-	[ ] Move the client over to inside the website with a ref from the homepage
+	DONE Move the client over to inside the website with a ref from the homepage
 	Remove CORS? 
 	Deploy online? 
 	---

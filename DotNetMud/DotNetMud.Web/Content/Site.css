@@ -22,3 +22,20 @@ select,
 textarea {
     max-width: 280px;
 }
+
+/* Sunny starts here */
+
+        .fromServer {
+            font-family: monospace;               
+        }
+
+        .fromUser {            
+            font-family: monospace;
+            font-weight: bold;
+            color: purple;
+        }
+
+        .fromUser:before {
+            content: ">> ";
+            color: red; 
+        }

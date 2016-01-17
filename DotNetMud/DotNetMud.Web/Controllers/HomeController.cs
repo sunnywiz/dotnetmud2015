@@ -26,5 +26,11 @@ namespace DotNetMud.Web.Controllers
 
             return View();
         }
+
+        public ActionResult Client()
+        {
+            ViewBag.Message = "Client";
+            return View(); 
+        }
     }
 }
