@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace DotNetMud.MudLib
+namespace DotNetMud.A.MudLib
 {
     public class UserActionExecutionContext
     {

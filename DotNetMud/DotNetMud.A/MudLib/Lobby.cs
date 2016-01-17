@@ -1,4 +1,4 @@
-namespace DotNetMud.MudLib
+namespace DotNetMud.A.MudLib
 {
     public class Lobby : Room
     {
@@ -6,7 +6,7 @@ namespace DotNetMud.MudLib
         {
             Short = "The Lobby";
             Description = "Its a nice lobby. ";
-            AddDirection("east","builtin://DotNetMud.MudLib.VisitingRoom1");
+            AddDirection("east","builtin://DotNetMud.A.MudLib.VisitingRoom1");
         }
     }
 
@@ -16,7 +16,7 @@ namespace DotNetMud.MudLib
         {
             Short = "Visiting Room 1";
             Description = "You are in a plush little visiting room with couches everywhere.";
-            AddDirection("west", "builtin://DotNetMud.MudLib.Lobby");
+            AddDirection("west", "builtin://DotNetMud.A.MudLib.Lobby");
         }
     }
 }

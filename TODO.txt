@@ -7,8 +7,8 @@
 	Remove CORS? 
 	Deploy online? 
 	---
-    Pull out everything but mudhub into external library B (decide on a name later)
-    Get it up and running
+    DONE Pull out everything but mudhub into external library B (decide on a name later)
+    DONE Get it up and running
     Add autofac
     Add autofac - SignalR
 	Configure the MudHub to get a single driver instance via IOC.Get()

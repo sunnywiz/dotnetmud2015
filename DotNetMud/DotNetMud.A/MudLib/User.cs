@@ -1,10 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Media;
-using DotNetMud.Server;
+using DotNetMud.A.Server;
 
-namespace DotNetMud.MudLib
+namespace DotNetMud.A.MudLib
 {
     public class User : StdObject, IInteractive, IProvideUserActions
     {

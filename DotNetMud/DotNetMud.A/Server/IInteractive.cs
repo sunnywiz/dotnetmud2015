@@ -1,4 +1,4 @@
-namespace DotNetMud.Server
+namespace DotNetMud.A.Server
 {
     public interface IInteractive
     {

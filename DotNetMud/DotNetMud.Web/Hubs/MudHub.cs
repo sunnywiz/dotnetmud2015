@@ -1,10 +1,9 @@
-using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
-using DotNetMud.MudLib;
+using DotNetMud.A.Server;
 using Microsoft.AspNet.SignalR;
 
-namespace DotNetMud.Server
+namespace DotNetMud.Web.Hubs
 {
     /// <summary>
     /// This is the raw implementation of "chatting with clients over Signal/R. 
@@ -38,9 +37,17 @@ namespace DotNetMud.Server
 
         private static void DriverShouldCaptureSignalRContext()
         {
-            if (Driver.Instance.Context == null)
+            if (Driver.Instance.SendToClientCallBack == null)
             {
-                Driver.Instance.Context = GlobalHost.ConnectionManager.GetHubContext<MudHub>();
+                var context = GlobalHost.ConnectionManager.GetHubContext<MudHub>();
+                Driver.Instance.SendToClientCallBack = (connectionId, message) =>
+                {
+                    var client = context.Clients.Client(connectionId);
+                    if (client != null)
+                    {
+                        client.sendToClient(message);
+                    }
+                };
             }
         }
 

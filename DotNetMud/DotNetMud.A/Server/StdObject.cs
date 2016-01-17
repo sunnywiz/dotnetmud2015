@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace DotNetMud.Server
+namespace DotNetMud.A.Server
 {
     /// <summary>
     /// This is the "standard mud object" that all mud objects should inherit from. 

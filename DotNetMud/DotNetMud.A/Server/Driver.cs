@@ -1,11 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using DotNetMud.MudLib;
-using Microsoft.AspNet.SignalR;
+using DotNetMud.A.MudLib;
 
-namespace DotNetMud.Server
+namespace DotNetMud.A.Server
 {
     /// <summary>
     /// This is what most mud code would know as the driver - the O/S of the mud, as it were. 
@@ -41,15 +39,13 @@ namespace DotNetMud.Server
 
         #region INTERNAL things are called from MudHub  -- not accessible to master / rest of the game
 
-        internal IHubContext Context;
-
         internal void RegisterInteractive(IInteractive player, string connectionId)
         {
             _connectionToPlayer[connectionId] = player;
             _playerToConnection[player] = connectionId;
         }
 
-        internal void ReceiveUserCommand(string connectionId, string cmd)
+        public void ReceiveUserCommand(string connectionId, string cmd)
         {
             Console.WriteLine("ReceivedUserCommand: {0} sent {1}",connectionId, cmd);
             IInteractive player;
@@ -66,7 +62,7 @@ namespace DotNetMud.Server
             }
         }
 
-        internal void ReceiveDisconnection(string connectionId, bool stopCalled)
+        public void ReceiveDisconnection(string connectionId, bool stopCalled)
         {
             Console.WriteLine("ReceivedDisconnection: {0} stopCalled {1}", connectionId, stopCalled);
             IInteractive player;
@@ -76,7 +72,7 @@ namespace DotNetMud.Server
             }
         }
 
-        internal void ReceiveNewPlayer(string connectionId)
+        public void ReceiveNewPlayer(string connectionId)
         {
             var interactive = _gameSpecifics.CreateNewPlayer();
             Console.WriteLine("incoming connection {0} assigned to {1}", connectionId, interactive);
@@ -86,17 +82,15 @@ namespace DotNetMud.Server
 
         #endregion
 
+        public Action<string, string> SendToClientCallBack { get; set; }
+
         public void SendTextToPlayerObject(IInteractive player, string message)
         {
             Console.WriteLine("SendTextToPlayerObject: to {0} send {1}",player,message);
             string connectionId;
             if (_playerToConnection.TryGetValue(player, out connectionId))
             {
-                var client = Context.Clients.Client(connectionId);
-                if (client != null)
-                {
-                    client.sendToClient(message);
-                }
+                SendToClientCallBack?.Invoke(connectionId, message);
             }
         }
 

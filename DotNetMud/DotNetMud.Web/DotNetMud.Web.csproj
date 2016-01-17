@@ -192,19 +192,8 @@
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\ManageViewModels.cs" />
-    <Compile Include="MudLib\IProvideUserActions.cs" />
-    <Compile Include="MudLib\Lobby.cs" />
-    <Compile Include="MudLib\Room.cs" />
-    <Compile Include="MudLib\SampleGameSpecifics.cs" />
-    <Compile Include="MudLib\User.cs" />
-    <Compile Include="MudLib\UserAction.cs" />
-    <Compile Include="MudLib\UserActionExecutionContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Server\Driver.cs" />
-    <Compile Include="Server\IGameSpecifics.cs" />
-    <Compile Include="Server\IInteractive.cs" />
-    <Compile Include="Server\MudHub.cs" />
-    <Compile Include="Server\StdObject.cs" />
+    <Compile Include="Hubs\MudHub.cs" />
     <Compile Include="Startup.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -276,6 +265,12 @@
     <Content Include="packages.config" />
     <None Include="Project_Readme.html" />
     <Content Include="Scripts\jquery-1.10.2.min.map" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DotNetMud.A\DotNetMud.A.csproj">
+      <Project>{a23b40b2-593e-4fdd-a5a5-24a9fa25594d}</Project>
+      <Name>DotNetMud.A</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

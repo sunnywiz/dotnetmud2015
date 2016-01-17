@@ -1,10 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Media;
 using System.Text;
-using DotNetMud.Server;
+using DotNetMud.A.Server;
 
-namespace DotNetMud.MudLib
+namespace DotNetMud.A.MudLib
 {
     /// <summary>
     /// Standard room object - rooms should inherit from here. 

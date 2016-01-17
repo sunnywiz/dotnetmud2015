@@ -1,8 +1,6 @@
 using System;
-using System.Collections.Generic;
-using DotNetMud.Server;
 
-namespace DotNetMud.MudLib
+namespace DotNetMud.A.MudLib
 {
     public class UserAction
     {
