@@ -40,10 +40,10 @@
     var ship = {
         thrust: 50, //  pixels/sec/sec
         rotatespeed: 180, // degrees per second
-        x: 300,
-        y: 300,
-        dx: -20,
-        dy: 20,
+        x: 100,
+        y: 100,
+        dx: -50,
+        dy: 0,
         r: 45, // direction pointed
         isThrusting: false,
         isRotateRight: false,
@@ -85,8 +85,8 @@
     loadImages(sources, function(images) {
 
         var prevtimestamp = null;
-        var desiredFps = 10;
-        var desiredGap = 100 / desiredFps;
+        var desiredFps = 60;
+        var desiredGap = 1000 / desiredFps;
         var lastFiredGap = 0; 
         context.font = "20px Arial";
 
@@ -97,7 +97,6 @@
 
             var currentGap = (timestamp - lastFiredGap);
             if (currentGap < desiredGap) {
-                requestAnimationFrame(animate);
                 return;
             } else {
                 lastFiredGap = timestamp;
@@ -108,13 +107,11 @@
             var FPS = 1;
             if (prevtimestamp) {
                 elapsed = (timestamp - prevtimestamp);
-                if (elapsed > 100) return;
+                if (elapsed > 1000) return;
                 avgelapsed = elapsed * 0.01 + avgelapsed * 0.99;
-                FPS = Math.round(100 / avgelapsed);
+                FPS = Math.round(1000 / avgelapsed);
             }
             prevtimestamp = timestamp;
-
-
             context.clearRect(0, 0, canvas.width, canvas.height);
 
             context.save();
@@ -163,8 +160,8 @@
                 if (ship.isThrusting) {
                     var vecx = Math.sin(ship.r * Math.PI / 180) * ship.thrust;
                     var vecy = Math.cos(ship.r * Math.PI / 180) * ship.thrust;
-                    ship.dx = ship.dx + vecx * (elapsed / 100);
-                    ship.dy = ship.dy + vecy * (elapsed / 100);
+                    ship.dx = ship.dx + vecx * (elapsed / 1000);
+                    ship.dy = ship.dy + vecy * (elapsed / 1000);
                     context.beginPath();
                     context.moveTo(0, 0);
                     context.strokeStyle = "#0000ff";
@@ -173,11 +170,11 @@
 
                 } else if (ship.isRotatingRight) {
                     // elapsed ms
-                    ship.r = ship.r + (elapsed / 100) * ship.rotatespeed;
+                    ship.r = ship.r + (elapsed / 1000) * ship.rotatespeed;
                     while (ship.r < 0) ship.r = ship.r + 360;
 
                 } else if (ship.isRotatingLeft) {
-                    ship.r = ship.r - (elapsed / 100) * ship.rotatespeed;
+                    ship.r = ship.r - (elapsed / 1000) * ship.rotatespeed;
                     while (ship.r > 360) ship.r = ship.r - 360;
                 }
 
@@ -190,8 +187,8 @@
                     dx = dx * gravityPoints[i].m * 10 / rsq;
                     dy = dy * gravityPoints[i].m * 10 / rsq;
 
-                    ship.dx = ship.dx + dx * (elapsed / 100);
-                    ship.dy = ship.dy + dy * (elapsed / 100);
+                    ship.dx = ship.dx + dx * (elapsed / 1000);
+                    ship.dy = ship.dy + dy * (elapsed / 1000);
 
                     context.beginPath();
                     context.strokeStyle = "#ff0000";
@@ -204,11 +201,14 @@
 
             // ship floats in space based on velocity
             ship.history.push({ x: ship.x, y: ship.y });
-            if (ship.history.length > 10000) {
-                ship.history.splice(0, 1);
+            if (ship.history.length > 100000) {
+                for (var h = 0; h < ship.history.length / 2 - 1; h++) {
+                    ship.history[h] = ship.history[h * 2];
+                }
+                ship.history.length = ship.history.length / 2;
             }
-            ship.x = ship.x + ship.dx * (elapsed / 100);
-            ship.y = ship.y + ship.dy * (elapsed / 100);
+            ship.x = ship.x + ship.dx * (elapsed / 1000);
+            ship.y = ship.y + ship.dy * (elapsed / 1000);
 
             //while (ship.x > canvas.width) {
             //    ship.x = ship.x - canvas.width;
@@ -223,7 +223,7 @@
             //    ship.y = ship.y + canvas.height;
             //}
 
-            // context.fillText(FPS + " FPS " + Math.round(avgelapsed) + "ms ", 0, canvas.height);
+            context.fillText(Math.round(timestamp), 0, canvas.height);
         }
 
         requestAnimationFrame(animate);
