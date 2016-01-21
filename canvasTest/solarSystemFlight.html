@@ -11,6 +11,9 @@
 <body>
 <canvas id="myCanvas" width="1000" height="700"></canvas>
 <script>
+
+
+
     function loadImages(sources, callback) {
         var images = {};
         var loadedImages = 0;
@@ -37,6 +40,35 @@
         ship1: 'ship1.png'
     };
 
+    var rawPlanets = [
+
+        // from: http://www.telescope.org/nuffield/pas/solar/solar7.html
+        //Planet      Distance           Mass         Time for 1       
+        //            from               of Planet    Orbit              
+        //            Sun                (x10 ^22 kg) of Sun
+        //            (million km)                    (days)       
+        { name: "Sun", distance: 0, mass: 1.989E30, orbit: 1},
+        { name: "Mercury", distance: 58E9, mass: 33.0E22, orbit: 88.0 },
+        { name: "Venus", distance: 108E9, mass: 487E22, orbit: 224.7 },
+        { name: "Earth", distance: 150E9, mass: 598E22, orbit: 365.2 },
+        { name: "Mars", distance: 228E9, mass: 64.2E22, orbit: 687.0 }                 
+    ];
+
+//Jupiter            778            190,000          4332          
+
+//        Saturn             1,429          56,900           10760 
+   
+//        Uranus             2,871          8,690            30700         
+
+//        Neptune            4,504          10,280           60200         
+
+//        Pluto              5,913          1.49             90600         
+
+    var planets = [];
+    rawPlanets.forEach(function (rp) {
+        planets.push({ name: rp.name, distance: Math.sqrt(Math.sqrt(rp.distance)), mass: Math.sqrt(Math.sqrt(rp.mass/1E12)), orbit: rp.orbit, x: 0, y: 0 });
+    });
+
     var ship = {
         thrust: 50, //  pixels/sec/sec
         rotatespeed: 180, // degrees per second
@@ -51,11 +83,8 @@
         history: []
     };
 
-    var gravityPoints = [
-        { x: 0, y: 0, m: 100 },
-        { x: 600, y: 600, m: 50 },
-        { x: 500, y: 0,  m: 75}
-    ];
+    var d = new Date();
+    var scaleMillisecondsPerDay = 1000; 
 
     function keyDownHandler() {
         var keyPressed = String.fromCharCode(event.keyCode);
@@ -114,6 +143,13 @@
             prevtimestamp = timestamp;
             context.clearRect(0, 0, canvas.width, canvas.height);
 
+            var ageOfUniverseInDays = d.getTime() / scaleMillisecondsPerDay;
+            planets.forEach(function (p) {
+                var angle = (ageOfUniverseInDays / p.orbit) * 2 * Math.PI;
+                p.x = Math.cos(angle) * p.distance;
+                p.y = Math.sin(angle) * p.distance; 
+            });
+
             context.save();
             {
                 // we want 0 to end up at canvas.width/2 
@@ -131,16 +167,16 @@
                 }
                 // context.fillRect(-400, -300, 20, 10);
 
-                for (var i = 0; i < gravityPoints.length; i++) {
-                    var g = gravityPoints[i];
+                planets.forEach(function(p) {
                     context.beginPath();
-                    context.arc(g.x-ship.x, g.y-ship.y, g.m, 0, 2 * Math.PI, false);
+                    context.arc(p.x - ship.x, p.y - ship.y, 50, 0, 2 * Math.PI, false);
                     context.stroke();
-                }
+                    context.fillText(p.name, p.x - ship.x, p.y - ship.y);
+                });
 
-                for (var i = 0; i < ship.history.length; i++) {
-                    context.fillRect(ship.history[i].x - ship.x, ship.history[i].y - ship.y, 1, 1);
-                }
+                ship.history.forEach(function(h) {
+                    context.fillRect(h.x - ship.x, h.y - ship.y, 1, 1);
+                }); 
 
                 context.save();
                 {
@@ -153,7 +189,6 @@
                 context.moveTo(0, 0);
                 context.lineTo(ship.dx, ship.dy);
                 context.stroke();
-
 
                 // start control section
 
@@ -179,23 +214,23 @@
                 }
 
                 // ship is affected by gravity
-                for (var i = 0; i < gravityPoints.length; i++) {
-                    var dx = gravityPoints[i].x - ship.x;
-                    var dy = gravityPoints[i].y - ship.y;
+                planets.forEach(function(p) {
+                    var dx = p.x - ship.x;
+                    var dy = p.y - ship.y;
                     var rsq = dx * dx + dy * dy;
                     if (rsq < 1) rsq = 1;
-                    dx = dx * gravityPoints[i].m * 10 / rsq;
-                    dy = dy * gravityPoints[i].m * 10 / rsq;
+                    dx = dx * p.mass / rsq;
+                    dy = dy * p.mass / rsq;
 
-                    ship.dx = ship.dx + dx * (elapsed / 1000);
-                    ship.dy = ship.dy + dy * (elapsed / 1000);
+                    // ship.dx = ship.dx + dx * (elapsed / 1000);
+                    // ship.dy = ship.dy + dy * (elapsed / 1000);
 
                     context.beginPath();
                     context.strokeStyle = "#ff0000";
                     context.moveTo(0, 0);
                     context.lineTo(dx, dy);
                     context.stroke();
-                }
+                });
             }
             context.restore();
 
