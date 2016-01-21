@@ -1,0 +1,237 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <style>
+        body {
+            margin: 0px;
+            padding: 0px;
+        }
+    </style>
+</head>
+<body>
+<canvas id="myCanvas" width="1000" height="700"></canvas>
+<script>
+    function loadImages(sources, callback) {
+        var images = {};
+        var loadedImages = 0;
+        var numImages = 0;
+        // get num of sources
+        for (var src in sources) {
+            numImages++;
+        }
+        for (var src in sources) {
+            images[src] = new Image();
+            images[src].onload = function() {
+                if (++loadedImages >= numImages) {
+                    callback(images);
+                }
+            };
+            images[src].src = sources[src];
+        }
+    }
+
+    var canvas = document.getElementById('myCanvas');
+    var context = canvas.getContext('2d');
+
+    var sources = {
+        ship1: 'ship1.png'
+    };
+
+    var ship = {
+        thrust: 50, //  pixels/sec/sec
+        rotatespeed: 180, // degrees per second
+        x: 300,
+        y: 300,
+        dx: -20,
+        dy: 20,
+        r: 45, // direction pointed
+        isThrusting: false,
+        isRotateRight: false,
+        isRotateLeft: false,
+        history: []
+    };
+
+    var gravityPoints = [
+        { x: 0, y: 0, m: 100 },
+        { x: 600, y: 600, m: 50 },
+        { x: 500, y: 0,  m: 75}
+    ];
+
+    function keyDownHandler() {
+        var keyPressed = String.fromCharCode(event.keyCode);
+        if (keyPressed == 'W') {
+            ship.isThrusting = true;
+        } else if (keyPressed == 'A') {
+            ship.isRotatingLeft = true;
+        } else if (keyPressed == 'D') {
+            ship.isRotatingRight = true;
+        }
+    }
+
+    function keyUpHandler() {
+        var keyPressed = String.fromCharCode(event.keyCode);
+        if (keyPressed == 'W') {
+            ship.isThrusting = false;
+        } else if (keyPressed == 'A') {
+            ship.isRotatingLeft = false;
+        } else if (keyPressed == 'D') {
+            ship.isRotatingRight = false;
+        }
+    }
+
+    document.addEventListener("keydown", keyDownHandler, false);
+    document.addEventListener("keyup", keyUpHandler, false);
+
+    loadImages(sources, function(images) {
+
+        var prevtimestamp = null;
+        var desiredFps = 10;
+        var desiredGap = 100 / desiredFps;
+        var lastFiredGap = 0; 
+        context.font = "20px Arial";
+
+        // timestamp is milliseconds since we started..
+        function animate(timestamp) {
+
+            requestAnimationFrame(animate);
+
+            var currentGap = (timestamp - lastFiredGap);
+            if (currentGap < desiredGap) {
+                requestAnimationFrame(animate);
+                return;
+            } else {
+                lastFiredGap = timestamp;
+            }
+
+            var elapsed = 1;
+            var avgelapsed = 1;
+            var FPS = 1;
+            if (prevtimestamp) {
+                elapsed = (timestamp - prevtimestamp);
+                if (elapsed > 100) return;
+                avgelapsed = elapsed * 0.01 + avgelapsed * 0.99;
+                FPS = Math.round(100 / avgelapsed);
+            }
+            prevtimestamp = timestamp;
+
+
+            context.clearRect(0, 0, canvas.width, canvas.height);
+
+            context.save();
+            {
+                // we want 0 to end up at canvas.width/2 
+                context.translate(canvas.width / 2, canvas.height / 2);
+                context.scale(1, -1); // flip the y axis so that - is below and + is above. 
+
+                var absStartX = ship.x - 600;
+                var absStartY = ship.y - 400;
+                absStartX = Math.floor(absStartX / 100) * 100;
+                absStartY = Math.floor(absStartY / 100) * 100;
+                for (var x = absStartX; x < ship.x + 600; x += 100) {
+                    for (var y = absStartY; y < ship.y + 400; y += 100) {
+                        context.fillRect(x-ship.x, y-ship.y, 1, 1);
+                    }
+                }
+                // context.fillRect(-400, -300, 20, 10);
+
+                for (var i = 0; i < gravityPoints.length; i++) {
+                    var g = gravityPoints[i];
+                    context.beginPath();
+                    context.arc(g.x-ship.x, g.y-ship.y, g.m, 0, 2 * Math.PI, false);
+                    context.stroke();
+                }
+
+                for (var i = 0; i < ship.history.length; i++) {
+                    context.fillRect(ship.history[i].x - ship.x, ship.history[i].y - ship.y, 1, 1);
+                }
+
+                context.save();
+                {
+                    context.rotate((180 - ship.r) * Math.PI / 180);
+                    context.drawImage(images.ship1, -images.ship1.width / 2, -images.ship1.height / 2);
+                }
+                context.restore();
+
+                context.beginPath();
+                context.moveTo(0, 0);
+                context.lineTo(ship.dx, ship.dy);
+                context.stroke();
+
+
+                // start control section
+
+                if (ship.isThrusting) {
+                    var vecx = Math.sin(ship.r * Math.PI / 180) * ship.thrust;
+                    var vecy = Math.cos(ship.r * Math.PI / 180) * ship.thrust;
+                    ship.dx = ship.dx + vecx * (elapsed / 100);
+                    ship.dy = ship.dy + vecy * (elapsed / 100);
+                    context.beginPath();
+                    context.moveTo(0, 0);
+                    context.strokeStyle = "#0000ff";
+                    context.lineTo(vecx, vecy);
+                    context.stroke();
+
+                } else if (ship.isRotatingRight) {
+                    // elapsed ms
+                    ship.r = ship.r + (elapsed / 100) * ship.rotatespeed;
+                    while (ship.r < 0) ship.r = ship.r + 360;
+
+                } else if (ship.isRotatingLeft) {
+                    ship.r = ship.r - (elapsed / 100) * ship.rotatespeed;
+                    while (ship.r > 360) ship.r = ship.r - 360;
+                }
+
+                // ship is affected by gravity
+                for (var i = 0; i < gravityPoints.length; i++) {
+                    var dx = gravityPoints[i].x - ship.x;
+                    var dy = gravityPoints[i].y - ship.y;
+                    var rsq = dx * dx + dy * dy;
+                    if (rsq < 1) rsq = 1;
+                    dx = dx * gravityPoints[i].m * 10 / rsq;
+                    dy = dy * gravityPoints[i].m * 10 / rsq;
+
+                    ship.dx = ship.dx + dx * (elapsed / 100);
+                    ship.dy = ship.dy + dy * (elapsed / 100);
+
+                    context.beginPath();
+                    context.strokeStyle = "#ff0000";
+                    context.moveTo(0, 0);
+                    context.lineTo(dx, dy);
+                    context.stroke();
+                }
+            }
+            context.restore();
+
+            // ship floats in space based on velocity
+            ship.history.push({ x: ship.x, y: ship.y });
+            if (ship.history.length > 10000) {
+                ship.history.splice(0, 1);
+            }
+            ship.x = ship.x + ship.dx * (elapsed / 100);
+            ship.y = ship.y + ship.dy * (elapsed / 100);
+
+            //while (ship.x > canvas.width) {
+            //    ship.x = ship.x - canvas.width;
+            //}
+            //while (ship.y > canvas.height) {
+            //    ship.y = ship.y - canvas.height;
+            //}
+            //while (ship.x < 0) {
+            //    ship.x = ship.x + canvas.width;
+            //}
+            //while (ship.y < 0) {
+            //    ship.y = ship.y + canvas.height;
+            //}
+
+            // context.fillText(FPS + " FPS " + Math.round(avgelapsed) + "ms ", 0, canvas.height);
+        }
+
+        requestAnimationFrame(animate);
+
+        //document.getElementById("debug").innerHTML = " " + ship.x + " " + ship.y + " " + ship.dx + " " + ship.dy + " " + ship.r;
+
+    });
+
+</script>
+</body>
+</html>
