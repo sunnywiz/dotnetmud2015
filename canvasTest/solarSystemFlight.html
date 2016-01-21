@@ -44,15 +44,16 @@
     var rawPlanets = [
 
         // from: http://www.telescope.org/nuffield/pas/solar/solar7.html
+        // add http://www.astronomynotes.com/tables/tablesb.htm
         //Planet      Distance           Mass         Time for 1       
         //            from               of Planet    Orbit              
         //            Sun                (x10 ^22 kg) of Sun
         //            (million km)                    (days)       
-        { name: "Sun", distance: 0, mass: 1.989E30, orbit: 1},
-        //{ name: "Mercury", distance: 58E9, mass: 33.0E22, orbit: 88.0 },
-        //{ name: "Venus", distance: 108E9, mass: 487E22, orbit: 224.7 },
-        //{ name: "Earth", distance: 150E9, mass: 598E22, orbit: 365.2 },
-        //{ name: "Mars", distance: 228E9, mass: 64.2E22, orbit: 687.0 }                 
+        { name: "Sun", distance: 0, mass: 1.989E30, diameter: 1.392E6 },
+        { name: "Mercury", distance: 58E9, mass: 33.0E22, diameter: 4879 },
+        //{ name: "Venus", distance: 108E9, mass: 487E22 },
+        //{ name: "Earth", distance: 150E9, mass: 598E22 },
+        //{ name: "Mars", distance: 228E9, mass: 64.2E22 }                 
     ];
 
 //Jupiter            778            190,000          4332          
@@ -67,17 +68,32 @@
 
     var planets = [];
     rawPlanets.forEach(function (rp) {
-        planets.push({ name: rp.name, distance: Math.sqrt(rp.distance/5E5), mass: Math.sqrt(rp.mass/1E20), orbit: rp.orbit, x: 0, y: 0 });
+        planets.push({
+            name: rp.name,
+            distance: Math.pow(rp.distance,0.25),
+            mass: Math.pow(rp.mass,0.2),
+            radius: Math.pow(rp.diameter, 0.4) / 2,
+            x: 0,
+            y: 0
+        });
+    });
+    var massOfSun = planets[0].mass;
+    planets.forEach(function (p) {
+        if (p.distance > 0) {
+            p.orbit = Math.sqrt(gravitationalConstant * massOfSun / Math.pow(p.distance, 3));
+        } else {
+            p.orbit = 0; 
+        }
     });
 
     var ship = {
         thrust: 50, //  pixels/sec/sec
         rotatespeed: 180, // degrees per second
-        x: 100,
+        x: planets[0].radius * 3,
         y: 0,
         dx: 0,
         // https://en.wikipedia.org/wiki/Circular_orbit  to calculate v to get a circular orbit
-        dy: Math.sqrt(gravitationalConstant * planets[0].mass / 100),
+        dy: Math.sqrt(gravitationalConstant * planets[0].mass / (planets[0].radius * 3)),
         r: 45, // direction pointed
         isThrusting: false,
         isRotateRight: false,
@@ -85,7 +101,6 @@
         history: []
     };
 
-    var d = new Date();
     var scaleMillisecondsPerDay = 1000; 
 
     function keyDownHandler() {
@@ -145,11 +160,17 @@
             prevtimestamp = timestamp;
             context.clearRect(0, 0, canvas.width, canvas.height);
 
-            var ageOfUniverseInDays = d.getTime() / scaleMillisecondsPerDay;
+            var d = new Date();
+            var ageOfUniverseInDays = 10000; // d.getTime() / scaleMillisecondsPerDay;
             planets.forEach(function (p) {
-                var angle = (ageOfUniverseInDays / p.orbit) * 2 * Math.PI;
-                p.x = Math.cos(angle) * p.distance;
-                p.y = Math.sin(angle) * p.distance; 
+                if (p.orbit > 0) {
+                    var angle = p.orbit * ageOfUniverseInDays;
+                    p.x = Math.cos(angle) * p.distance;
+                    p.y = Math.sin(angle) * p.distance;
+                } else {
+                    p.x = 0;
+                    p.y = 0; 
+                }
             });
 
             context.save();
@@ -171,7 +192,7 @@
 
                 planets.forEach(function(p) {
                     context.beginPath();
-                    context.arc(p.x - ship.x, p.y - ship.y, 50, 0, 2 * Math.PI, false);
+                    context.arc(p.x - ship.x, p.y - ship.y, p.radius, 0, 2 * Math.PI, false);
                     context.stroke();
                     context.fillText(p.name, p.x - ship.x, p.y - ship.y);
                 });
