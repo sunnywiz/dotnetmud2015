@@ -66,7 +66,7 @@
 
     var planets = [];
     rawPlanets.forEach(function (rp) {
-        planets.push({ name: rp.name, distance: Math.sqrt(Math.sqrt(rp.distance)), mass: Math.sqrt(Math.sqrt(rp.mass/1E12)), orbit: rp.orbit, x: 0, y: 0 });
+        planets.push({ name: rp.name, distance: Math.sqrt(rp.distance/5E5), mass: Math.sqrt(Math.sqrt(rp.mass/1E16)), orbit: rp.orbit, x: 0, y: 0 });
     });
 
     var ship = {
@@ -222,8 +222,8 @@
                     dx = dx * p.mass / rsq;
                     dy = dy * p.mass / rsq;
 
-                    // ship.dx = ship.dx + dx * (elapsed / 1000);
-                    // ship.dy = ship.dy + dy * (elapsed / 1000);
+                    ship.dx = ship.dx + dx * (elapsed / 1000);
+                    ship.dy = ship.dy + dy * (elapsed / 1000);
 
                     context.beginPath();
                     context.strokeStyle = "#ff0000";
