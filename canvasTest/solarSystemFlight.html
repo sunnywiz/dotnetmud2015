@@ -35,6 +35,7 @@
 
     var canvas = document.getElementById('myCanvas');
     var context = canvas.getContext('2d');
+    var gravitationalConstant = 10; 
 
     var sources = {
         ship1: 'ship1.png'
@@ -48,10 +49,10 @@
         //            Sun                (x10 ^22 kg) of Sun
         //            (million km)                    (days)       
         { name: "Sun", distance: 0, mass: 1.989E30, orbit: 1},
-        { name: "Mercury", distance: 58E9, mass: 33.0E22, orbit: 88.0 },
-        { name: "Venus", distance: 108E9, mass: 487E22, orbit: 224.7 },
-        { name: "Earth", distance: 150E9, mass: 598E22, orbit: 365.2 },
-        { name: "Mars", distance: 228E9, mass: 64.2E22, orbit: 687.0 }                 
+        //{ name: "Mercury", distance: 58E9, mass: 33.0E22, orbit: 88.0 },
+        //{ name: "Venus", distance: 108E9, mass: 487E22, orbit: 224.7 },
+        //{ name: "Earth", distance: 150E9, mass: 598E22, orbit: 365.2 },
+        //{ name: "Mars", distance: 228E9, mass: 64.2E22, orbit: 687.0 }                 
     ];
 
 //Jupiter            778            190,000          4332          
@@ -66,16 +67,17 @@
 
     var planets = [];
     rawPlanets.forEach(function (rp) {
-        planets.push({ name: rp.name, distance: Math.sqrt(rp.distance/5E5), mass: Math.sqrt(Math.sqrt(rp.mass/1E16)), orbit: rp.orbit, x: 0, y: 0 });
+        planets.push({ name: rp.name, distance: Math.sqrt(rp.distance/5E5), mass: Math.sqrt(rp.mass/1E20), orbit: rp.orbit, x: 0, y: 0 });
     });
 
     var ship = {
         thrust: 50, //  pixels/sec/sec
         rotatespeed: 180, // degrees per second
         x: 100,
-        y: 100,
-        dx: -50,
-        dy: 0,
+        y: 0,
+        dx: 0,
+        // https://en.wikipedia.org/wiki/Circular_orbit  to calculate v to get a circular orbit
+        dy: Math.sqrt(gravitationalConstant * planets[0].mass / 100),
         r: 45, // direction pointed
         isThrusting: false,
         isRotateRight: false,
@@ -214,21 +216,30 @@
                 }
 
                 // ship is affected by gravity
-                planets.forEach(function(p) {
+                planets.forEach(function (p) {
+
+                    // https://www.khanacademy.org/computing/computer-programming/programming-natural-simulations/programming-forces/a/gravitational-attraction
+                    // raw form.  can be simplified and use r^3 derived from r^2
+
                     var dx = p.x - ship.x;
                     var dy = p.y - ship.y;
                     var rsq = dx * dx + dy * dy;
                     if (rsq < 1) rsq = 1;
-                    dx = dx * p.mass / rsq;
-                    dy = dy * p.mass / rsq;
+                    var r = Math.sqrt(rsq);
+                    var unitx = dx / r;
+                    var unity = dy / r;
 
-                    ship.dx = ship.dx + dx * (elapsed / 1000);
-                    ship.dy = ship.dy + dy * (elapsed / 1000);
+                    var gravForce = (gravitationalConstant * p.mass) / rsq;
+                    var gravx = unitx * gravForce;
+                    var gravy = unity * gravForce; 
+
+                    ship.dx = ship.dx + gravx * (elapsed / 1000);
+                    ship.dy = ship.dy + gravy * (elapsed / 1000);
 
                     context.beginPath();
                     context.strokeStyle = "#ff0000";
                     context.moveTo(0, 0);
-                    context.lineTo(dx, dy);
+                    context.lineTo(gravx, gravy);
                     context.stroke();
                 });
             }
