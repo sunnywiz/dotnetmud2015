@@ -51,9 +51,9 @@
         //            (million km)                    (days)       
         { name: "Sun", distance: 0, mass: 1.989E30, diameter: 1.392E6 },
         { name: "Mercury", distance: 58E9, mass: 33.0E22, diameter: 4879 },
-        //{ name: "Venus", distance: 108E9, mass: 487E22 },
-        //{ name: "Earth", distance: 150E9, mass: 598E22 },
-        //{ name: "Mars", distance: 228E9, mass: 64.2E22 }                 
+        { name: "Venus", distance: 108E9, mass: 487E22, diameter: 12104 },
+        { name: "Earth", distance: 150E9, mass: 598E22, diameter: 12742},
+        { name: "Mars", distance: 228E9, mass: 64.2E22, diameter: 6779}                 
     ];
 
 //Jupiter            778            190,000          4332          
@@ -70,7 +70,7 @@
     rawPlanets.forEach(function (rp) {
         planets.push({
             name: rp.name,
-            distance: Math.pow(rp.distance,0.25),
+            distance: Math.pow(rp.distance,0.3),
             mass: Math.pow(rp.mass,0.2),
             radius: Math.pow(rp.diameter, 0.4) / 2,
             x: 0,
@@ -89,12 +89,12 @@
     var ship = {
         thrust: 50, //  pixels/sec/sec
         rotatespeed: 180, // degrees per second
-        x: planets[0].radius * 3,
+        x: planets[1].distance,
         y: 0,
         dx: 0,
         // https://en.wikipedia.org/wiki/Circular_orbit  to calculate v to get a circular orbit
-        dy: Math.sqrt(gravitationalConstant * planets[0].mass / (planets[0].radius * 3)),
-        r: 45, // direction pointed
+        dy: Math.sqrt(gravitationalConstant * planets[0].mass / (planets[1].distance)),
+        r: 0, // direction pointed
         isThrusting: false,
         isRotateRight: false,
         isRotateLeft: false,
@@ -161,7 +161,7 @@
             context.clearRect(0, 0, canvas.width, canvas.height);
 
             var d = new Date();
-            var ageOfUniverseInDays = 10000; // d.getTime() / scaleMillisecondsPerDay;
+            var ageOfUniverseInDays = d.getTime() / scaleMillisecondsPerDay;
             planets.forEach(function (p) {
                 if (p.orbit > 0) {
                     var angle = p.orbit * ageOfUniverseInDays;
@@ -245,10 +245,16 @@
                     var dx = p.x - ship.x;
                     var dy = p.y - ship.y;
                     var rsq = dx * dx + dy * dy;
-                    if (rsq < 1) rsq = 1;
+                    if (rsq < 1) rsq = 1;  
                     var r = Math.sqrt(rsq);
+                    
                     var unitx = dx / r;
                     var unity = dy / r;
+
+                    // prevent crazy launches.  aka, scrape through the atmosphere. 
+                    if (r < p.radius) {
+                        rsq = p.radius * p.radius;
+                    }
 
                     var gravForce = (gravitationalConstant * p.mass) / rsq;
                     var gravx = unitx * gravForce;
@@ -256,6 +262,12 @@
 
                     ship.dx = ship.dx + gravx * (elapsed / 1000);
                     ship.dy = ship.dy + gravy * (elapsed / 1000);
+
+                    context.beginPath();
+                    context.strokeStyle = "#00ff00";
+                    context.moveTo(0, 0);
+                    context.lineTo(unitx * 20, unity * 20);
+                    context.stroke(); 
 
                     context.beginPath();
                     context.strokeStyle = "#ff0000";
@@ -290,7 +302,7 @@
             //    ship.y = ship.y + canvas.height;
             //}
 
-            context.fillText(Math.round(timestamp), 0, canvas.height);
+            context.fillText(Math.round(timestamp)+" "+Math.round(ship.x)+" "+Math.round(ship.y), 0, canvas.height);
         }
 
         requestAnimationFrame(animate);
