@@ -8,10 +8,20 @@
         }
     </style>
 </head>
-<body>
-<canvas id="myCanvas" width="1000" height="700"></canvas>
-<script>
+<body style="width: 100%; height: 100%">
 
+<table>
+    <tr>
+        <td width="700">
+            <canvas id="myCanvas" width="700" height="700"></canvas>
+        </td>
+        <td width="*">
+            <div><input type="checkbox" id="gravityOnOff" name="gravityOnOff" checked /> Gravity</div>
+            <div><input type="checkbox" id="autopilotOnOff" name="autopilotOnOff" />Autopilot</div>
+        </td>
+    </tr>
+</table>
+<script>
 
 
     function loadImages(sources, callback) {
@@ -34,8 +44,10 @@
     }
 
     var canvas = document.getElementById('myCanvas');
+    var gravityOnOff = document.getElementById('gravityOnOff');
+    var autopilotOnOff = document.getElementById('autopilotOnOff');
     var context = canvas.getContext('2d');
-    var gravitationalConstant = 10; 
+    var gravitationalConstant = 10;
 
     var sources = {
         ship1: 'ship1.png'
@@ -52,14 +64,14 @@
         { name: "Sun", distance: 0, mass: 1.989E30, diameter: 1.392E6 },
         { name: "Mercury", distance: 58E9, mass: 33.0E22, diameter: 4879 },
         { name: "Venus", distance: 108E9, mass: 487E22, diameter: 12104 },
-        { name: "Earth", distance: 150E9, mass: 598E22, diameter: 12742},
-        { name: "Mars", distance: 228E9, mass: 64.2E22, diameter: 6779}                 
+        { name: "Earth", distance: 150E9, mass: 598E22, diameter: 12742 },
+        { name: "Mars", distance: 228E9, mass: 64.2E22, diameter: 6779 }
     ];
 
 //Jupiter            778            190,000          4332          
 
 //        Saturn             1,429          56,900           10760 
-   
+
 //        Uranus             2,871          8,690            30700         
 
 //        Neptune            4,504          10,280           60200         
@@ -67,27 +79,27 @@
 //        Pluto              5,913          1.49             90600         
 
     var planets = [];
-    rawPlanets.forEach(function (rp) {
+    rawPlanets.forEach(function(rp) {
         planets.push({
             name: rp.name,
-            distance: Math.pow(rp.distance,0.3),
-            mass: Math.pow(rp.mass,0.2),
-            radius: Math.pow(rp.diameter, 0.4) / 2,
+            distance: Math.pow(rp.distance, 0.5),
+            mass: Math.pow(rp.mass, 0.25),
+            radius: Math.pow(rp.diameter, 0.5) / 2,
             x: 0,
             y: 0
         });
     });
     var massOfSun = planets[0].mass;
-    planets.forEach(function (p) {
+    planets.forEach(function(p) {
         if (p.distance > 0) {
             p.orbit = Math.sqrt(gravitationalConstant * massOfSun / Math.pow(p.distance, 3));
         } else {
-            p.orbit = 0; 
+            p.orbit = 0;
         }
     });
 
     var ship = {
-        thrust: 50, //  pixels/sec/sec
+        thrust: 100, //  pixels/sec/sec
         rotatespeed: 180, // degrees per second
         x: planets[1].distance,
         y: 0,
@@ -101,7 +113,7 @@
         history: []
     };
 
-    var scaleMillisecondsPerDay = 1000; 
+    var scaleMillisecondsPerDay = 1000;
 
     function keyDownHandler() {
         var keyPressed = String.fromCharCode(event.keyCode);
@@ -133,7 +145,7 @@
         var prevtimestamp = null;
         var desiredFps = 60;
         var desiredGap = 1000 / desiredFps;
-        var lastFiredGap = 0; 
+        var lastFiredGap = 0;
         context.font = "20px Arial";
 
         // timestamp is milliseconds since we started..
@@ -162,14 +174,14 @@
 
             var d = new Date();
             var ageOfUniverseInDays = d.getTime() / scaleMillisecondsPerDay;
-            planets.forEach(function (p) {
+            planets.forEach(function(p) {
                 if (p.orbit > 0) {
                     var angle = p.orbit * ageOfUniverseInDays;
                     p.x = Math.cos(angle) * p.distance;
                     p.y = Math.sin(angle) * p.distance;
                 } else {
                     p.x = 0;
-                    p.y = 0; 
+                    p.y = 0;
                 }
             });
 
@@ -185,7 +197,7 @@
                 absStartY = Math.floor(absStartY / 100) * 100;
                 for (var x = absStartX; x < ship.x + 600; x += 100) {
                     for (var y = absStartY; y < ship.y + 400; y += 100) {
-                        context.fillRect(x-ship.x, y-ship.y, 1, 1);
+                        context.fillRect(x - ship.x, y - ship.y, 1, 1);
                     }
                 }
                 // context.fillRect(-400, -300, 20, 10);
@@ -199,7 +211,7 @@
 
                 ship.history.forEach(function(h) {
                     context.fillRect(h.x - ship.x, h.y - ship.y, 1, 1);
-                }); 
+                });
 
                 context.save();
                 {
@@ -237,7 +249,7 @@
                 }
 
                 // ship is affected by gravity
-                planets.forEach(function (p) {
+                planets.forEach(function(p) {
 
                     // https://www.khanacademy.org/computing/computer-programming/programming-natural-simulations/programming-forces/a/gravitational-attraction
                     // raw form.  can be simplified and use r^3 derived from r^2
@@ -245,9 +257,9 @@
                     var dx = p.x - ship.x;
                     var dy = p.y - ship.y;
                     var rsq = dx * dx + dy * dy;
-                    if (rsq < 1) rsq = 1;  
+                    if (rsq < 1) rsq = 1;
                     var r = Math.sqrt(rsq);
-                    
+
                     var unitx = dx / r;
                     var unity = dy / r;
 
@@ -258,16 +270,19 @@
 
                     var gravForce = (gravitationalConstant * p.mass) / rsq;
                     var gravx = unitx * gravForce;
-                    var gravy = unity * gravForce; 
+                    var gravy = unity * gravForce;
 
-                    ship.dx = ship.dx + gravx * (elapsed / 1000);
-                    ship.dy = ship.dy + gravy * (elapsed / 1000);
+                    if (gravityOnOff.checked) {
+                        ship.dx = ship.dx + gravx * (elapsed / 1000);
+                        ship.dy = ship.dy + gravy * (elapsed / 1000);
+                    }
 
                     context.beginPath();
-                    context.strokeStyle = "#00ff00";
+                    context.strokeStyle = "#77ff77";
                     context.moveTo(0, 0);
-                    context.lineTo(unitx * 20, unity * 20);
-                    context.stroke(); 
+                    var scaledR = Math.pow(r, 0.25); 
+                    context.lineTo(unitx * scaledR, unity * scaledR);
+                    context.stroke();
 
                     context.beginPath();
                     context.strokeStyle = "#ff0000";
@@ -302,7 +317,7 @@
             //    ship.y = ship.y + canvas.height;
             //}
 
-            context.fillText(Math.round(timestamp)+" "+Math.round(ship.x)+" "+Math.round(ship.y), 0, canvas.height);
+            context.fillText(Math.round(timestamp) + " " + Math.round(ship.x) + " " + Math.round(ship.y), 0, canvas.height);
         }
 
         requestAnimationFrame(animate);
