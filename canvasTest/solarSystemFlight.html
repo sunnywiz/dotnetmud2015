@@ -82,7 +82,7 @@
     rawPlanets.forEach(function(rp) {
         planets.push({
             name: rp.name,
-            distance: Math.pow(rp.distance, 0.5),
+            distance: Math.pow(rp.distance, 0.3),
             mass: Math.pow(rp.mass, 0.25),
             radius: Math.pow(rp.diameter, 0.5) / 2,
             x: 0,
@@ -227,6 +227,50 @@
 
                 // start control section
 
+                if (autopilotOnOff.checked) {
+                    // figure out closest planetary body
+                    var closestPlanet = null;
+                    var closestPlanetDsq = null;
+                    planets.forEach(function (p) {
+                        var dx = p.x - ship.x;
+                        var dy = p.y - ship.y;
+                        var rsq = dx * dx + dy * dy;
+                        if (closestPlanetDsq == null || rsq < closestPlanetDsq) {
+                            closestPlanet = p;
+                            closestPlanetDsq = rsq;
+                        }
+                    });
+                    if (closestPlanet != null) {
+                        var dx = closestPlanet.x - (ship.x + (ship.dx * 20));
+                        var dy = closestPlanet.y - (ship.y + (ship.dy * 20));
+                        var mag = Math.sqrt(dx * dx + dy * dy);
+                        var mymag = Math.sqrt(ship.dx * ship.dx + ship.dy * ship.dy);
+
+                        // 1. figure out direction. 
+                        var angleRadians = Math.atan2(dy, dx);
+                        var angleDegrees = angleRadians * 180 / Math.PI;
+                        var angleToGo = angleDegrees - ship.r;
+                        while (angleToGo < -180) {
+                            angleToGo = angleToGo + 180;
+                        }
+                        while (angleToGo > 180) {
+                            angleToGo = angleToGo - 180;
+                        }
+                        ship.isRotatingRight = false;
+                        ship.isRotatingLeft = false;
+                        ship.isThrusting = false; 
+                        if (angleToGo < -1) {
+                            ship.isRotatingLeft = true;
+                        }
+                        if (angleToGo > 1) {
+                            ship.isRotatingRight = true; 
+                        }
+                        if (angleToGo > -5 && angleToGo < 5 && mymag*10 < mag) {
+                            ship.isThrusting = true; 
+                        }
+                    }
+                }
+
                 if (ship.isThrusting) {
                     var vecx = Math.sin(ship.r * Math.PI / 180) * ship.thrust;
                     var vecy = Math.cos(ship.r * Math.PI / 180) * ship.thrust;
@@ -238,15 +282,20 @@
                     context.lineTo(vecx, vecy);
                     context.stroke();
 
-                } else if (ship.isRotatingRight) {
+                }
+
+                if (ship.isRotatingRight) {
                     // elapsed ms
                     ship.r = ship.r + (elapsed / 1000) * ship.rotatespeed;
                     while (ship.r < 0) ship.r = ship.r + 360;
 
-                } else if (ship.isRotatingLeft) {
+                }
+
+                if (ship.isRotatingLeft) {
                     ship.r = ship.r - (elapsed / 1000) * ship.rotatespeed;
                     while (ship.r > 360) ship.r = ship.r - 360;
                 }
+
 
                 // ship is affected by gravity
                 planets.forEach(function(p) {
