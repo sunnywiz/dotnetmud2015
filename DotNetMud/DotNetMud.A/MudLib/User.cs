@@ -208,5 +208,10 @@ namespace DotNetMud.A.MudLib
             }
             if (first) Driver.Instance.SendTextToPlayerObject(uaec.Player, "There is nothing to see here.");
         }
+
+        public object RequestPoll1()
+        {
+            return DateTime.Now.ToLongTimeString();
+        }
     }
 }

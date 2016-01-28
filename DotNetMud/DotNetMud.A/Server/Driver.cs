@@ -37,7 +37,7 @@ namespace DotNetMud.A.Server
             }
         }
 
-        #region INTERNAL things are called from MudHub  -- not accessible to master / rest of the game
+        #region INTERNAL things are called from MudHub  -- not accessible to master / rest of the game -- no longer true. 
 
         internal void RegisterInteractive(IInteractive player, string connectionId)
         {
@@ -187,6 +187,16 @@ namespace DotNetMud.A.Server
         public IInteractive[] ListOfInteractives()
         {
             return _connectionToPlayer.Values.ToArray(); 
+        }
+
+        public object RequestPoll1(string connectionId)
+        {
+            IInteractive player;
+            if (_connectionToPlayer.TryGetValue(connectionId, out player))
+            {
+                return player.RequestPoll1();
+            }
+            return null; 
         }
     }
 }

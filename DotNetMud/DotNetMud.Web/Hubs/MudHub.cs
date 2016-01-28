@@ -31,7 +31,8 @@ namespace DotNetMud.Web.Hubs
         public void requestPoll1()
         {
             Trace.WriteLine($"{Context.ConnectionId} requestPoll1");
-            Clients.Caller.pollResult1(DateTime.Now.ToLongTimeString());
+            var pollResult = Driver.Instance.RequestPoll1(Context.ConnectionId);
+            Clients.Caller.pollResult1(pollResult);
         }
 
 
