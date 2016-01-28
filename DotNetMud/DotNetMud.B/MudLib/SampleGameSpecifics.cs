@@ -1,12 +1,12 @@
 ﻿using DotNetMud.A.Server;
 
-namespace DotNetMud.A.MudLib
+namespace DotNetMud.B.MudLib
 {
     public class SampleGameSpecifics : IGameSpecifics
     {
         public IInteractive CreateNewPlayer()
         {
-            return Driver.Instance.CreateNewStdObject("builtin://DotNetMud.A.MudLib.User") as IInteractive; 
+            return Driver<SampleGameSpecifics>.Instance.CreateNewStdObject("builtin://DotNetMud.B.MudLib.User") as IInteractive; 
         }
 
         public void WelcomeNewPlayer(IInteractive newPlayer)
@@ -18,15 +18,15 @@ namespace DotNetMud.A.MudLib
             newPlayer.SendOutput("");
             newPlayer.SendOutput("What name shall i know you by? ");
 
-            Driver.Instance.RedirectNextUserInput(newPlayer, (string text) =>
+            Driver<SampleGameSpecifics>.Instance.RedirectNextUserInput(newPlayer, (string text) =>
             {
                 var np2 = newPlayer as User;
                 np2.Short = text;
                 np2.SendOutput("Welcome, "+text);
-                var room = Driver.Instance.FindSingletonByUri("builtin://DotNetMud.A.MudLib.Lobby");
+                var room = Driver<SampleGameSpecifics>.Instance.FindSingletonByUri("builtin://DotNetMud.B.MudLib.Lobby");
                 if (room != null)
                 {
-                    Driver.Instance.TellRoom(room, $"{np2.Short} arrives in a puff of smoke!");
+                    Driver<SampleGameSpecifics>.Instance.TellRoom(room, $"{np2.Short} arrives in a puff of smoke!");
                     np2.MoveTo(room);
                 }
 
@@ -39,8 +39,8 @@ namespace DotNetMud.A.MudLib
             var ob2 = (playerObject as StdObject);
             if (ob2 != null)
             {
-                if (ob2.Parent != null) Driver.Instance.TellRoom(ob2.Parent,$"{ob2.Short} vanishes in a puff of smoke.");
-                Driver.Instance.RemoveStdObjectFromGame(ob2);
+                if (ob2.Parent != null) Driver<SampleGameSpecifics>.Instance.TellRoom(ob2.Parent,$"{ob2.Short} vanishes in a puff of smoke.");
+                Driver<SampleGameSpecifics>.Instance.RemoveStdObjectFromGame(ob2);
             }
         }
     }

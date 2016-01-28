@@ -1,6 +1,6 @@
 using System;
 
-namespace DotNetMud.A.MudLib
+namespace DotNetMud.B.MudLib
 {
     public class UserAction
     {

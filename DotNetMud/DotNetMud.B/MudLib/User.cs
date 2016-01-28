@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using DotNetMud.A.Server;
 
-namespace DotNetMud.A.MudLib
+namespace DotNetMud.B.MudLib
 {
     public class User : StdObject, IInteractive, IProvideUserActions
     {
@@ -96,7 +96,7 @@ namespace DotNetMud.A.MudLib
 
         public void SendOutput(string text)
         {
-            Driver.Instance.SendTextToPlayerObject(this, text);
+            Driver<SampleGameSpecifics>.Instance.SendTextToPlayerObject(this, text);
         }
 
         public IEnumerable<UserAction> GetUserActions()
@@ -122,13 +122,13 @@ namespace DotNetMud.A.MudLib
                 Verb = "who", 
                 Action = (uaec) =>
                 {
-                    var users = Driver.Instance.ListOfInteractives(); 
-                    Driver.Instance.SendTextToPlayerObject(uaec.Player,$"There are {users.Length} users logged in:");
+                    var users = Driver<SampleGameSpecifics>.Instance.ListOfInteractives(); 
+                    Driver<SampleGameSpecifics>.Instance.SendTextToPlayerObject(uaec.Player,$"There are {users.Length} users logged in:");
                     foreach (var user in users)
                     {
                         var x = user as User; 
                         if (x != null)
-                        Driver.Instance.SendTextToPlayerObject(uaec.Player,$"  {x.Short}");
+                        Driver<SampleGameSpecifics>.Instance.SendTextToPlayerObject(uaec.Player,$"  {x.Short}");
                     }
                 }
             };
@@ -137,19 +137,19 @@ namespace DotNetMud.A.MudLib
                 Verb = "shout",
                 Action = (uaec) =>
                 {
-                    var users = Driver.Instance.ListOfInteractives();
+                    var users = Driver<SampleGameSpecifics>.Instance.ListOfInteractives();
                     foreach (var user in users)
                     {
                         var x = user as User;
                         if (x != null)
                         {
                             if (x == uaec.Player)
-                                Driver.Instance.SendTextToPlayerObject(uaec.Player,
+                                Driver<SampleGameSpecifics>.Instance.SendTextToPlayerObject(uaec.Player,
                                     $"You shout: {String.Join(" ", uaec.Parameters)}");
 
                             else
 
-                                Driver.Instance.SendTextToPlayerObject(x,
+                                Driver<SampleGameSpecifics>.Instance.SendTextToPlayerObject(x,
                                     $"{uaec.Player.Short} shouts: {String.Join(" ", uaec.Parameters)}");
 
                         }
@@ -164,7 +164,7 @@ namespace DotNetMud.A.MudLib
             var parent = uaec.Player.Parent;
             if (parent == null)
             {
-                Driver.Instance.SendTextToPlayerObject(uaec.Player, "Your words fall into the void.");
+                Driver<SampleGameSpecifics>.Instance.SendTextToPlayerObject(uaec.Player, "Your words fall into the void.");
                 return; 
             }
             foreach (var ob in parent.GetInventory())
@@ -175,11 +175,11 @@ namespace DotNetMud.A.MudLib
                     // TODO: should probably have a raw string rather than string.join of an array here. 
                     if (x == uaec.Player)
                     {
-                        Driver.Instance.SendTextToPlayerObject(x, "You say: " + String.Join(" ", uaec.Parameters));
+                        Driver<SampleGameSpecifics>.Instance.SendTextToPlayerObject(x, "You say: " + String.Join(" ", uaec.Parameters));
                     }
                     else
                     {
-                        Driver.Instance.SendTextToPlayerObject(x,$"{uaec.Player.Short} says: {String.Join(" ",uaec.Parameters)}");
+                        Driver<SampleGameSpecifics>.Instance.SendTextToPlayerObject(x,$"{uaec.Player.Short} says: {String.Join(" ",uaec.Parameters)}");
                     }
                 }
             }
@@ -191,23 +191,23 @@ namespace DotNetMud.A.MudLib
             var parent = uaec.Player.Parent;
             if (parent == null)
             {
-                Driver.Instance.SendTextToPlayerObject(uaec.Player,"You are hanging in the void.");
+                Driver<SampleGameSpecifics>.Instance.SendTextToPlayerObject(uaec.Player,"You are hanging in the void.");
                 return;
             }
-            Driver.Instance.SendTextToPlayerObject(uaec.Player,parent.Short);
-            Driver.Instance.SendTextToPlayerObject(uaec.Player,parent.Long);
+            Driver<SampleGameSpecifics>.Instance.SendTextToPlayerObject(uaec.Player,parent.Short);
+            Driver<SampleGameSpecifics>.Instance.SendTextToPlayerObject(uaec.Player,parent.Long);
             var first = true; 
             foreach (var obj in parent.GetInventory())
             {
                 if (obj == uaec.Player) continue;
                 if (first)
                 {
-                    Driver.Instance.SendTextToPlayerObject(uaec.Player, "Here you see: ");
+                    Driver<SampleGameSpecifics>.Instance.SendTextToPlayerObject(uaec.Player, "Here you see: ");
                     first = false; 
                 }
-                Driver.Instance.SendTextToPlayerObject(uaec.Player, $"  {obj.Short}");
+                Driver<SampleGameSpecifics>.Instance.SendTextToPlayerObject(uaec.Player, $"  {obj.Short}");
             }
-            if (first) Driver.Instance.SendTextToPlayerObject(uaec.Player, "There is nothing to see here.");
+            if (first) Driver<SampleGameSpecifics>.Instance.SendTextToPlayerObject(uaec.Player, "There is nothing to see here.");
         }
 
         public object RequestPoll(string pollName, object clientState)

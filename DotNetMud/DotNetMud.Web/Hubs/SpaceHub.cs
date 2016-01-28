@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using DotNetMud.A.MudLib;
 using DotNetMud.A.Server;
-using DotNetMud.B.MudLib;
 using Microsoft.AspNet.SignalR;
 
 namespace DotNetMud.Web.Hubs
@@ -12,7 +11,7 @@ namespace DotNetMud.Web.Hubs
     /// This is the raw implementation of "chatting with clients over Signal/R. 
     /// It tries to pawn whatever it can over to driver.cs
     /// </summary>
-    public class MudHub : Hub
+    public class SpaceHub : Hub
     {
         // For the most part, whenever this gets something to do, it could/should send it off 
         // to Driver.   exception:  when its bootstrapping Driver. 
@@ -22,12 +21,12 @@ namespace DotNetMud.Web.Hubs
 
         public void userCommand(string cmd)
         {
-            Driver<SampleGameSpecifics>.Instance.ReceiveUserCommand(Context.ConnectionId, cmd);
+            Driver<SpaceGameSpecifics>.Instance.ReceiveUserCommand(Context.ConnectionId, cmd);
         }
 
         public void requestPoll(string pollName, object clientState /* TODO: can't really use clientState for much yet need PersistentConnection */)
         {
-            var pollResult = Driver<SampleGameSpecifics>.Instance.RequestPoll(Context.ConnectionId,pollName, clientState);
+            var pollResult = Driver<SpaceGameSpecifics>.Instance.RequestPoll(Context.ConnectionId,pollName, clientState);
             Clients.Caller.pollResult(pollName, pollResult);
         }
 
@@ -35,16 +34,16 @@ namespace DotNetMud.Web.Hubs
         {
             Trace.WriteLine("OnConnected");
             DriverShouldCaptureSignalRContext();
-            Driver<SampleGameSpecifics>.Instance.ReceiveNewPlayer(Context.ConnectionId);
+            Driver<SpaceGameSpecifics>.Instance.ReceiveNewPlayer(Context.ConnectionId);
             return base.OnConnected();
         }
 
         private static void DriverShouldCaptureSignalRContext()
         {
-            if (Driver<SampleGameSpecifics>.Instance.SendToClientCallBack == null)
+            if (Driver<SpaceGameSpecifics>.Instance.SendToClientCallBack == null)
             {
                 var context = GlobalHost.ConnectionManager.GetHubContext<MudHub>();
-                Driver<SampleGameSpecifics>.Instance.SendToClientCallBack = (connectionId, message) =>
+                Driver<SpaceGameSpecifics>.Instance.SendToClientCallBack = (connectionId, message) =>
                 {
                     var client = context.Clients.Client(connectionId);
                     if (client != null)
@@ -58,10 +57,11 @@ namespace DotNetMud.Web.Hubs
         public override Task OnDisconnected(bool stopCalled)
         {
             DriverShouldCaptureSignalRContext();
-            Driver<SampleGameSpecifics>.Instance.ReceiveDisconnection(Context.ConnectionId, stopCalled);
+            Driver<SpaceGameSpecifics>.Instance.ReceiveDisconnection(Context.ConnectionId, stopCalled);
             return base.OnDisconnected(stopCalled);
         }
 
         // TODO: move an interactive connection to a new mud object
+
     }
 }

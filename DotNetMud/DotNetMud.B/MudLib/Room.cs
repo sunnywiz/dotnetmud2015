@@ -3,7 +3,7 @@ using System.Linq;
 using System.Text;
 using DotNetMud.A.Server;
 
-namespace DotNetMud.A.MudLib
+namespace DotNetMud.B.MudLib
 {
     /// <summary>
     /// Standard room object - rooms should inherit from here. 
@@ -62,16 +62,16 @@ namespace DotNetMud.A.MudLib
             string locator;
             if (_directionsToRooms.TryGetValue(uaec.Verb, out locator))
             {
-                var targetRoom = Driver.Instance.FindSingletonByUri(locator);
+                var targetRoom = Driver<SampleGameSpecifics>.Instance.FindSingletonByUri(locator);
                 if (targetRoom != null)
                 {
                     var userPreviousRoom = uaec.Player.Parent;
-                    Driver.Instance.TellRoom(targetRoom,$"{uaec.Player.Short} arrives.");
+                    Driver<SampleGameSpecifics>.Instance.TellRoom(targetRoom,$"{uaec.Player.Short} arrives.");
                     // TODO: will have complications with messaging if move is blocked. need a better TellRoom which can exclude user.
                     uaec.Player.SendOutput($"You travel {uaec.Verb}");
                     uaec.Player.MoveTo(targetRoom);
                     uaec.Player.ReceiveInput("look");
-                    if (userPreviousRoom != null) Driver.Instance.TellRoom(userPreviousRoom,$"{uaec.Player.Short} goes {uaec.Verb}.");
+                    if (userPreviousRoom != null) Driver<SampleGameSpecifics>.Instance.TellRoom(userPreviousRoom,$"{uaec.Player.Short} goes {uaec.Verb}.");
                 }
             }
         }

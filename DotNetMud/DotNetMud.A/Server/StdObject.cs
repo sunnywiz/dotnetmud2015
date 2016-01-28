@@ -30,8 +30,9 @@ namespace DotNetMud.A.Server
         /// <summary>
         /// internal constructor - only driver (really) should be able to create a stdobject
         /// this is so we can do object tracking. 
+        /// TODO: no longer internal when we split the thing out.   There needs to be DriverObject and a mudlib specific object, i think. 
         /// </summary>
-        internal StdObject()
+        public StdObject()
         {
             _inventory = new List<StdObject>();
             ObjectId = this.GetType().FullName +'#'+ (++_idSequence);

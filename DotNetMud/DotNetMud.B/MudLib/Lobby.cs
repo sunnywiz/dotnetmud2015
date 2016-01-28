@@ -1,4 +1,4 @@
-namespace DotNetMud.A.MudLib
+namespace DotNetMud.B.MudLib
 {
     public class Lobby : Room
     {
