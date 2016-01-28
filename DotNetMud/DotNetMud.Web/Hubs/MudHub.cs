@@ -1,3 +1,4 @@
+using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using DotNetMud.A.Server;
@@ -26,6 +27,13 @@ namespace DotNetMud.Web.Hubs
         {
             Driver.Instance.ReceiveUserCommand(Context.ConnectionId, cmd);
         }
+
+        public void requestPoll1()
+        {
+            Trace.WriteLine($"{Context.ConnectionId} requestPoll1");
+            Clients.Caller.pollResult1(DateTime.Now.ToLongTimeString());
+        }
+
 
         public override Task OnConnected()
         {
