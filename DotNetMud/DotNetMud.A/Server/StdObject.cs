@@ -41,6 +41,7 @@ namespace DotNetMud.A.Server
 
         public bool IsDestroyed { get; internal set; }
 
+        // TODO: the notion of inventory is a MUDLIB thing not a Driver thing. 
         public StdObject[] GetInventory()
         {
             return _inventory.ToArray(); 

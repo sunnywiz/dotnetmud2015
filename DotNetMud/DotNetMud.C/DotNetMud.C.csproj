@@ -41,7 +41,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SpaceLib\IObject2D.cs" />
+    <Compile Include="SpaceLib\Object2D.cs" />
     <Compile Include="SpaceLib\PollResult1.cs" />
+    <Compile Include="SpaceLib\Space2D.cs" />
     <Compile Include="SpaceLib\SpaceGameSpecifics.cs" />
     <Compile Include="SpaceLib\Ship.cs" />
   </ItemGroup>
