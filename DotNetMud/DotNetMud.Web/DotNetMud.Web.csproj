@@ -277,6 +277,10 @@
       <Project>{30d36c31-34b9-4e4f-8feb-39cfec7101ae}</Project>
       <Name>DotNetMud.B</Name>
     </ProjectReference>
+    <ProjectReference Include="..\DotNetMud.C\DotNetMud.C.csproj">
+      <Project>{d7fead45-56be-4128-be9f-af6bab84d518}</Project>
+      <Name>DotNetMud.C</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
