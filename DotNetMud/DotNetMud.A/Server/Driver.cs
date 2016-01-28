@@ -189,12 +189,12 @@ namespace DotNetMud.A.Server
             return _connectionToPlayer.Values.ToArray(); 
         }
 
-        public object RequestPoll1(string connectionId)
+        public object RequestPoll(string connectionId, string pollName, object clientState)
         {
             IInteractive player;
             if (_connectionToPlayer.TryGetValue(connectionId, out player))
             {
-                return player.RequestPoll1();
+                return player.RequestPoll(pollName,clientState);
             }
             return null; 
         }

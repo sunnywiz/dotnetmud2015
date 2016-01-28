@@ -27,9 +27,9 @@
             $('#discussion').append(encodedMsg);
         };
 
-        chat.client.pollResult1 = function (data) {
-            var encodedMessage = $('<div class="fromServer" />').text(data);
-            $('#pollResult1').append(encodedMessage);
+        chat.client.pollResult = function (pollName, data) {
+            $('#RoomDescription').text(data.RoomDescription);
+            $('#RoomInventory').text(data.RoomInventory);
         }
 
         function sendUserInputToHub() {
@@ -47,7 +47,7 @@
         // Start the connection.
         $.connection.hub.start().done(function() {
             $('#sendmessage').click(sendUserInputToHub);
-            setInterval(function () { chat.server.requestPoll1(); }, 1000);
+            setInterval(function () { chat.server.requestPoll('1',5); }, 1000);
             $('#message').keyup(function(e) {
                 if (e.keyCode == 13) {
                     sendUserInputToHub();
@@ -63,13 +63,15 @@
 
 <div class="container">
     <div class="row">
+        <pre class="col-md-12" id="RoomDescription"></pre>
+    </div>
+    <div class="row">
         <div class="col-md-8">
             <div id="discussion"></div>
             <input type="text" id="message"/>
             <input type="button" id="sendmessage" value="Send"/>
         </div>
-        <div class="col-md-4">
-            <div id="pollResult1"></div>
-        </div>
+        <pre class="col-md-4" id="RoomInventory">
+        </pre>
     </div>
 </div>

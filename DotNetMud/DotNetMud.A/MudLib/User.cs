@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using DotNetMud.A.Server;
 
 namespace DotNetMud.A.MudLib
@@ -209,9 +210,45 @@ namespace DotNetMud.A.MudLib
             if (first) Driver.Instance.SendTextToPlayerObject(uaec.Player, "There is nothing to see here.");
         }
 
-        public object RequestPoll1()
+        public object RequestPoll(string pollName, object clientState)
         {
-            return DateTime.Now.ToLongTimeString();
+            if (pollName == "1")
+            {
+                var result = new PollResult1();
+                var parent = this.Parent;
+                if (parent == null)
+                {
+                    result.RoomDescription = "You are floating in the void.";
+                }
+                else
+                {
+                    var sb = new StringBuilder();
+                    sb.AppendLine(parent.Short);
+                    sb.AppendLine(parent.Long);
+                    result.RoomDescription = sb.ToString();
+
+                    foreach (var obj in parent.GetInventory())
+                    {
+                        if (obj == this) continue;
+                        result.RoomInventory.Add(obj.Short);
+                    }
+                }
+                return result; 
+            }
+            else return null; 
         }
+    }
+
+    /// <summary>
+    /// has to serialize down to json ok
+    /// </summary>
+    public class PollResult1
+    {
+        public PollResult1()
+        {
+            RoomInventory = new List<string>();
+        }
+        public string RoomDescription { get; set; }
+        public List<string> RoomInventory { get; set; }
     }
 }

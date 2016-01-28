@@ -12,11 +12,6 @@ namespace DotNetMud.Web.Hubs
     /// </summary>
     public class MudHub : Hub
     {
-        public MudHub()
-        {
-            Trace.WriteLine("MudHub Ctor");
-        }
-
         // For the most part, whenever this gets something to do, it could/should send it off 
         // to Driver.   exception:  when its bootstrapping Driver. 
 
@@ -28,13 +23,11 @@ namespace DotNetMud.Web.Hubs
             Driver.Instance.ReceiveUserCommand(Context.ConnectionId, cmd);
         }
 
-        public void requestPoll1()
+        public void requestPoll(string pollName, object clientState /* TODO: can't really use clientState for much yet need PersistentConnection */)
         {
-            Trace.WriteLine($"{Context.ConnectionId} requestPoll1");
-            var pollResult = Driver.Instance.RequestPoll1(Context.ConnectionId);
-            Clients.Caller.pollResult1(pollResult);
+            var pollResult = Driver.Instance.RequestPoll(Context.ConnectionId,pollName, clientState);
+            Clients.Caller.pollResult(pollName, pollResult);
         }
-
 
         public override Task OnConnected()
         {

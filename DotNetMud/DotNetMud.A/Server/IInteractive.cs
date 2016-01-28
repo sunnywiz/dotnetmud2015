@@ -4,6 +4,6 @@ namespace DotNetMud.A.Server
     {
         void ReceiveInput(string line);
         void SendOutput(string text);
-        object RequestPoll1();
+        object RequestPoll(string pollName, object clientState);
     }
 }
