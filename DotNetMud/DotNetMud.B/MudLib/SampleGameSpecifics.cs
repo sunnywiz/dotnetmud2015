@@ -6,7 +6,7 @@ namespace DotNetMud.B.MudLib
     {
         public IInteractive CreateNewPlayer()
         {
-            return Driver<SampleGameSpecifics>.Instance.CreateNewStdObject("builtin://DotNetMud.B.MudLib.User") as IInteractive; 
+            return Driver<SampleGameSpecifics>.Instance.CreateNewStdObject("assembly://DotNetMud.B/DotNetMud.B.MudLib.User") as IInteractive; 
         }
 
         public void WelcomeNewPlayer(IInteractive newPlayer)
@@ -23,7 +23,7 @@ namespace DotNetMud.B.MudLib
                 var np2 = newPlayer as User;
                 np2.Short = text;
                 np2.SendOutput("Welcome, "+text);
-                var room = Driver<SampleGameSpecifics>.Instance.FindSingletonByUri("builtin://DotNetMud.B.MudLib.Lobby");
+                var room = Driver<SampleGameSpecifics>.Instance.FindSingletonByUri("assembly://DotNetMud.B/DotNetMud.B.MudLib.Lobby");
                 if (room != null)
                 {
                     Driver<SampleGameSpecifics>.Instance.TellRoom(room, $"{np2.Short} arrives in a puff of smoke!");

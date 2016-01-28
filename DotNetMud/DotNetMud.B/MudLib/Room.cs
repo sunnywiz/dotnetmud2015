@@ -70,7 +70,7 @@ namespace DotNetMud.B.MudLib
                     // TODO: will have complications with messaging if move is blocked. need a better TellRoom which can exclude user.
                     uaec.Player.SendOutput($"You travel {uaec.Verb}");
                     uaec.Player.MoveTo(targetRoom);
-                    uaec.Player.ReceiveInput("look");
+                    // uaec.Player.ReceiveInput("look"); now done with Polling. 
                     if (userPreviousRoom != null) Driver<SampleGameSpecifics>.Instance.TellRoom(userPreviousRoom,$"{uaec.Player.Short} goes {uaec.Verb}.");
                 }
             }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using DotNetMud.A.MudLib;
 
 namespace DotNetMud.A.Server
@@ -148,6 +149,35 @@ namespace DotNetMud.A.Server
                 }
                 Console.WriteLine("CreateNewStdObject: {0} => type does not appear to be a StdObject", uri);
                 return null;
+            } else if (parsed.Scheme == "assembly")
+            {
+                // assembly://assembly.name/type.name
+                var assemblyName = parsed.Host.Trim();
+                var typeName = parsed.AbsolutePath.Trim();
+                if (typeName.StartsWith("/")) typeName = typeName.Substring(1);
+
+                var assembly =
+                    AppDomain.CurrentDomain.GetAssemblies()
+                        .FirstOrDefault(a => String.Compare(a.GetName().Name, assemblyName, true) == 0);
+                if (assembly == null) return null;
+                var type = assembly.GetType(typeName, false, true);
+                if (type != null && type.IsSubclassOf(typeof(StdObject)))
+                {
+                    var ob = assembly.CreateInstance(
+                        typeName, true) as StdObject;
+                    if (ob == null)
+                    {
+                        Console.WriteLine("CreateNewStdObject: {0} => created type was not StdObject, return null", uri);
+                        return null;
+                    }
+                    ob.TypeUri = parsed.ToString();
+                    _allObjects.Add(ob);
+                    Console.WriteLine("CreateNewStdObject: {0} => created {1} ({2})", uri, ob.ObjectId, ob.TypeUri);
+                    return ob;
+                }
+                Console.WriteLine("CreateNewStdObject: {0} => type does not appear to be a StdObject", uri);
+                return null;
+
             }
             Console.WriteLine("CreateNewStdObject: {0} => scheme {1} not known", parsed.Scheme);
             return null;
