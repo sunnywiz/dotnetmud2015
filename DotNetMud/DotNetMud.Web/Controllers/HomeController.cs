@@ -32,5 +32,11 @@ namespace DotNetMud.Web.Controllers
             ViewBag.Message = "Client";
             return View(); 
         }
+
+        public ActionResult SpaceClient()
+        {
+            ViewBag.Message = "Space Client";
+            return View(); 
+        }
     }
 }
