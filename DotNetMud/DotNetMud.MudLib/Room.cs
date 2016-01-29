@@ -3,7 +3,7 @@ using System.Linq;
 using System.Text;
 using DotNetMud.Driver;
 
-namespace DotNetMud.B.MudLib
+namespace DotNetMud.Mudlib
 {
     /// <summary>
     /// Standard room object - rooms should inherit from here. 

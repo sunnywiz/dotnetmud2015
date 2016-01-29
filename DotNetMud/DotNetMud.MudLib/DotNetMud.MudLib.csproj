@@ -7,8 +7,8 @@
     <ProjectGuid>{30D36C31-34B9-4E4F-8FEB-39CFEC7101AE}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>DotNetMud.B</RootNamespace>
-    <AssemblyName>DotNetMud.B</AssemblyName>
+    <RootNamespace>DotNetMud.Mudlib</RootNamespace>
+    <AssemblyName>DotNetMud.Mudlib</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -40,14 +40,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MudLib\IProvideUserActions.cs" />
-    <Compile Include="MudLib\Lobby.cs" />
-    <Compile Include="MudLib\MudLibObject.cs" />
-    <Compile Include="MudLib\Room.cs" />
-    <Compile Include="MudLib\SampleGameSpecifics.cs" />
-    <Compile Include="MudLib\User.cs" />
-    <Compile Include="MudLib\UserAction.cs" />
-    <Compile Include="MudLib\UserActionExecutionContext.cs" />
+    <Compile Include="IProvideUserActions.cs" />
+    <Compile Include="Lobby.cs" />
+    <Compile Include="MudLibObject.cs" />
+    <Compile Include="Room.cs" />
+    <Compile Include="SampleGameSpecifics.cs" />
+    <Compile Include="User.cs" />
+    <Compile Include="UserAction.cs" />
+    <Compile Include="UserActionExecutionContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

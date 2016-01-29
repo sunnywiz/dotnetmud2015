@@ -1,6 +1,6 @@
 ﻿using DotNetMud.Driver;
 
-namespace DotNetMud.B.MudLib
+namespace DotNetMud.Mudlib
 {
     public class SampleGameSpecifics : IGameSpecifics
     {

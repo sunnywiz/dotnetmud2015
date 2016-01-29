@@ -12,7 +12,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		..\canvasTest\solarSystemFlight.html = ..\canvasTest\solarSystemFlight.html
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNetMud.B", "DotNetMud.B\DotNetMud.B.csproj", "{30D36C31-34B9-4E4F-8FEB-39CFEC7101AE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNetMud.MudLib", "DotNetMud.MudLib\DotNetMud.MudLib.csproj", "{30D36C31-34B9-4E4F-8FEB-39CFEC7101AE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNetMud.C", "DotNetMud.C\DotNetMud.C.csproj", "{D7FEAD45-56BE-4128-BE9F-AF6BAB84D518}"
 EndProject

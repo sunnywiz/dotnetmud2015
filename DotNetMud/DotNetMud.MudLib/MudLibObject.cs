@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using DotNetMud.Driver;
 
-namespace DotNetMud.B.MudLib
+namespace DotNetMud.Mudlib
 {
     public class MudLibObject : StdObject
     {

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using DotNetMud.Driver;
 
-namespace DotNetMud.B.MudLib
+namespace DotNetMud.Mudlib
 {
     public class User : MudLibObject, IInteractive, IProvideUserActions
     {

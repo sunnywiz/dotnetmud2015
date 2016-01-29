@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace DotNetMud.B.MudLib
+namespace DotNetMud.Mudlib
 {
     public interface IProvideUserActions
     {

@@ -273,9 +273,9 @@
       <Project>{a23b40b2-593e-4fdd-a5a5-24a9fa25594d}</Project>
       <Name>DotNetMud.Driver</Name>
     </ProjectReference>
-    <ProjectReference Include="..\DotNetMud.B\DotNetMud.B.csproj">
+    <ProjectReference Include="..\DotNetMud.MudLib\DotNetMud.MudLib.csproj">
       <Project>{30d36c31-34b9-4e4f-8feb-39cfec7101ae}</Project>
-      <Name>DotNetMud.B</Name>
+      <Name>DotNetMud.MudLib</Name>
     </ProjectReference>
     <ProjectReference Include="..\DotNetMud.C\DotNetMud.C.csproj">
       <Project>{d7fead45-56be-4128-be9f-af6bab84d518}</Project>
