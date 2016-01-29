@@ -1,4 +1,4 @@
-namespace DotNetMud.C.SpaceLib
+namespace DotNetMud.SpaceLib
 {
     /// <summary>
     /// has to serialize down to json ok

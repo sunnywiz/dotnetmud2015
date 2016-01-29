@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using DotNetMud.Driver;
 
-namespace DotNetMud.C.SpaceLib
+namespace DotNetMud.SpaceLib
 {
     public class Space2D : StdObject
     {

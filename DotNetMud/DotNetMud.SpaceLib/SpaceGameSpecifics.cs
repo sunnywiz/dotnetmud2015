@@ -1,7 +1,7 @@
 ﻿using System;
 using DotNetMud.Driver;
 
-namespace DotNetMud.C.SpaceLib
+namespace DotNetMud.SpaceLib
 {
     public class SpaceGameSpecifics : IGameSpecifics
     {

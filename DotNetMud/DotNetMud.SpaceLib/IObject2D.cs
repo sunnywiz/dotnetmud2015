@@ -1,5 +1,5 @@
 // ReSharper disable InconsistentNaming
-namespace DotNetMud.C.SpaceLib
+namespace DotNetMud.SpaceLib
 {
     public interface IObject2D
     {

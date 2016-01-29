@@ -1,4 +1,4 @@
-namespace DotNetMud.C.SpaceLib
+namespace DotNetMud.SpaceLib
 {
     /// <summary>
     /// All things representable on the 2D grid. 

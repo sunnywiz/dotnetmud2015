@@ -1,6 +1,6 @@
 using DotNetMud.Driver;
 
-namespace DotNetMud.C.SpaceLib
+namespace DotNetMud.SpaceLib
 {
     public class Ship : StdObject, IObject2D, IInteractive
     {
