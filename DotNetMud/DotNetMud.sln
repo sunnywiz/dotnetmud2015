@@ -5,7 +5,7 @@ VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNetMud.Web", "DotNetMud.Web\DotNetMud.Web.csproj", "{C6DD4C16-54BE-46CA-9996-E96085C7C15F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNetMud.A", "DotNetMud.A\DotNetMud.A.csproj", "{A23B40B2-593E-4FDD-A5A5-24A9FA25594D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNetMud.Driver", "DotNetMud.Driver\DotNetMud.Driver.csproj", "{A23B40B2-593E-4FDD-A5A5-24A9FA25594D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{250AD468-CA50-4EF4-969A-A969CC4DDCBB}"
 	ProjectSection(SolutionItems) = preProject

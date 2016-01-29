@@ -1,4 +1,4 @@
-namespace DotNetMud.A.Server
+namespace DotNetMud.Driver
 {
     public interface IInteractive
     {

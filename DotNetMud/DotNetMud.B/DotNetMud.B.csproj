@@ -51,9 +51,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\DotNetMud.A\DotNetMud.A.csproj">
+    <ProjectReference Include="..\DotNetMud.Driver\DotNetMud.Driver.csproj">
       <Project>{a23b40b2-593e-4fdd-a5a5-24a9fa25594d}</Project>
-      <Name>DotNetMud.A</Name>
+      <Name>DotNetMud.Driver</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

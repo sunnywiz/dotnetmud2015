@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace DotNetMud.A.Server
+namespace DotNetMud.Driver
 {
     /// <summary>
     /// This is what most mud code would know as the driver - the O/S of the mud, as it were. 

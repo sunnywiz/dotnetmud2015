@@ -1,6 +1,4 @@
-using System.Collections.Generic;
-
-namespace DotNetMud.A.Server
+namespace DotNetMud.Driver
 {
     /// <summary>
     /// This is the "standard mud object" that all mud objects should inherit from. 

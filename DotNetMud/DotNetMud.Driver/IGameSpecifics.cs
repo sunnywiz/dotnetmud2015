@@ -1,4 +1,4 @@
-namespace DotNetMud.A.Server
+namespace DotNetMud.Driver
 {
     /// <summary>
     /// This is what the game implementation implements.  These are the hooks into custom logic that the driver
