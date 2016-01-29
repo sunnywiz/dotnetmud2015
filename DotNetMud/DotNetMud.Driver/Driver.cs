@@ -103,82 +103,36 @@ namespace DotNetMud.Driver
             }
         }
 
-        /// <summary>
-        /// Attempts to find the singleton specified.  If not already created, creates it. 
-        /// </summary>
-        /// <param name="uri"></param>
-        public StdObject FindSingletonByUri(string uri)
+        public StdObject FindSingleton(Type objectType)
         {
-            var parsed = new Uri(uri);
-            var combed = parsed.ToString(); 
-            // TODO: probably need to optimize this lookup.
-            var alreadyExists = _allObjects.FirstOrDefault(x => x.TypeUri == combed);
+            var alreadyExists = _allObjects.FirstOrDefault(x => x.GetType() == objectType);
             if (alreadyExists != null)
             {
-                Console.WriteLine("FindSingletonbyUri: found {0}=>{1} ({2}) ", uri,alreadyExists.ObjectId,alreadyExists.TypeUri);
+                Console.WriteLine("FindSingleton(type): found {0}=>{1}", objectType.FullName, alreadyExists.ObjectId);
                 return alreadyExists;
             }
 
-            Console.WriteLine("FindSingletonByUri: {0} not found, creating new",uri);
-            return CreateNewStdObject(uri);
+            Console.WriteLine("FindSingleton(type): {0} not found, creating new", objectType.FullName);
+            return CreateNewStdObject(objectType);
+
         }
 
-        public StdObject CreateNewStdObject(string uri)
+
+        // TODO: At some point in the future, will need to bring back string locators which load from assemblies
+        // that are not known at compile time.   Probably not till we get to our first wizarding realm though. 
+        public StdObject CreateNewStdObject(Type type)
         {
-            var parsed = new Uri(uri);
-            if (parsed.Scheme == "builtin")
+            if (type == null || !type.IsSubclassOf(typeof (StdObject))) return null;
+            var ob = type.Assembly.CreateInstance(type.FullName, false) as StdObject;
+
+            if (ob == null)
             {
-                var typeName = parsed.Host.Trim();  // this typeName is lowercased. 
-
-                var type = this.GetType().Assembly.GetType(typeName,false, true);
-                if (type != null && type.IsSubclassOf(typeof(StdObject)))
-                {
-                    var ob = this.GetType().Assembly.CreateInstance(
-                        parsed.Host,true) as StdObject;
-                    if (ob == null)
-                    {
-                        Console.WriteLine("CreateNewStdObject: {0} => created type was not StdObject, return null",uri);
-                        return null;
-                    }
-                    ob.TypeUri = parsed.ToString(); 
-                    _allObjects.Add(ob);
-                    Console.WriteLine("CreateNewStdObject: {0} => created {1} ({2})", uri, ob.ObjectId,ob.TypeUri);
-                    return ob;
-                }
-                Console.WriteLine("CreateNewStdObject: {0} => type does not appear to be a StdObject", uri);
+                Console.WriteLine("CreateNewStdObject: {0} => created type was not StdObject, return null", type.FullName);
                 return null;
-            } else if (parsed.Scheme == "assembly")
-            {
-                // assembly://assembly.name/type.name
-                var assemblyName = parsed.Host.Trim();
-                var typeName = parsed.AbsolutePath.Trim();
-                if (typeName.StartsWith("/")) typeName = typeName.Substring(1);
-
-                var assembly =
-                    AppDomain.CurrentDomain.GetAssemblies()
-                        .FirstOrDefault(a => String.Compare(a.GetName().Name, assemblyName, true) == 0);
-                if (assembly == null) return null;
-                var type = assembly.GetType(typeName, false, true);
-                if (type != null && type.IsSubclassOf(typeof(StdObject)))
-                {
-                    var ob = assembly.CreateInstance(
-                        typeName, true) as StdObject;
-                    if (ob == null)
-                    {
-                        Console.WriteLine("CreateNewStdObject: {0} => created type was not StdObject, return null", uri);
-                        return null;
-                    }
-                    ob.TypeUri = parsed.ToString();
-                    _allObjects.Add(ob);
-                    Console.WriteLine("CreateNewStdObject: {0} => created {1} ({2})", uri, ob.ObjectId, ob.TypeUri);
-                    return ob;
-                }
-                Console.WriteLine("CreateNewStdObject: {0} => type does not appear to be a StdObject", uri);
-                return null;
-
             }
-            Console.WriteLine("CreateNewStdObject: {0} => scheme {1} not known", parsed.Scheme);
-            return null;
+            _allObjects.Add(ob);
+            Console.WriteLine("CreateNewStdObject: {0} => created {1}", type.FullName, ob.ObjectId);
+            return ob;
         }
 
         /// <summary>
@@ -190,7 +144,6 @@ namespace DotNetMud.Driver
             ob.Destroy(); 
             _allObjects.Remove(ob);
         }
-
 
         public IInteractive[] ListOfInteractives()
         {

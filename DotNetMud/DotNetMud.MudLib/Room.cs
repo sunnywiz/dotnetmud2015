@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,7 +11,7 @@ namespace DotNetMud.Mudlib
     /// </summary>
     public class Room : MudLibObject, IProvideUserActions
     {
-        private readonly Dictionary<string, string> _directionsToRooms = new Dictionary<string, string>(); 
+        private readonly Dictionary<string, Type> _directionsToRooms = new Dictionary<string, Type>(); 
 
         public string Description { get; set; }
 
@@ -44,7 +45,7 @@ namespace DotNetMud.Mudlib
             }
         }
 
-        public void AddDirection(string direction, string roomLocator)
+        public void AddDirection(string direction, Type roomLocator)
         {
             _directionsToRooms[direction] = roomLocator;
         }
@@ -59,10 +60,10 @@ namespace DotNetMud.Mudlib
 
         public void MoveUserToRoom(UserActionExecutionContext uaec)
         {
-            string locator;
+            Type locator;
             if (_directionsToRooms.TryGetValue(uaec.Verb, out locator))
             {
-                var targetRoom = Driver<SampleGameSpecifics>.Instance.FindSingletonByUri(locator) as MudLibObject;
+                var targetRoom = Driver<SampleGameSpecifics>.Instance.FindSingleton(locator) as MudLibObject;
                 if (targetRoom != null)
                 {
                     var userPreviousRoom = uaec.Player.Parent;

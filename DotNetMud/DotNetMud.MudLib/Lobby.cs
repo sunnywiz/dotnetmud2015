@@ -6,7 +6,7 @@ namespace DotNetMud.Mudlib
         {
             Short = "The Lobby";
             Description = "Its a nice lobby. ";
-            AddDirection("east", "assembly://DotNetMud.B/DotNetMud.B.MudLib.VisitingRoom1");
+            AddDirection("east", typeof(VisitingRoom1));
         }
     }
 
@@ -16,7 +16,7 @@ namespace DotNetMud.Mudlib
         {
             Short = "Visiting Room 1";
             Description = "You are in a plush little visiting room with couches everywhere.";
-            AddDirection("west", "assembly://DotNetMud.B/DotNetMud.B.MudLib.Lobby");
+            AddDirection("west", typeof(Lobby));
         }
     }
 }

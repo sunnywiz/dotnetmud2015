@@ -9,8 +9,7 @@ namespace DotNetMud.SpaceLib
         public IInteractive CreateNewPlayer()
         {
             var player =
-                Driver<SpaceGameSpecifics>.Instance.CreateNewStdObject(
-                    "assembly://DotNetMud.C//DotNetMud.C.SpaceLib.Ship");
+                Driver<SpaceGameSpecifics>.Instance.CreateNewStdObject(typeof(Ship));
             var p2 = player as IInteractive;
             var p3 = player as IObject2D;
 
@@ -35,8 +34,7 @@ namespace DotNetMud.SpaceLib
             var x = newPlayer as IObject2D;
             if (x == null) return; 
             var space =
-                Driver<SpaceGameSpecifics>.Instance.FindSingletonByUri(
-                    "assembly://DotNetMud.C/DotNetMud.C.SpaceLib.Space2D") as Space2D;
+                Driver<SpaceGameSpecifics>.Instance.FindSingleton(typeof(Space2D)) as Space2D;
             if (space == null) return; 
             space.Objects.Add(x);
             x.Container = space; 
@@ -47,8 +45,7 @@ namespace DotNetMud.SpaceLib
             var x = playerObject as IObject2D;
             if (x == null) return;
             var space =
-                Driver<SpaceGameSpecifics>.Instance.FindSingletonByUri(
-                    "assembly://DotNetMud.C/DotNetMud.C.SpaceLib.Space2D") as Space2D;
+                Driver<SpaceGameSpecifics>.Instance.FindSingleton(typeof(Space2D)) as Space2D;
             if (space == null) return;
             space.Objects.Remove(x);
             x.Container = null; 

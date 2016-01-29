@@ -12,7 +12,6 @@ namespace DotNetMud.Driver
 
         // TODO: maybe make an internal constructor? 
         public string ObjectId { get; }  // set by driver on creation
-        public string TypeUri { get; internal set; }
         public static long _idSequence = 0L;
 
 
