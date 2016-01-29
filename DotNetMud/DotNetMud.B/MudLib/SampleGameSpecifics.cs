@@ -23,10 +23,10 @@ namespace DotNetMud.B.MudLib
                 var np2 = newPlayer as User;
                 np2.Short = text;
                 np2.SendOutput("Welcome, "+text);
-                var room = Driver<SampleGameSpecifics>.Instance.FindSingletonByUri("assembly://DotNetMud.B/DotNetMud.B.MudLib.Lobby");
+                var room = Driver<SampleGameSpecifics>.Instance.FindSingletonByUri("assembly://DotNetMud.B/DotNetMud.B.MudLib.Lobby") as MudLibObject;
                 if (room != null)
                 {
-                    Driver<SampleGameSpecifics>.Instance.TellRoom(room, $"{np2.Short} arrives in a puff of smoke!");
+                    MudLibObject.TellRoom(room, $"{np2.Short} arrives in a puff of smoke!");
                     np2.MoveTo(room);
                 }
 
@@ -36,10 +36,10 @@ namespace DotNetMud.B.MudLib
 
         public void PlayerGotDisconnected(IInteractive playerObject, bool wasItIntentional)
         {
-            var ob2 = (playerObject as StdObject);
+            var ob2 = (playerObject as User);
             if (ob2 != null)
             {
-                if (ob2.Parent != null) Driver<SampleGameSpecifics>.Instance.TellRoom(ob2.Parent,$"{ob2.Short} vanishes in a puff of smoke.");
+                if (ob2.Parent != null) MudLibObject.TellRoom(ob2.Parent,$"{ob2.Short} vanishes in a puff of smoke.");
                 Driver<SampleGameSpecifics>.Instance.RemoveStdObjectFromGame(ob2);
             }
         }

@@ -6,7 +6,7 @@ using DotNetMud.A.Server;
 
 namespace DotNetMud.B.MudLib
 {
-    public class User : StdObject, IInteractive, IProvideUserActions
+    public class User : MudLibObject, IInteractive, IProvideUserActions
     {
         // TODO: provide a sane way for a monster to prevent a user from proceeding.  Might need monster override of direction
         private Dictionary<string, UserAction> _verbs;
@@ -89,7 +89,7 @@ namespace DotNetMud.B.MudLib
             }
         }
 
-        public override void OnMoved(StdObject oldLocation, StdObject newLocation)
+        public override void OnMoved(MudLibObject oldLocation, MudLibObject newLocation)
         {
             _verbs = null;
         }

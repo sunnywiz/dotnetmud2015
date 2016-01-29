@@ -7,7 +7,6 @@ namespace DotNetMud.C.SpaceLib
     {
         public Space2D()
         {
-            Short = "Solar System";
             Objects = new List<IObject2D>();
         }
         public List<IObject2D> Objects { get; private set; }

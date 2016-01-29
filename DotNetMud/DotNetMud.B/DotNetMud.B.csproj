@@ -42,6 +42,7 @@
   <ItemGroup>
     <Compile Include="MudLib\IProvideUserActions.cs" />
     <Compile Include="MudLib\Lobby.cs" />
+    <Compile Include="MudLib\MudLibObject.cs" />
     <Compile Include="MudLib\Room.cs" />
     <Compile Include="MudLib\SampleGameSpecifics.cs" />
     <Compile Include="MudLib\User.cs" />

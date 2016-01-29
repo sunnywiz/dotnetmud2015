@@ -187,30 +187,10 @@ namespace DotNetMud.A.Server
         /// <param name="ob"></param>
         public void RemoveStdObjectFromGame(StdObject ob)
         {
-            ob.MoveTo(null);
-            ob.IsDestroyed = true;
+            ob.Destroy(); 
             _allObjects.Remove(ob);
         }
 
-        /// <summary>
-        /// Tell all the interactives (people who can receive messages) in a room something. 
-        /// </summary>
-        /// <param name="room"></param>
-        /// <param name="message"></param>
-        public void TellRoom(StdObject room, string message)
-        {
-            if (room != null && !String.IsNullOrEmpty(message))
-            {
-                foreach (var ob in room.GetInventory())
-                {
-                    var ob2 = ob as IInteractive;
-                    if (ob2 != null)
-                    {
-                        ob2.SendOutput(message);
-                    }
-                }
-            }
-        }
 
         public IInteractive[] ListOfInteractives()
         {
