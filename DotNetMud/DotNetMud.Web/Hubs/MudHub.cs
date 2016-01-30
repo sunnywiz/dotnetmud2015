@@ -27,10 +27,10 @@ namespace DotNetMud.Web.Hubs
             if (_connectionToPlayer == null) _connectionToPlayer = new Dictionary<string, User>();
             if (_playerToConnection == null) _playerToConnection = new Dictionary<User, string>();
 
-            if (User.ServerSendsTextTOClientCallback == null)
+            if (User.ServerSendsTextToClientCallback == null)
             {
                 // this way .Mudlib does NOT know about the web host, but it works anyway. 
-                User.ServerSendsTextTOClientCallback = (u, message) =>
+                User.ServerSendsTextToClientCallback = (u, message) =>
                 {
                     string connectionId;
                     if (_playerToConnection.TryGetValue(u, out connectionId))

@@ -6,7 +6,6 @@ namespace DotNetMud.Driver
 {
     /// <summary>
     /// This is what most mud code would know as the driver - the O/S of the mud, as it were. 
-    /// It tries to offload what it can from MudHub
     /// </summary>
     public class GlobalObjects
     {
