@@ -13,6 +13,20 @@ namespace DotNetMud.Mudlib
 
         private static readonly Dictionary<User, Action<string>> _registeredNextInputRedirects = new Dictionary<User, Action<string>>();
 
+        public static Action<User, string> ServerSendsTextTOClientCallback { get; set; }
+
+        public static Func<User[]> ListOfUsersCallback { get; set; }
+
+        public static User[] ListOfUsers()
+        {
+            return ListOfUsersCallback?.Invoke(); 
+        }
+
+        public void ServerSendsTextToClient(string text)
+        {
+            ServerSendsTextTOClientCallback?.Invoke(this, text);
+        }
+
         public void ClientSendsUserCommandToServer(string line)
         {
             Action<string> action;
@@ -58,6 +72,126 @@ namespace DotNetMud.Mudlib
 
         }
 
+        public PollResult ClientRequestsPollFromServer()
+        {
+            var result = new PollResult();
+            var parent = this.Parent;
+            if (parent == null)
+            {
+                result.RoomDescription = "You are floating in the void.";
+            }
+            else
+            {
+                var sb = new StringBuilder();
+                sb.AppendLine(parent.Short);
+                sb.AppendLine(parent.Long);
+                result.RoomDescription = sb.ToString();
+
+                foreach (var obj in parent.GetInventory())
+                {
+                    if (obj == this) continue;
+                    result.RoomInventory.Add(obj.Short);
+                }
+            }
+            return result;
+        }
+
+        public void PlayerGotDisconnected(bool wasItIntentional)
+        {
+            if (this.Parent != null) MudLibObject.TellRoom(this.Parent, $"{Short} vanishes in a puff of smoke.");
+            GlobalObjects.RemoveStdObjectFromGame(this);
+        }
+
+        public void RedirectNextUserInput( Action<string> action)
+        {
+            _registeredNextInputRedirects[this] = action;
+        }
+
+        public void WelcomeNewPlayer()
+        {
+            ServerSendsTextToClient("Welcome to DotNetMud2015. ");
+            ServerSendsTextToClient("");
+            ServerSendsTextToClient("This is a sample mud library, more for setting up a driver and library");
+            ServerSendsTextToClient("than for actual gaming.   ");
+            ServerSendsTextToClient("");
+            ServerSendsTextToClient("What name shall i know you by? ");
+
+            var newPlayer = this; 
+
+            RedirectNextUserInput((string text) =>
+            {
+                newPlayer.Short = text;
+                newPlayer.ServerSendsTextToClient("Welcome, " + text);
+                var room = GlobalObjects.FindSingleton(typeof(Lobby)) as MudLibObject;
+                if (room != null)
+                {
+                    MudLibObject.TellRoom(room, $"{newPlayer.Short} arrives in a puff of smoke!");
+                    newPlayer.MoveTo(room);
+                }
+
+                newPlayer.ClientSendsUserCommandToServer("look");
+            });
+        }
+
+        public override void OnMoved(MudLibObject oldLocation, MudLibObject newLocation)
+        {
+            _verbs = null;
+        }
+
+        public IEnumerable<UserAction> GetUserActions()
+        {
+            yield return new UserAction()
+            {
+                Verb = "look",
+                Action = (uaec) =>
+                {
+                    DoLook(uaec);
+                }
+            };
+            yield return new UserAction()
+            {
+                Verb = "say",
+                Action = (uaec) =>
+                {
+                    DoSay(uaec);
+                }
+            };
+            yield return new UserAction()
+            {
+                Verb = "who",
+                Action = (uaec) =>
+                {
+                    var users = ListOfUsers();
+                    uaec.Player.ServerSendsTextToClient($"There are {users.Length} users logged in:");
+                    foreach (var user in users)
+                    {
+                        var x = user as User;
+                        if (x != null)
+                            uaec.Player.ServerSendsTextToClient($"  {x.Short}");
+                    }
+                }
+            };
+            yield return new UserAction()
+            {
+                Verb = "shout",
+                Action = (uaec) =>
+                {
+                    var users = User.ListOfUsers();
+                    foreach (var user in users)
+                    {
+                        var x = user as User;
+                        if (x != null)
+                        {
+                            if (x == uaec.Player)
+                                uaec.Player.ServerSendsTextToClient($"You shout: {String.Join(" ", uaec.Parameters)}");
+                            else
+                                x.ServerSendsTextToClient($"{uaec.Player.Short} shouts: {String.Join(" ", uaec.Parameters)}");
+                        }
+                    }
+                }
+            };
+        }
+
         private void CollectVerbs()
         {
             // go gather the verbs! 
@@ -97,77 +231,6 @@ namespace DotNetMud.Mudlib
                 Console.WriteLine("GetMoreVerbs: registering verb {0} for player {1}",key,this.Short);
                 _verbs[key] = action;
             }
-        }
-
-        public override void OnMoved(MudLibObject oldLocation, MudLibObject newLocation)
-        {
-            _verbs = null;
-        }
-
-        public void ServerSendsTextToClient(string text)
-        {
-            ServerSendsTextTOClientCallback?.Invoke(this, text);
-        }
-
-        public static Action<User, string> ServerSendsTextTOClientCallback { get; set; }
-
-        public IEnumerable<UserAction> GetUserActions()
-        {
-            yield return new UserAction()
-            {
-                Verb = "look",
-                Action = (uaec) =>
-                {
-                    DoLook(uaec);
-                }
-            };
-            yield return new UserAction()
-            {
-                Verb = "say",
-                Action = (uaec) =>
-                {
-                    DoSay(uaec);
-                }
-            };
-            //yield return new UserAction()
-            //{
-            //    Verb = "who", 
-            //    Action = (uaec) =>
-            //    {
-            //        var users = Driver<SampleGameSpecifics>.Instance.ListOfInteractives(); 
-            //        Driver<SampleGameSpecifics>.Instance.SendTextToPlayerObject(uaec.Player,$"There are {users.Length} users logged in:");
-            //        foreach (var user in users)
-            //        {
-            //            var x = user as User; 
-            //            if (x != null)
-            //            Driver<SampleGameSpecifics>.Instance.SendTextToPlayerObject(uaec.Player,$"  {x.Short}");
-            //        }
-            //    }
-            //};
-            //yield return new UserAction()
-            //{
-            //    Verb = "shout",
-            //    Action = (uaec) =>
-            //    {
-            //        var users = Driver<SampleGameSpecifics>.Instance.ListOfInteractives();
-            //        foreach (var user in users)
-            //        {
-            //            var x = user as User;
-            //            if (x != null)
-            //            {
-            //                if (x == uaec.Player)
-            //                    Driver<SampleGameSpecifics>.Instance.SendTextToPlayerObject(uaec.Player,
-            //                        $"You shout: {String.Join(" ", uaec.Parameters)}");
-
-            //                else
-
-            //                    Driver<SampleGameSpecifics>.Instance.SendTextToPlayerObject(x,
-            //                        $"{uaec.Player.Short} shouts: {String.Join(" ", uaec.Parameters)}");
-
-            //            }
-            //        }
-            //    }
-            //};
         }
 
         private void DoSay(UserActionExecutionContext uaec)
@@ -220,67 +283,6 @@ namespace DotNetMud.Mudlib
                 uaec.Player.ServerSendsTextToClient($"  {obj.Short}");
             }
             if (first) uaec.Player.ServerSendsTextToClient("There is nothing to see here.");
-        }
-
-        public PollResult ClientRequestsPollFromServer()
-        {
-            var result = new PollResult();
-            var parent = this.Parent;
-            if (parent == null)
-            {
-                result.RoomDescription = "You are floating in the void.";
-            }
-            else
-            {
-                var sb = new StringBuilder();
-                sb.AppendLine(parent.Short);
-                sb.AppendLine(parent.Long);
-                result.RoomDescription = sb.ToString();
-
-                foreach (var obj in parent.GetInventory())
-                {
-                    if (obj == this) continue;
-                    result.RoomInventory.Add(obj.Short);
-                }
-            }
-            return result;
-        }
-
-        public void RedirectNextUserInput( Action<string> action)
-        {
-            _registeredNextInputRedirects[this] = action;
-        }
-
-        public void WelcomeNewPlayer()
-        {
-            ServerSendsTextToClient("Welcome to DotNetMud2015. ");
-            ServerSendsTextToClient("");
-            ServerSendsTextToClient("This is a sample mud library, more for setting up a driver and library");
-            ServerSendsTextToClient("than for actual gaming.   ");
-            ServerSendsTextToClient("");
-            ServerSendsTextToClient("What name shall i know you by? ");
-
-            var newPlayer = this; 
-
-            RedirectNextUserInput((string text) =>
-            {
-                newPlayer.Short = text;
-                newPlayer.ServerSendsTextToClient("Welcome, " + text);
-                var room = GlobalObjects.FindSingleton(typeof(Lobby)) as MudLibObject;
-                if (room != null)
-                {
-                    MudLibObject.TellRoom(room, $"{newPlayer.Short} arrives in a puff of smoke!");
-                    newPlayer.MoveTo(room);
-                }
-
-                newPlayer.ClientSendsUserCommandToServer("look");
-            });
-        }
-
-        public void PlayerGotDisconnected(bool wasItIntentional)
-        {
-            if (this.Parent != null) MudLibObject.TellRoom(this.Parent, $"{Short} vanishes in a puff of smoke.");
-            GlobalObjects.RemoveStdObjectFromGame(this);
         }
 
         /// <summary>

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 using DotNetMud.Driver;
 using DotNetMud.Mudlib;
@@ -41,7 +42,16 @@ namespace DotNetMud.Web.Hubs
                         }
                     }
                 };
-            } 
+            }
+
+            if (User.ListOfUsersCallback == null)
+            {
+                User.ListOfUsersCallback = () =>
+                {
+                    var users = _connectionToPlayer.Values.Where(u => !u.IsDestroyed).ToArray();
+                    return users;
+                };
+            }
         }
 
         public override Task OnConnected()
@@ -76,25 +86,16 @@ namespace DotNetMud.Web.Hubs
             }
         }
 
-        //private static void DriverShouldCaptureSignalRContext()
-        //{
-        //    if (Driver<SampleGameSpecifics>.Instance.SendToClientCallBack == null)
-        //    {
-        //        var context = GlobalHost.ConnectionManager.GetHubContext<MudHub>();
-        //        Driver<SampleGameSpecifics>.Instance.SendToClientCallBack = (connectionId, message) =>
-        //        {
-
-        //        };
-        //    }
-        //}
-
-        //public override Task OnDisconnected(bool stopCalled)
-        //{
-        //    DriverShouldCaptureSignalRContext();
-        //    Driver<SampleGameSpecifics>.Instance.ReceiveDisconnection(Context.ConnectionId, stopCalled);
-        //    return base.OnDisconnected(stopCalled);
-        //}
-
-        // TODO: move an interactive connection to a new mud object
+        public override Task OnDisconnected(bool stopCalled)
+        {
+            User player;
+            if (_connectionToPlayer.TryGetValue(Context.ConnectionId, out player))
+            {
+                player.PlayerGotDisconnected(stopCalled);
+                _connectionToPlayer.Remove(Context.ConnectionId);
+                _playerToConnection.Remove(player);
+            }
+            return base.OnDisconnected(stopCalled);
+        }
     }
 }
