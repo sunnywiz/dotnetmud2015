@@ -13,10 +13,15 @@ namespace DotNetMud.Mudlib
 
         private static readonly Dictionary<User, Action<string>> _registeredNextInputRedirects = new Dictionary<User, Action<string>>();
 
-        public static Action<User, string> ServerSendsTextTOClientCallback { get; set; }
+        #region Stuff that the host stuff needs to provide implementation for 
 
+        // i guess this stuff could be delegates too. 
+
+        public static Action<User, string> ServerSendsTextToClientCallback { get; set; }
         public static Func<User[]> ListOfUsersCallback { get; set; }
+        #endregion
 
+        #region Invoking the above provided code
         public static User[] ListOfUsers()
         {
             return ListOfUsersCallback?.Invoke(); 
@@ -24,9 +29,11 @@ namespace DotNetMud.Mudlib
 
         public void ServerSendsTextToClient(string text)
         {
-            ServerSendsTextTOClientCallback?.Invoke(this, text);
+            ServerSendsTextToClientCallback?.Invoke(this, text);
         }
+        #endregion
 
+        #region implementations of the signal/R stuff coming in from the client
         public void ClientSendsUserCommandToServer(string line)
         {
             Action<string> action;
@@ -96,17 +103,6 @@ namespace DotNetMud.Mudlib
             return result;
         }
 
-        public void PlayerGotDisconnected(bool wasItIntentional)
-        {
-            if (this.Parent != null) MudLibObject.TellRoom(this.Parent, $"{Short} vanishes in a puff of smoke.");
-            GlobalObjects.RemoveStdObjectFromGame(this);
-        }
-
-        public void RedirectNextUserInput( Action<string> action)
-        {
-            _registeredNextInputRedirects[this] = action;
-        }
-
         public void WelcomeNewPlayer()
         {
             ServerSendsTextToClient("Welcome to DotNetMud2015. ");
@@ -116,7 +112,7 @@ namespace DotNetMud.Mudlib
             ServerSendsTextToClient("");
             ServerSendsTextToClient("What name shall i know you by? ");
 
-            var newPlayer = this; 
+            var newPlayer = this;
 
             RedirectNextUserInput((string text) =>
             {
@@ -131,6 +127,19 @@ namespace DotNetMud.Mudlib
 
                 newPlayer.ClientSendsUserCommandToServer("look");
             });
+        }
+
+        public void PlayerGotDisconnected(bool wasItIntentional)
+        {
+            if (this.Parent != null) MudLibObject.TellRoom(this.Parent, $"{Short} vanishes in a puff of smoke.");
+            GlobalObjects.RemoveStdObjectFromGame(this);
+        }
+
+        #endregion
+
+        public void RedirectNextUserInput( Action<string> action)
+        {
+            _registeredNextInputRedirects[this] = action;
         }
 
         public override void OnMoved(MudLibObject oldLocation, MudLibObject newLocation)
