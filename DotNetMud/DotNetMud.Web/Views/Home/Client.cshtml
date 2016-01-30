@@ -20,7 +20,7 @@
         var chat = $.connection.mudHub;
 
         // Create a function that the hub can call to broadcast messages.
-        chat.client.sendToClient = function(message) {
+        chat.client.serverSendsTextToClient = function (message) {
             // Html encode display name and message.
             var encodedMsg = $('<div class="fromServer" />').text(message);
             // Add the message to the page.
@@ -37,7 +37,7 @@
             var message = $('#message').val();
             var encodedMsg = $('<div class="fromUser" />').text(message);
             $('#discussion').append(encodedMsg);
-            chat.server.userCommand(message);
+            chat.server.clientSendsUserCommandToServer(message);
             // Clear text box and reset focus for next comment.
             $('#message').val('').focus();
         }

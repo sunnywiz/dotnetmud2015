@@ -6,13 +6,23 @@ using DotNetMud.Driver;
 
 namespace DotNetMud.Mudlib
 {
-    public class User : MudLibObject, IInteractive, IProvideUserActions
+    public class User : MudLibObject, IProvideUserActions
     {
         // TODO: provide a sane way for a monster to prevent a user from proceeding.  Might need monster override of direction
         private Dictionary<string, UserAction> _verbs;
 
-        public void ReceiveInput(string line)
+        private static readonly Dictionary<User, Action<string>> _registeredNextInputRedirects = new Dictionary<User, Action<string>>();
+
+        public void ClientSendsUserCommandToServer(string line)
         {
+            Action<string> action;
+            if (_registeredNextInputRedirects.TryGetValue(this, out action) && action != null)
+            {
+                _registeredNextInputRedirects.Remove(this);
+                action(line);
+                return;
+            }
+
             if (String.IsNullOrWhiteSpace(line)) return;
             var split = line.Split(new char[] {' '}, StringSplitOptions.RemoveEmptyEntries).ToList();
 
@@ -42,7 +52,7 @@ namespace DotNetMud.Mudlib
                 }
                 else
                 {
-                    SendOutput("unknown command.");
+                    ServerSendsTextToClient("unknown command.");
                 }
             }
 
@@ -94,10 +104,12 @@ namespace DotNetMud.Mudlib
             _verbs = null;
         }
 
-        public void SendOutput(string text)
+        public void ServerSendsTextToClient(string text)
         {
-            Driver<SampleGameSpecifics>.Instance.SendTextToPlayerObject(this, text);
+            ServerSendsTextTOClientCallback?.Invoke(this, text);
         }
+
+        public static Action<User, string> ServerSendsTextTOClientCallback { get; set; }
 
         public IEnumerable<UserAction> GetUserActions()
         {
@@ -117,45 +129,45 @@ namespace DotNetMud.Mudlib
                     DoSay(uaec);
                 }
             };
-            yield return new UserAction()
-            {
-                Verb = "who", 
-                Action = (uaec) =>
-                {
-                    var users = Driver<SampleGameSpecifics>.Instance.ListOfInteractives(); 
-                    Driver<SampleGameSpecifics>.Instance.SendTextToPlayerObject(uaec.Player,$"There are {users.Length} users logged in:");
-                    foreach (var user in users)
-                    {
-                        var x = user as User; 
-                        if (x != null)
-                        Driver<SampleGameSpecifics>.Instance.SendTextToPlayerObject(uaec.Player,$"  {x.Short}");
-                    }
-                }
-            };
-            yield return new UserAction()
-            {
-                Verb = "shout",
-                Action = (uaec) =>
-                {
-                    var users = Driver<SampleGameSpecifics>.Instance.ListOfInteractives();
-                    foreach (var user in users)
-                    {
-                        var x = user as User;
-                        if (x != null)
-                        {
-                            if (x == uaec.Player)
-                                Driver<SampleGameSpecifics>.Instance.SendTextToPlayerObject(uaec.Player,
-                                    $"You shout: {String.Join(" ", uaec.Parameters)}");
+            //yield return new UserAction()
+            //{
+            //    Verb = "who", 
+            //    Action = (uaec) =>
+            //    {
+            //        var users = Driver<SampleGameSpecifics>.Instance.ListOfInteractives(); 
+            //        Driver<SampleGameSpecifics>.Instance.SendTextToPlayerObject(uaec.Player,$"There are {users.Length} users logged in:");
+            //        foreach (var user in users)
+            //        {
+            //            var x = user as User; 
+            //            if (x != null)
+            //            Driver<SampleGameSpecifics>.Instance.SendTextToPlayerObject(uaec.Player,$"  {x.Short}");
+            //        }
+            //    }
+            //};
+            //yield return new UserAction()
+            //{
+            //    Verb = "shout",
+            //    Action = (uaec) =>
+            //    {
+            //        var users = Driver<SampleGameSpecifics>.Instance.ListOfInteractives();
+            //        foreach (var user in users)
+            //        {
+            //            var x = user as User;
+            //            if (x != null)
+            //            {
+            //                if (x == uaec.Player)
+            //                    Driver<SampleGameSpecifics>.Instance.SendTextToPlayerObject(uaec.Player,
+            //                        $"You shout: {String.Join(" ", uaec.Parameters)}");
 
-                            else
+            //                else
 
-                                Driver<SampleGameSpecifics>.Instance.SendTextToPlayerObject(x,
-                                    $"{uaec.Player.Short} shouts: {String.Join(" ", uaec.Parameters)}");
+            //                    Driver<SampleGameSpecifics>.Instance.SendTextToPlayerObject(x,
+            //                        $"{uaec.Player.Short} shouts: {String.Join(" ", uaec.Parameters)}");
 
-                        }
-                    }
-                }
-            };
+            //            }
+            //        }
+            //    }
+            //};
         }
 
         private void DoSay(UserActionExecutionContext uaec)
@@ -164,7 +176,7 @@ namespace DotNetMud.Mudlib
             var parent = uaec.Player.Parent;
             if (parent == null)
             {
-                Driver<SampleGameSpecifics>.Instance.SendTextToPlayerObject(uaec.Player, "Your words fall into the void.");
+                uaec.Player.ServerSendsTextToClient("Your words fall into the void.");
                 return; 
             }
             foreach (var ob in parent.GetInventory())
@@ -175,11 +187,11 @@ namespace DotNetMud.Mudlib
                     // TODO: should probably have a raw string rather than string.join of an array here. 
                     if (x == uaec.Player)
                     {
-                        Driver<SampleGameSpecifics>.Instance.SendTextToPlayerObject(x, "You say: " + String.Join(" ", uaec.Parameters));
+                        x.ServerSendsTextToClient("You say: " + String.Join(" ", uaec.Parameters));
                     }
                     else
                     {
-                        Driver<SampleGameSpecifics>.Instance.SendTextToPlayerObject(x,$"{uaec.Player.Short} says: {String.Join(" ",uaec.Parameters)}");
+                        x.ServerSendsTextToClient($"{uaec.Player.Short} says: {String.Join(" ",uaec.Parameters)}");
                     }
                 }
             }
@@ -191,23 +203,23 @@ namespace DotNetMud.Mudlib
             var parent = uaec.Player.Parent;
             if (parent == null)
             {
-                Driver<SampleGameSpecifics>.Instance.SendTextToPlayerObject(uaec.Player,"You are hanging in the void.");
+                uaec.Player.ServerSendsTextToClient("You are hanging in the void.");
                 return;
             }
-            Driver<SampleGameSpecifics>.Instance.SendTextToPlayerObject(uaec.Player,parent.Short);
-            Driver<SampleGameSpecifics>.Instance.SendTextToPlayerObject(uaec.Player,parent.Long);
+            uaec.Player.ServerSendsTextToClient(parent.Short);
+            uaec.Player.ServerSendsTextToClient(parent.Long);
             var first = true; 
             foreach (var obj in parent.GetInventory())
             {
                 if (obj == uaec.Player) continue;
                 if (first)
                 {
-                    Driver<SampleGameSpecifics>.Instance.SendTextToPlayerObject(uaec.Player, "Here you see: ");
+                    uaec.Player.ServerSendsTextToClient("Here you see: ");
                     first = false; 
                 }
-                Driver<SampleGameSpecifics>.Instance.SendTextToPlayerObject(uaec.Player, $"  {obj.Short}");
+                uaec.Player.ServerSendsTextToClient($"  {obj.Short}");
             }
-            if (first) Driver<SampleGameSpecifics>.Instance.SendTextToPlayerObject(uaec.Player, "There is nothing to see here.");
+            if (first) uaec.Player.ServerSendsTextToClient("There is nothing to see here.");
         }
 
         public object RequestPoll(string pollName, object clientState)
@@ -237,6 +249,44 @@ namespace DotNetMud.Mudlib
             }
             else return null; 
         }
+
+        public void RedirectNextUserInput( Action<string> action)
+        {
+            _registeredNextInputRedirects[this] = action;
+        }
+
+        public void WelcomeNewPlayer()
+        {
+            ServerSendsTextToClient("Welcome to DotNetMud2015. ");
+            ServerSendsTextToClient("");
+            ServerSendsTextToClient("This is a sample mud library, more for setting up a driver and library");
+            ServerSendsTextToClient("than for actual gaming.   ");
+            ServerSendsTextToClient("");
+            ServerSendsTextToClient("What name shall i know you by? ");
+
+            var newPlayer = this; 
+
+            RedirectNextUserInput((string text) =>
+            {
+                newPlayer.Short = text;
+                newPlayer.ServerSendsTextToClient("Welcome, " + text);
+                var room = GlobalObjects.FindSingleton(typeof(Lobby)) as MudLibObject;
+                if (room != null)
+                {
+                    MudLibObject.TellRoom(room, $"{newPlayer.Short} arrives in a puff of smoke!");
+                    newPlayer.MoveTo(room);
+                }
+
+                newPlayer.ClientSendsUserCommandToServer("look");
+            });
+        }
+
+        public void PlayerGotDisconnected(bool wasItIntentional)
+        {
+            if (this.Parent != null) MudLibObject.TellRoom(this.Parent, $"{Short} vanishes in a puff of smoke.");
+            GlobalObjects.RemoveStdObjectFromGame(this);
+        }
+
     }
 
     /// <summary>

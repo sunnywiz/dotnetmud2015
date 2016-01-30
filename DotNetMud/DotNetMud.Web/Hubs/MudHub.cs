@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using DotNetMud.Driver;
@@ -9,57 +10,85 @@ namespace DotNetMud.Web.Hubs
 {
     /// <summary>
     /// This is the raw implementation of "chatting with clients over Signal/R. 
-    /// It tries to pawn whatever it can over to driver.cs
+    /// It is very tightly coupled to the in-game object that does the real stuff. 
+    /// The trick is to make the in game object not aware of this object. 
     /// </summary>
     public class MudHub : Hub
     {
-        // For the most part, whenever this gets something to do, it could/should send it off 
-        // to Driver.   exception:  when its bootstrapping Driver. 
 
-        // There's some cases where driver needs to send stuff to a client.  That's done by 
-        // a captured hubcontext, it does NOT call back into here.. yet. 
+        private static IHubContext _context;
+        private static Dictionary<string, User> _connectionToPlayer;
+        private static Dictionary<User, string> _playerToConnection;
 
-        public void userCommand(string cmd)
+        public MudHub()
         {
-            Driver<SampleGameSpecifics>.Instance.ReceiveUserCommand(Context.ConnectionId, cmd);
-        }
+            if (_context == null) _context = GlobalHost.ConnectionManager.GetHubContext<MudHub>();
+            if (_connectionToPlayer == null) _connectionToPlayer = new Dictionary<string, User>();
+            if (_playerToConnection == null) _playerToConnection = new Dictionary<User, string>();
 
-        public void requestPoll(string pollName, object clientState /* TODO: can't really use clientState for much yet need PersistentConnection */)
-        {
-            var pollResult = Driver<SampleGameSpecifics>.Instance.RequestPoll(Context.ConnectionId,pollName, clientState);
-            Clients.Caller.pollResult(pollName, pollResult);
+            if (User.ServerSendsTextTOClientCallback == null)
+            {
+                // this way .Mudlib does NOT know about the web host, but it works anyway. 
+                User.ServerSendsTextTOClientCallback = (u, message) =>
+                {
+                    string connectionId;
+                    if (_playerToConnection.TryGetValue(u, out connectionId))
+                    {
+                        var client = _context.Clients.Client(connectionId);
+                        if (client != null)
+                        {
+                            client.ServerSendsTextToClient(message);
+                        }
+                    }
+                };
+            } 
         }
 
         public override Task OnConnected()
         {
-            Trace.WriteLine("OnConnected");
-            DriverShouldCaptureSignalRContext();
-            Driver<SampleGameSpecifics>.Instance.ReceiveNewPlayer(Context.ConnectionId);
+            var interactive = new User();
+            Console.WriteLine("incoming connection {0} assigned to {1}", Context.ConnectionId, interactive);
+            _connectionToPlayer[Context.ConnectionId] = interactive;
+            _playerToConnection[interactive] = Context.ConnectionId;
+            interactive.WelcomeNewPlayer();
             return base.OnConnected();
         }
 
-        private static void DriverShouldCaptureSignalRContext()
+
+        public void ClientSendsUserCommandToServer(string cmd)
         {
-            if (Driver<SampleGameSpecifics>.Instance.SendToClientCallBack == null)
+            Console.WriteLine("ReceivedUserCommand: {0} sent {1}", Context.ConnectionId, cmd);
+            User player;
+            if (_connectionToPlayer.TryGetValue(Context.ConnectionId, out player))
             {
-                var context = GlobalHost.ConnectionManager.GetHubContext<MudHub>();
-                Driver<SampleGameSpecifics>.Instance.SendToClientCallBack = (connectionId, message) =>
-                {
-                    var client = context.Clients.Client(connectionId);
-                    if (client != null)
-                    {
-                        client.sendToClient(message);
-                    }
-                };
+                player.ClientSendsUserCommandToServer(cmd);
             }
         }
 
-        public override Task OnDisconnected(bool stopCalled)
-        {
-            DriverShouldCaptureSignalRContext();
-            Driver<SampleGameSpecifics>.Instance.ReceiveDisconnection(Context.ConnectionId, stopCalled);
-            return base.OnDisconnected(stopCalled);
-        }
+        //public void ClientRequestPollFromServer(string pollName, object clientState /* TODO: can't really use clientState for much yet need PersistentConnection */)
+        //{
+        //    var pollResult = Driver<SampleGameSpecifics>.Instance.RequestPoll(Context.ConnectionId,pollName, clientState);
+        //    Clients.Caller.pollResult(pollName, pollResult);
+        //}
+
+        //private static void DriverShouldCaptureSignalRContext()
+        //{
+        //    if (Driver<SampleGameSpecifics>.Instance.SendToClientCallBack == null)
+        //    {
+        //        var context = GlobalHost.ConnectionManager.GetHubContext<MudHub>();
+        //        Driver<SampleGameSpecifics>.Instance.SendToClientCallBack = (connectionId, message) =>
+        //        {
+                    
+        //        };
+        //    }
+        //}
+
+        //public override Task OnDisconnected(bool stopCalled)
+        //{
+        //    DriverShouldCaptureSignalRContext();
+        //    Driver<SampleGameSpecifics>.Instance.ReceiveDisconnection(Context.ConnectionId, stopCalled);
+        //    return base.OnDisconnected(stopCalled);
+        //}
 
         // TODO: move an interactive connection to a new mud object
     }

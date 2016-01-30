@@ -64,18 +64,11 @@ namespace DotNetMud.Mudlib
         /// <param name="message"></param>
         public static void TellRoom(MudLibObject room, string message)
         {
-            if (room != null && !String.IsNullOrEmpty(message))
+            if (room == null || String.IsNullOrEmpty(message)) return;
+            foreach (var ob in room.GetInventory())
             {
-                foreach (var ob in room.GetInventory())
-                {
-                    var ob2 = ob as IInteractive;
-                    if (ob2 != null)
-                    {
-                        ob2.SendOutput(message);
-                    }
-                }
+                (ob as User)?.ServerSendsTextToClient(message);
             }
         }
-
     }
 }

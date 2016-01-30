@@ -63,13 +63,13 @@ namespace DotNetMud.Mudlib
             Type locator;
             if (_directionsToRooms.TryGetValue(uaec.Verb, out locator))
             {
-                var targetRoom = Driver<SampleGameSpecifics>.Instance.FindSingleton(locator) as MudLibObject;
+                var targetRoom = GlobalObjects.FindSingleton(locator) as MudLibObject;
                 if (targetRoom != null)
                 {
                     var userPreviousRoom = uaec.Player.Parent;
                     MudLibObject.TellRoom(targetRoom,$"{uaec.Player.Short} arrives.");
                     // TODO: will have complications with messaging if move is blocked. need a better TellRoom which can exclude user.
-                    uaec.Player.SendOutput($"You travel {uaec.Verb}");
+                    uaec.Player.ServerSendsTextToClient($"You travel {uaec.Verb}");
                     uaec.Player.MoveTo(targetRoom);
                     // uaec.Player.ReceiveInput("look"); now done with Polling. 
                     if (userPreviousRoom != null) MudLibObject.TellRoom(userPreviousRoom,$"{uaec.Player.Short} goes {uaec.Verb}.");

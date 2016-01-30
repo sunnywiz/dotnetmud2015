@@ -8,9 +8,9 @@ namespace DotNetMud.Driver
     /// This is what most mud code would know as the driver - the O/S of the mud, as it were. 
     /// It tries to offload what it can from MudHub
     /// </summary>
-    public class Driver<T> where T:IGameSpecifics, new()
+    public class Driver2<T> where T:IGameSpecifics, new()
     {
-        private static Driver<T> _instance;
+        private static Driver2<T> _instance;
 
         private readonly Dictionary<string, IInteractive> _connectionToPlayer;
         private readonly Dictionary<IInteractive, string> _playerToConnection;
@@ -18,7 +18,7 @@ namespace DotNetMud.Driver
         private readonly List<StdObject> _allObjects;
         private readonly IGameSpecifics _gameSpecifics;
 
-        public Driver()
+        public Driver2()
         {
             _connectionToPlayer = new Dictionary<string, IInteractive>();
             _playerToConnection = new Dictionary<IInteractive, string>();
@@ -27,11 +27,11 @@ namespace DotNetMud.Driver
             _gameSpecifics = new T();
         }
 
-        public static Driver<T> Instance
+        public static Driver2<T> Instance
         {
             get
             {
-                if (_instance == null) _instance = new Driver<T>();
+                if (_instance == null) _instance = new Driver2<T>();
                 return _instance;
             }
         }
