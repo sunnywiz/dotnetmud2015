@@ -27,7 +27,7 @@
             $('#discussion').append(encodedMsg);
         };
 
-        chat.client.pollResult = function (pollName, data) {
+        chat.client.serverSendsPollResultToClient = function (data) {
             $('#RoomDescription').text(data.RoomDescription);
             $('#RoomInventory').text(data.RoomInventory);
         }
@@ -47,7 +47,7 @@
         // Start the connection.
         $.connection.hub.start().done(function() {
             $('#sendmessage').click(sendUserInputToHub);
-            setInterval(function () { chat.server.requestPoll('1',5); }, 1000);
+            setInterval(function () { chat.server.clientRequestsPollFromServer(); }, 1000);
             $('#message').keyup(function(e) {
                 if (e.keyCode == 13) {
                     sendUserInputToHub();

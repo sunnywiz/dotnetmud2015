@@ -65,11 +65,16 @@ namespace DotNetMud.Web.Hubs
             }
         }
 
-        //public void ClientRequestPollFromServer(string pollName, object clientState /* TODO: can't really use clientState for much yet need PersistentConnection */)
-        //{
-        //    var pollResult = Driver<SampleGameSpecifics>.Instance.RequestPoll(Context.ConnectionId,pollName, clientState);
-        //    Clients.Caller.pollResult(pollName, pollResult);
-        //}
+        public void ClientRequestsPollFromServer()
+        {
+            User player; 
+            if (_connectionToPlayer.TryGetValue(Context.ConnectionId, out player))
+            {
+                var pollResult = player.ClientRequestsPollFromServer();
+                Clients.Caller.ServerSendsPollResultToClient(pollResult);
+
+            }
+        }
 
         //private static void DriverShouldCaptureSignalRContext()
         //{
@@ -78,7 +83,7 @@ namespace DotNetMud.Web.Hubs
         //        var context = GlobalHost.ConnectionManager.GetHubContext<MudHub>();
         //        Driver<SampleGameSpecifics>.Instance.SendToClientCallBack = (connectionId, message) =>
         //        {
-                    
+
         //        };
         //    }
         //}

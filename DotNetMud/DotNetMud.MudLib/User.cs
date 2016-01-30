@@ -222,32 +222,28 @@ namespace DotNetMud.Mudlib
             if (first) uaec.Player.ServerSendsTextToClient("There is nothing to see here.");
         }
 
-        public object RequestPoll(string pollName, object clientState)
+        public PollResult ClientRequestsPollFromServer()
         {
-            if (pollName == "1")
+            var result = new PollResult();
+            var parent = this.Parent;
+            if (parent == null)
             {
-                var result = new PollResult1();
-                var parent = this.Parent;
-                if (parent == null)
-                {
-                    result.RoomDescription = "You are floating in the void.";
-                }
-                else
-                {
-                    var sb = new StringBuilder();
-                    sb.AppendLine(parent.Short);
-                    sb.AppendLine(parent.Long);
-                    result.RoomDescription = sb.ToString();
-
-                    foreach (var obj in parent.GetInventory())
-                    {
-                        if (obj == this) continue;
-                        result.RoomInventory.Add(obj.Short);
-                    }
-                }
-                return result; 
+                result.RoomDescription = "You are floating in the void.";
             }
-            else return null; 
+            else
+            {
+                var sb = new StringBuilder();
+                sb.AppendLine(parent.Short);
+                sb.AppendLine(parent.Long);
+                result.RoomDescription = sb.ToString();
+
+                foreach (var obj in parent.GetInventory())
+                {
+                    if (obj == this) continue;
+                    result.RoomInventory.Add(obj.Short);
+                }
+            }
+            return result;
         }
 
         public void RedirectNextUserInput( Action<string> action)
@@ -287,18 +283,17 @@ namespace DotNetMud.Mudlib
             GlobalObjects.RemoveStdObjectFromGame(this);
         }
 
-    }
-
-    /// <summary>
-    /// has to serialize down to json ok
-    /// </summary>
-    public class PollResult1
-    {
-        public PollResult1()
+        /// <summary>
+        /// has to serialize down to json ok
+        /// </summary>
+        public class PollResult
         {
-            RoomInventory = new List<string>();
+            public PollResult()
+            {
+                RoomInventory = new List<string>();
+            }
+            public string RoomDescription { get; set; }
+            public List<string> RoomInventory { get; set; }
         }
-        public string RoomDescription { get; set; }
-        public List<string> RoomInventory { get; set; }
     }
 }
