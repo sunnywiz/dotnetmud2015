@@ -189,6 +189,7 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Hubs\SpaceHub.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\ManageViewModels.cs" />
@@ -275,6 +276,10 @@
     <ProjectReference Include="..\DotNetMud.MudLib\DotNetMud.MudLib.csproj">
       <Project>{30d36c31-34b9-4e4f-8feb-39cfec7101ae}</Project>
       <Name>DotNetMud.MudLib</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DotNetMud.SpaceLib\DotNetMud.SpaceLib.csproj">
+      <Project>{D7FEAD45-56BE-4128-BE9F-AF6BAB84D518}</Project>
+      <Name>DotNetMud.SpaceLib</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup>

@@ -1,7 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
-using DotNetMud.Driver;
 using DotNetMud.SpaceLib;
 using Microsoft.AspNet.SignalR;
 
@@ -18,50 +18,44 @@ namespace DotNetMud.Web.Hubs
 
         // There's some cases where driver needs to send stuff to a client.  That's done by 
         // a captured hubcontext, it does NOT call back into here.. yet. 
+        private static IHubContext _context;
+        private static Dictionary<string, Ship> _connectionToPlayer;
+        private static Dictionary<Ship, string> _playerToConnection;
 
-        public void userCommand(string cmd)
+        public SpaceHub()
         {
-            Driver<SpaceGameSpecifics>.Instance.ReceiveUserCommand(Context.ConnectionId, cmd);
+            if (_context == null) _context = GlobalHost.ConnectionManager.GetHubContext<SpaceHub>();
+            if (_connectionToPlayer == null) _connectionToPlayer = new Dictionary<string, Ship>();
+            if (_playerToConnection == null) _playerToConnection = new Dictionary<Ship, string>();
         }
 
-        public void requestPoll(string pollName, object clientState /* TODO: can't really use clientState for much yet need PersistentConnection */)
+
+        public void ClientRequestsPollFromServer()
         {
-            var pollResult = Driver<SpaceGameSpecifics>.Instance.RequestPoll(Context.ConnectionId,pollName, clientState);
-            Clients.Caller.pollResult(pollName, pollResult);
+            Ship player;
+            if (_connectionToPlayer.TryGetValue(Context.ConnectionId, out player))
+            {
+                var pollResult = player.ClientRequestsPollFromServer();
+                Clients.Caller.ServerSendsPollResultToClient(pollResult);
+
+            }
         }
+
 
         public override Task OnConnected()
         {
-            Trace.WriteLine("OnConnected");
-            DriverShouldCaptureSignalRContext();
-            Driver<SpaceGameSpecifics>.Instance.ReceiveNewPlayer(Context.ConnectionId);
-            return base.OnConnected();
-        }
-
-        private static void DriverShouldCaptureSignalRContext()
-        {
-            if (Driver<SpaceGameSpecifics>.Instance.SendToClientCallBack == null)
-            {
-                var context = GlobalHost.ConnectionManager.GetHubContext<MudHub>();
-                Driver<SpaceGameSpecifics>.Instance.SendToClientCallBack = (connectionId, message) =>
-                {
-                    var client = context.Clients.Client(connectionId);
-                    if (client != null)
-                    {
-                        client.sendToClient(message);
-                    }
-                };
-            }
+            var interactive = new Ship();
+            Console.WriteLine("incoming connection {0} assigned to {1}", Context.ConnectionId, interactive);
+            _connectionToPlayer[Context.ConnectionId] = interactive;
+            _playerToConnection[interactive] = Context.ConnectionId;
+            interactive.WelcomeNewPlayer();
+            return base.OnConnected(); 
         }
 
         public override Task OnDisconnected(bool stopCalled)
         {
-            DriverShouldCaptureSignalRContext();
-            Driver<SpaceGameSpecifics>.Instance.ReceiveDisconnection(Context.ConnectionId, stopCalled);
             return base.OnDisconnected(stopCalled);
         }
-
-        // TODO: move an interactive connection to a new mud object
 
     }
 }

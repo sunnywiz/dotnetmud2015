@@ -19,38 +19,17 @@
         // Declare a proxy to reference the hub.
         var chat = $.connection.spaceHub;
 
-        // Create a function that the hub can call to broadcast messages.
-        chat.client.sendToClient = function(message) {
-            // Html encode display name and message.
-            var encodedMsg = $('<div class="fromServer" />').text(message);
+        chat.client.serverSendsPollResultToClient = function (data) {
+            var encodedMsg = $('<div class="fromServer" />').text(JSON.stringify(data));
             // Add the message to the page.
-            $('#discussion').append(encodedMsg);
-        };
-
-        chat.client.pollResult = function (pollName, data) {
-        }
-
-        function sendUserInputToHub() {
-            // Call the Send method on the hub.
-            var message = $('#message').val();
-            var encodedMsg = $('<div class="fromUser" />').text(message);
-            $('#discussion').append(encodedMsg);
-            chat.server.userCommand(message);
-            // Clear text box and reset focus for next comment.
-            $('#message').val('').focus();
+            $('#foo').append(encodedMsg);
         }
 
         // Set initial focus to message input box.
         $('#message').focus();
         // Start the connection.
         $.connection.hub.start().done(function() {
-            $('#sendmessage').click(sendUserInputToHub);
-            setInterval(function () { chat.server.requestPoll('1',5); }, 1000);
-            $('#message').keyup(function(e) {
-                if (e.keyCode == 13) {
-                    sendUserInputToHub();
-                }
-            });
+            setInterval(function () { chat.server.clientRequestsPollFromServer(); }, 1000);
         });
     });
 </script>
@@ -61,10 +40,7 @@
 
 <div class="container">
     <div class="row">
-        <div class="col-md-12">
-            <div id="discussion"></div>
-            <input type="text" id="message"/>
-            <input type="button" id="sendmessage" value="Send"/>
+        <div id="foo" class="col-md-12">
         </div>
     </div>
 </div>

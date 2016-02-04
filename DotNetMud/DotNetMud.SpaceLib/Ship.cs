@@ -1,19 +1,10 @@
+using System;
 using DotNetMud.Driver;
 
 namespace DotNetMud.SpaceLib
 {
-    public class Ship : StdObject, IObject2D, IInteractive
+    public class Ship : StdObject, IObject2D
     {
-        public void ReceiveInput(string line)
-        {
-            // nothing to do yet. 
-        }
-
-        public void SendOutput(string text)
-        {
-            // nothing yet. 
-            // Driver<SpaceGameSpecifics>.Instance.SendTextToPlayerObject(this, text);
-        }
 
         public object RequestPoll(string pollName, object clientState)
         {
@@ -33,6 +24,13 @@ namespace DotNetMud.SpaceLib
             };
         }
 
+        public void WelcomeNewPlayer()
+        {
+            var r = new Random();
+            X = r.NextDouble()*200 - 100;
+            Y = r.NextDouble()*200 - 100; 
+        }
+
         public Space2D Container { get; set; }
         public double X { get; set; }
         public double Y { get; set; }
@@ -42,5 +40,16 @@ namespace DotNetMud.SpaceLib
         public double DR { get; set; }
         public string Name { get; set; }
         public string Image { get; set; }
+
+        public object ClientRequestsPollFromServer()
+        {
+            var result = new PollResult() {Me = Object2DDto.CopyFrom(this)};
+            return result; 
+        }
+
+        public class PollResult
+        {
+            public IObject2D Me { get; set; }
+        }
     }
 }

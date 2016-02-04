@@ -45,7 +45,6 @@
     <Compile Include="Object2D.cs" />
     <Compile Include="PollResult1.cs" />
     <Compile Include="Space2D.cs" />
-    <Compile Include="SpaceGameSpecifics.cs" />
     <Compile Include="Ship.cs" />
   </ItemGroup>
   <ItemGroup>
