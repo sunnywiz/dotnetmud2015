@@ -28,7 +28,12 @@ namespace DotNetMud.SpaceLib
         {
             var r = new Random();
             X = r.NextDouble()*200 - 100;
-            Y = r.NextDouble()*200 - 100; 
+            Y = r.NextDouble()*200 - 100;
+            DX = r.NextDouble()*10 - 5;
+            DY = r.NextDouble()*10 - 5;
+
+            var space = Driver.GlobalObjects.FindSingleton(typeof (Space2D)) as Space2D;
+            space.Objects.Add(this);
         }
 
         public Space2D Container { get; set; }
