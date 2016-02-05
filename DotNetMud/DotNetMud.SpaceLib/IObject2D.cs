@@ -9,6 +9,7 @@ namespace DotNetMud.SpaceLib
         double DY { get; set; }
         double R { get; set; }
         double DR { get; set; }
+        string Id { get; set; }
         string Name { get; set; }
         string Image { get; set; }
     }
@@ -23,6 +24,7 @@ namespace DotNetMud.SpaceLib
         public double DR { get; set; }
         public string Name { get; set; }
         public string Image { get; set; }
+        public string Id { get; set; }
 
         public static IObject2D CopyFrom(IObject2D t)
         {
@@ -35,7 +37,8 @@ namespace DotNetMud.SpaceLib
                 Name = t.Name,
                 Image = t.Image,
                 DR = t.DR,
-                R = t.R
+                R = t.R,
+                Id = t.Id
             };
         }
     }

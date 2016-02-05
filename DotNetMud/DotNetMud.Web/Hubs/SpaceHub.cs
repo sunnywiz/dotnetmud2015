@@ -54,6 +54,13 @@ namespace DotNetMud.Web.Hubs
 
         public override Task OnDisconnected(bool stopCalled)
         {
+            Ship player;
+            if (_connectionToPlayer.TryGetValue(Context.ConnectionId, out player))
+            {
+                player.ShipDisconnected(stopCalled);
+                _connectionToPlayer.Remove(Context.ConnectionId);
+                _playerToConnection.Remove(player);
+            }
             return base.OnDisconnected(stopCalled);
         }
 
