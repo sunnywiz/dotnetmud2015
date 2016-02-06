@@ -5,14 +5,29 @@ var spaceMud = (function(spaceMud) {
     // Get handles on external things. 
     // Declare a proxy to reference the hub.
 
-    var chat;
-    var canvas;
-    var context;
+    var chat = $.connection.spaceHub;
+    var canvas = document.getElementById("canvas");
+    var context = canvas.getContext("2d");
+    context.font = "20px Arial";
+
     var serverObjects = {
         Me: { X: 0, Y: 0, DX: 0, DY: 0, R: 0, DR: 0, Name: "", Image: "" },
         Others: []
     };
     var shipImage1; 
+
+
+    chat.client.serverSendsPollResultToClient = function (data) {
+
+        // some smart updating needs to happen here. 
+        // example: load images on image change, but not otherwise. 
+
+        serverObjects.Me.X = data.Me.X;
+        serverObjects.Me.Y = data.Me.Y;
+        serverObjects.Me.R = data.Me.R;
+
+        serverObjects.Others = data.Others;
+    }
 
     spaceMud.animate = function animate(timestamp) {
 
@@ -72,25 +87,8 @@ var spaceMud = (function(spaceMud) {
         //Set the hubs URL for the connection
         $.connection.hub.url = "http://localhost:30518/signalr";
 
-        chat = $.connection.spaceHub;
-        canvas = document.getElementById("canvas");
-        context = canvas.getContext("2d");
-        context.font = "20px Arial";
-
         shipImage1 = new Image();
         shipImage1.src = "http://localhost:30518/Content/ship1.png";
-
-        chat.client.serverSendsPollResultToClient = function (data) {
-
-            // some smart updating needs to happen here. 
-            // example: load images on image change, but not otherwise. 
-
-            serverObjects.Me.X = data.Me.X;
-            serverObjects.Me.Y = data.Me.Y;
-            serverObjects.Me.R = data.Me.R;
-
-            serverObjects.Others = data.Others;
-        }
 
         // Start the connection.
         $.connection.hub.start().done(function () {
