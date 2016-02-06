@@ -1,37 +1,22 @@
-﻿$(function() {
-    //Set the hubs URL for the connection
-    $.connection.hub.url = "http://localhost:30518/signalr";
+﻿// http://stackoverflow.com/questions/2504568/javascript-namespace-declaration
+var spaceMud = (function(spaceMud) {
 
+    // Global / accessible to stuff defined here. 
     // Get handles on external things. 
     // Declare a proxy to reference the hub.
-    var chat = $.connection.spaceHub;
-    var canvas = document.getElementById('canvas');
-    var context = canvas.getContext('2d');
-    context.font = "20px Arial";
 
-    var shipImage1 = new Image();
-    shipImage1.src = "http://localhost:30518/Content/ship1.png";
-
-    var gameObjects = {
-        Me: { X: 0, Y: 0, DX: 0, DY: 0, R: 0, DR: 0, Name: '', Image: '' },
+    var chat;
+    var canvas;
+    var context;
+    var serverObjects = {
+        Me: { X: 0, Y: 0, DX: 0, DY: 0, R: 0, DR: 0, Name: "", Image: "" },
         Others: []
     };
+    var shipImage1; 
 
-    chat.client.serverSendsPollResultToClient = function(data) {
+    spaceMud.animate = function animate(timestamp) {
 
-        // some smart updating needs to happen here. 
-        // example: load images on image change, but not otherwise. 
-
-        gameObjects.Me.X = data.Me.X;
-        gameObjects.Me.Y = data.Me.Y;
-        gameObjects.Me.R = data.Me.R;
-
-        gameObjects.Others = data.Others;
-    }
-
-    function animate(timestamp) {
-
-        requestAnimationFrame(animate);
+        requestAnimationFrame(spaceMud.animate);
 
         var desiredWidth = window.innerWidth - 100;
         var desiredHeight = window.innerHeight - 100;
@@ -48,7 +33,7 @@
         {
             // drawing everything
             context.translate(canvas.width / 2, canvas.height / 2);
-            var me = gameObjects.Me;
+            var me = serverObjects.Me;
             if (shipImage1.complete) {
                 context.save();
                 {
@@ -59,8 +44,8 @@
                 context.restore();
                 context.fillText(0, 0, "Me");
             }
-            for (var i = 0; i < gameObjects.Others.length; i++) {
-                var ob = gameObjects.Others[i];
+            for (var i = 0; i < serverObjects.Others.length; i++) {
+                var ob = serverObjects.Others[i];
                 if (ob !== null) {
                     if (shipImage1.complete) {
                         context.save();
@@ -81,13 +66,41 @@
         }
 
         context.restore();
-    }
+    };
 
-    // Set initial focus to message input box.
-    $("#message").focus();
-    // Start the connection.
-    $.connection.hub.start().done(function() {
-        setInterval(function() { chat.server.clientRequestsPollFromServer(); }, 1000);
-        requestAnimationFrame(animate);
-    });
-});
+    spaceMud.main = function () {
+        //Set the hubs URL for the connection
+        $.connection.hub.url = "http://localhost:30518/signalr";
+
+        chat = $.connection.spaceHub;
+        canvas = document.getElementById("canvas");
+        context = canvas.getContext("2d");
+        context.font = "20px Arial";
+
+        shipImage1 = new Image();
+        shipImage1.src = "http://localhost:30518/Content/ship1.png";
+
+        chat.client.serverSendsPollResultToClient = function (data) {
+
+            // some smart updating needs to happen here. 
+            // example: load images on image change, but not otherwise. 
+
+            serverObjects.Me.X = data.Me.X;
+            serverObjects.Me.Y = data.Me.Y;
+            serverObjects.Me.R = data.Me.R;
+
+            serverObjects.Others = data.Others;
+        }
+
+        // Start the connection.
+        $.connection.hub.start().done(function () {
+            setInterval(function () { chat.server.clientRequestsPollFromServer(); }, 1000);
+            requestAnimationFrame(spaceMud.animate);
+        });
+    };
+
+    return spaceMud; 
+}(spaceMud || {}));
+    
+    
+spaceMud.main(); 
