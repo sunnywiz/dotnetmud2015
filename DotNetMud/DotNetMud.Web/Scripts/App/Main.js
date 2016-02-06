@@ -33,8 +33,8 @@ var spaceMud = (function(spaceMud) {
 
         requestAnimationFrame(spaceMud.animate);
 
-        var desiredWidth = window.innerWidth - 100;
-        var desiredHeight = window.innerHeight - 100;
+        var desiredWidth = 700; // window.innerWidth - 200;
+        var desiredHeight = 500; // window.innerHeight - 200;
 
         if (context.canvas.width !== desiredWidth) {
             context.canvas.width = desiredWidth;
@@ -57,7 +57,7 @@ var spaceMud = (function(spaceMud) {
                     context.drawImage(shipImage1, -shipImage1.width / 2, -shipImage1.height / 2);
                 }
                 context.restore();
-                context.fillText(0, 0, "Me");
+                context.fillText("Me", 0, 0);
             }
             for (var i = 0; i < serverObjects.Others.length; i++) {
                 var ob = serverObjects.Others[i];
@@ -72,7 +72,7 @@ var spaceMud = (function(spaceMud) {
                                 context.drawImage(shipImage1, -shipImage1.width / 2, -shipImage1.height / 2);
                             }
                             context.restore();
-                            context.fillText(0, 0, ob.Name);
+                            context.fillText(ob.Name, 0, 0);
                         }
                         context.restore();
                     }
