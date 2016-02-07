@@ -17,7 +17,7 @@ namespace DotNetMud.SpaceLib
             R = r.NextDouble()*360;
             DR = r.NextDouble()*10-5; 
             Name = this.ObjectId;
-            Image = "ship1.png";
+            Image = "http://pixeljoint.com/files/icons/spaceship1_final.png";
 
             var space = Driver.GlobalObjects.FindSingleton(typeof (Space2D)) as Space2D;
             space.Objects.Add(this);

@@ -14,7 +14,7 @@ namespace DotNetMud.SpaceLib
         {
             Objects = new List<IObject2D>();
 
-            Objects.Add(new Planet() { Name="Planet1",X=0,Y=0,Image="Planet1"});
+            Objects.Add(new Planet() { Name="Planet1",X=0,Y=0,Image= "https://cdn3.iconfinder.com/data/icons/nx11/Internet%20-%20Blue.png" });
 
             _measurer = new Stopwatch();
             _measurer.Start();

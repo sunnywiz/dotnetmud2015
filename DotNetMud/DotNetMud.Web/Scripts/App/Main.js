@@ -1,5 +1,5 @@
 ﻿// http://stackoverflow.com/questions/2504568/javascript-namespace-declaration
-var spaceMud = (function(spaceMud) {
+var spaceMud = (function (spaceMud) {
 
     // Global / accessible to stuff defined here. 
     // Get handles on external things. 
@@ -14,8 +14,21 @@ var spaceMud = (function(spaceMud) {
         Me: { X: 0, Y: 0, DX: 0, DY: 0, R: 0, DR: 0, Name: "", Image: "" },
         Others: []
     };
-    var shipImage1; 
 
+    var loadedImages = {};
+
+    spaceMud.getImageForUrl = function (url) {
+        if (!url) return {};
+        var x = loadedImages[url];
+        if (!x) {
+            var image = new Image();
+            image.src = url;
+            loadedImages[url] = image;
+            return image;
+        } else {
+            return loadedImages[url];
+        }
+    };
 
     chat.client.serverSendsPollResultToClient = function (data) {
 
@@ -25,6 +38,7 @@ var spaceMud = (function(spaceMud) {
         serverObjects.Me.X = data.Me.X;
         serverObjects.Me.Y = data.Me.Y;
         serverObjects.Me.R = data.Me.R;
+        serverObjects.Me.Image = data.Me.Image;
 
         serverObjects.Others = data.Others;
     }
@@ -46,49 +60,53 @@ var spaceMud = (function(spaceMud) {
         context.clearRect(0, 0, canvas.width, canvas.height);
         context.save();
         {
-            // drawing everything
+            // drawing everything.  make 0,0 the center of the screen
             context.translate(canvas.width / 2, canvas.height / 2);
-            var me = serverObjects.Me;
-            if (shipImage1.complete) {
-                context.save();
-                {
-                    // drawing me
-                    context.rotate((180 - me.R) * Math.PI / 180);
-                    context.drawImage(shipImage1, -shipImage1.width / 2, -shipImage1.height / 2);
-                }
-                context.restore();
-                context.fillText("Me", 0, 0);
-            }
+
+            // drawing everything else
             for (var i = 0; i < serverObjects.Others.length; i++) {
                 var ob = serverObjects.Others[i];
-                if (ob !== null) {
-                    if (shipImage1.complete) {
-                        context.save();
-                        {
-                            context.translate(me.X - ob.X, me.Y - ob.Y);
+                if (ob) {
+                    context.save();
+                    {
+                        context.translate(me.X - ob.X, me.Y - ob.Y);
+                        var theirImage = spaceMud.getImageForUrl(ob.Image);
+                        if (theirImage.complete) {
                             context.save();
                             {
                                 context.rotate((180 - ob.R) * Math.PI / 180);
-                                context.drawImage(shipImage1, -shipImage1.width / 2, -shipImage1.height / 2);
+                                context.drawImage(theirImage, -theirImage.width / 2, -theirImage.height / 2);
                             }
                             context.restore();
-                            context.fillText(ob.Name, 0, 0);
                         }
-                        context.restore();
+                        context.fillText(ob.Name, 0, 0);
                     }
+                    context.restore();
                 }
             }
-        }
 
+            // drawing me last so i show on top of everyone else
+            var me = serverObjects.Me;
+            if (me) {
+                var myShipImage = spaceMud.getImageForUrl(me.Image);
+                if (myShipImage.complete) {
+                    context.save();
+                    {
+                        context.rotate((180 - me.R) * Math.PI / 180);
+                        context.drawImage(myShipImage, -myShipImage.width / 2, -myShipImage.height / 2);
+                    }
+                    context.restore();
+                }
+                context.fillText("Me", 0, 0);
+            }
+
+        }
         context.restore();
     };
 
     spaceMud.main = function () {
         //Set the hubs URL for the connection
         $.connection.hub.url = "http://localhost:30518/signalr";
-
-        shipImage1 = new Image();
-        shipImage1.src = "http://localhost:30518/Content/ship1.png";
 
         // Start the connection.
         $.connection.hub.start().done(function () {
@@ -97,8 +115,8 @@ var spaceMud = (function(spaceMud) {
         });
     };
 
-    return spaceMud; 
+    return spaceMud;
 }(spaceMud || {}));
-    
-    
-spaceMud.main(); 
+
+
+spaceMud.main();
