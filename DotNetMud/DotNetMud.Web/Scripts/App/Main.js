@@ -5,6 +5,23 @@ var spaceMud = (function (spaceMud) {
     // Get handles on external things. 
     // Declare a proxy to reference the hub.
 
+    // COORDINATE SYSTEM
+    //              -Y
+    // 
+    //   -X        0,0       +X
+    //                 \
+    //              +Y  \  45 degrees
+    //   +R = to the right, clockwise
+    //   -R = to the left, counter clockwise
+
+    // IMAGE:  
+    // 
+    //   FRONT faces top of image
+    //   
+    //       ^
+    //     ^=|=^
+    
+
     var chat = $.connection.spaceHub;
     var canvas = document.getElementById("canvas");
     var context = canvas.getContext("2d");
@@ -63,31 +80,33 @@ var spaceMud = (function (spaceMud) {
             // drawing everything.  make 0,0 the center of the screen
             context.translate(canvas.width / 2, canvas.height / 2);
 
-            // drawing everything else
-            for (var i = 0; i < serverObjects.Others.length; i++) {
-                var ob = serverObjects.Others[i];
-                if (ob) {
-                    context.save();
-                    {
-                        context.translate(me.X - ob.X, me.Y - ob.Y);
-                        var theirImage = spaceMud.getImageForUrl(ob.Image);
-                        if (theirImage.complete) {
-                            context.save();
-                            {
-                                context.rotate((180 - ob.R) * Math.PI / 180);
-                                context.drawImage(theirImage, -theirImage.width / 2, -theirImage.height / 2);
-                            }
-                            context.restore();
-                        }
-                        context.fillText(ob.Name, 0, 0);
-                    }
-                    context.restore();
-                }
-            }
-
             // drawing me last so i show on top of everyone else
             var me = serverObjects.Me;
             if (me) {
+
+                // drawing everything else
+                for (var i = 0; i < serverObjects.Others.length; i++) {
+                    var ob = serverObjects.Others[i];
+                    if (ob) {
+                        context.save();
+                        {
+                            context.translate(ob.X-me.X, ob.Y-me.Y);
+                            var theirImage = spaceMud.getImageForUrl(ob.Image);
+                            if (theirImage.complete) {
+                                context.save();
+                                {
+                                    context.rotate((180 - ob.R) * Math.PI / 180);
+                                    context.drawImage(theirImage, -theirImage.width / 2, -theirImage.height / 2);
+                                }
+                                context.restore();
+                            }
+                            context.fillText(ob.Name, 0, 0);
+                        }
+                        context.restore();
+                    }
+                }
+
+                // draw me last because i need to be on top of everything else. 
                 var myShipImage = spaceMud.getImageForUrl(me.Image);
                 if (myShipImage.complete) {
                     context.save();

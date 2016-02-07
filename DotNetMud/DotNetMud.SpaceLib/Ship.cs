@@ -10,12 +10,12 @@ namespace DotNetMud.SpaceLib
         public void WelcomeNewPlayer()
         {
             var r = new Random();
-            X = r.NextDouble()*200 - 100;
-            Y = r.NextDouble()*200 - 100;
-            DX = r.NextDouble()*10 - 5;
-            DY = r.NextDouble()*10 - 5;
-            R = r.NextDouble()*360;
-            DR = r.NextDouble()*10-5; 
+            X = 200;
+            Y = 100;
+            DX = 10;
+            DY = 5;
+            R = 45;
+            DR = -5; 
             Name = this.ObjectId;
             Image = "http://pixeljoint.com/files/icons/spaceship1_final.png";
 
