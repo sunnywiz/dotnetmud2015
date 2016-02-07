@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using DotNetMud.Driver;
 
@@ -61,8 +62,29 @@ namespace DotNetMud.SpaceLib
             }
         }
 
+        
+        private Stopwatch timeBetweenPolls = new Stopwatch();
+        private Stopwatch logEvery5Secnds = new Stopwatch();
+        private decimal avgTimeBetweenPolls = 0.0m; 
         public object ClientRequestsPollFromServer()
         {
+            if (timeBetweenPolls.IsRunning)
+            {
+                var sample = Convert.ToDecimal(timeBetweenPolls.ElapsedMilliseconds);
+                avgTimeBetweenPolls = avgTimeBetweenPolls*0.9m + sample*0.1m;
+                if (!logEvery5Secnds.IsRunning)
+                {
+                    logEvery5Secnds.Start();
+                }
+                else
+                {
+                    if (logEvery5Secnds.ElapsedMilliseconds > 5000)
+                    {
+                        logEvery5Secnds.Restart();
+                        Trace.WriteLine($"{ObjectId} polling at {avgTimeBetweenPolls} ms");
+                    }
+                }
+            }
             var result = new PollResult() {Me = Object2DDto.CopyFrom(this)};
 
             if (Container != null)
@@ -70,6 +92,7 @@ namespace DotNetMud.SpaceLib
                 result.Others = Container.Objects.Where(o => o != this).Select(Object2DDto.CopyFrom).ToList(); 
             }
 
+            timeBetweenPolls.Restart();
             return result; 
         }
 
