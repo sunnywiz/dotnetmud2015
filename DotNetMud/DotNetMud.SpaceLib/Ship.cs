@@ -21,8 +21,8 @@ namespace DotNetMud.SpaceLib
             var r = new Random();
             X = playerNumber*100+100;
             Y = 0;
-            DX = 5;
-            DY = 5;
+            DX = 1;
+            DY = 1;
             R = 45;
             DR = 5; 
             Name = this.ObjectId;

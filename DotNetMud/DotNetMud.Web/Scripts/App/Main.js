@@ -58,6 +58,9 @@ var spaceMud = (function (spaceMud) {
         serverObjects.Me.Image = data.Me.Image;
 
         serverObjects.Others = data.Others;
+
+        // and go again. 
+        chat.server.clientRequestsPollFromServer();
     }
 
     spaceMud.animate = function animate(timestamp) {
@@ -129,7 +132,7 @@ var spaceMud = (function (spaceMud) {
 
         // Start the connection.
         $.connection.hub.start().done(function () {
-            setInterval(function () { chat.server.clientRequestsPollFromServer(); }, 1000);
+            chat.server.clientRequestsPollFromServer();  
             requestAnimationFrame(spaceMud.animate);
         });
     };
