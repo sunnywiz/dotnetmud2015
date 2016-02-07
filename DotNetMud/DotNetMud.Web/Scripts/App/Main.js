@@ -95,7 +95,7 @@ var spaceMud = (function (spaceMud) {
                             if (theirImage.complete) {
                                 context.save();
                                 {
-                                    context.rotate((180 - ob.R) * Math.PI / 180);
+                                    context.rotate((ob.R+90) * Math.PI / 180);
                                     context.drawImage(theirImage, -theirImage.width / 2, -theirImage.height / 2);
                                 }
                                 context.restore();
@@ -111,7 +111,7 @@ var spaceMud = (function (spaceMud) {
                 if (myShipImage.complete) {
                     context.save();
                     {
-                        context.rotate((180 - me.R) * Math.PI / 180);
+                        context.rotate((me.R+90) * Math.PI / 180);
                         context.drawImage(myShipImage, -myShipImage.width / 2, -myShipImage.height / 2);
                     }
                     context.restore();

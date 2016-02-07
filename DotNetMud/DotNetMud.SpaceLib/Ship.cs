@@ -7,21 +7,32 @@ namespace DotNetMud.SpaceLib
 {
     public class Ship : StdObject, IObject2D
     {
+        private static int playerNumber = 0;
+
+        private string[] shipImages = new [] 
+        {
+            "http://pixeljoint.com/files/icons/spaceship1_final.png",
+            "http://orig15.deviantart.net/0400/f/2014/172/0/d/spaceship_warp_animation_by_nnj3de-d7ncf40.gif",
+            "http://pixeljoint.com/files/icons/spaceship.png",
+            "http://i24.photobucket.com/albums/c43/onlyeye/spaceship.gif"
+        };
         public void WelcomeNewPlayer()
         {
             var r = new Random();
-            X = 200;
-            Y = 100;
-            DX = 10;
+            X = playerNumber*100+100;
+            Y = 0;
+            DX = 5;
             DY = 5;
             R = 45;
-            DR = -5; 
+            DR = 5; 
             Name = this.ObjectId;
-            Image = "http://pixeljoint.com/files/icons/spaceship1_final.png";
+            Image = shipImages[playerNumber%shipImages.Length];
 
             var space = Driver.GlobalObjects.FindSingleton(typeof (Space2D)) as Space2D;
             space.Objects.Add(this);
-            this.Container = space; 
+            this.Container = space;
+
+            playerNumber++; 
         }
 
         public Space2D Container { get; set; }
