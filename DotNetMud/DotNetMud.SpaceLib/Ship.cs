@@ -62,9 +62,9 @@ namespace DotNetMud.SpaceLib
             }
         }
 
-
         public object ClientRequestsPollFromServer()
         {
+            PerfLogging.SomethingHappened(Id+" ClientRequestPoll");
             var result = new PollResult()
             {
                 Me = Object2DDto.CopyFrom(this),

@@ -5,6 +5,8 @@ using System.Timers;
 
 namespace DotNetMud.SpaceLib
 {
+    // TODO: GLobalTimers might want to move up to the Driver proper.   
+
     public class GlobalTimers
     {
         /// <summary>
@@ -29,7 +31,7 @@ namespace DotNetMud.SpaceLib
         private static decimal nowAtLastSample;
         private static long elapsedMillisAtLasSample;
 
-        const long DesiredHfUpdateIntervalInMs = 100;  
+        const long DesiredHfUpdateIntervalInMs = 10;  
 
         static GlobalTimers()
         {
@@ -96,7 +98,7 @@ namespace DotNetMud.SpaceLib
             {
                 hfUpdateSlownessTimer.Stop(); 
                 var myRunTime = hfUpdateSlownessTimer.ElapsedMilliseconds;
-                Trace.WriteLine($"HfUpdate took {myRunTime}ms");
+                PerfLogging.SomethingIsCurrently("HfUpdate TimeTaken",myRunTime);
                 var sleepTime = DesiredHfUpdateIntervalInMs - myRunTime;
 
                 if (sleepTime < 0)
@@ -135,3 +137,4 @@ namespace DotNetMud.SpaceLib
         }
     }
 }
+
