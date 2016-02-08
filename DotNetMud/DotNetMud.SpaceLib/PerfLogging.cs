@@ -52,6 +52,8 @@ namespace DotNetMud.SpaceLib
                         gurp.AverageSum/gurp.Count,
                         gurp.MaxValue
                         ));
+                gurp.Count = 0;
+                gurp.AverageSum = 0; 
             }
         }
 
