@@ -29,7 +29,13 @@ var spaceMud = (function (spaceMud) {
 
     var serverObjects = {
         Me: { X: 0, Y: 0, DX: 0, DY: 0, R: 0, DR: 0, Name: "", Image: "" },
-        Others: []
+        Others: [],
+        ServerTimeInSeconds: 0,
+        ServerTimeRate: 1
+    };
+
+    var clientInfo = {
+        MyTimeAtServerTimeInMs: window.performance.now()
     };
 
     var loadedImages = {};
@@ -49,23 +55,29 @@ var spaceMud = (function (spaceMud) {
 
     chat.client.serverSendsPollResultToClient = function (data) {
 
-        // some smart updating needs to happen here. 
-        // example: load images on image change, but not otherwise. 
-
+        // TODO: make this less chatty .. only things that update get sent. and shorter names
+        
         serverObjects.Me.X = data.Me.X;
         serverObjects.Me.Y = data.Me.Y;
         serverObjects.Me.R = data.Me.R;
+        serverObjects.Me.DX = data.Me.DX;
+        serverObjects.Me.DY = data.Me.DY;
+        serverObjects.Me.DR = data.Me.DR; 
         serverObjects.Me.Image = data.Me.Image;
+        serverObjects.ServerTimeInSeconds = data.ServerTimeInSeconds;
+        serverObjects.ServerTimeRate = data.ServerTimeRate;
+        clientInfo.MyTimeAtServerTimeInMs = window.performance.now();
 
         serverObjects.Others = data.Others;
 
-        // and go again. 
-        // chat.server.clientRequestsPollFromServer();
     }
 
     spaceMud.animate = function animate(timestamp) {
 
         requestAnimationFrame(spaceMud.animate);
+
+        clientInfo.ElapsedSecondsSinceServerRefresh =
+        (window.performance.now() - clientInfo.MyTimeAtServerTimeInMs) / (serverObjects.ServerTimeRate * 1000);
 
         var desiredWidth = 700; // window.innerWidth - 200;
         var desiredHeight = 500; // window.innerHeight - 200;
@@ -87,18 +99,30 @@ var spaceMud = (function (spaceMud) {
             var me = serverObjects.Me;
             if (me) {
 
+                var me2 = {
+                    X: me.X + me.DX * clientInfo.ElapsedSecondsSinceServerRefresh,
+                    Y: me.Y + me.DY * clientInfo.ElapsedSecondsSinceServerRefresh,
+                    R: me.R + me.DR * clientInfo.ElapsedSecondsSinceServerRefresh
+                };
+                console.log(me2);
+
                 // drawing everything else
                 for (var i = 0; i < serverObjects.Others.length; i++) {
                     var ob = serverObjects.Others[i];
                     if (ob) {
                         context.save();
                         {
-                            context.translate(ob.X-me.X, ob.Y-me.Y);
+                            var ob2 = {
+                                X: ob.X + ob.DX * clientInfo.ElapsedSecondsSinceServerRefresh,
+                                Y: ob.Y + ob.DY * clientInfo.ElapsedSecondsSinceServerRefresh,
+                                R: ob.R + ob.DR * clientInfo.ElapsedSecondsSinceServerRefresh
+                            }
+                            context.translate(ob2.X-me2.X, ob2.Y-me2.Y);
                             var theirImage = spaceMud.getImageForUrl(ob.Image);
                             if (theirImage.complete) {
                                 context.save();
                                 {
-                                    context.rotate((ob.R+90) * Math.PI / 180);
+                                    context.rotate((ob2.R+90) * Math.PI / 180);
                                     context.drawImage(theirImage, -theirImage.width / 2, -theirImage.height / 2);
                                 }
                                 context.restore();
@@ -114,7 +138,7 @@ var spaceMud = (function (spaceMud) {
                 if (myShipImage.complete) {
                     context.save();
                     {
-                        context.rotate((me.R+90) * Math.PI / 180);
+                        context.rotate((me2.R+90) * Math.PI / 180);
                         context.drawImage(myShipImage, -myShipImage.width / 2, -myShipImage.height / 2);
                     }
                     context.restore();

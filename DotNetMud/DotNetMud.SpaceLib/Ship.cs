@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Timers;
 using DotNetMud.Driver;
 
 namespace DotNetMud.SpaceLib
@@ -64,36 +63,19 @@ namespace DotNetMud.SpaceLib
         }
 
 
-        private Stopwatch timeBetweenPolls = new Stopwatch();
-        private Stopwatch logEvery5Secnds = new Stopwatch();
-        private decimal avgTimeBetweenPolls = 0.0m;
         public object ClientRequestsPollFromServer()
         {
-            if (timeBetweenPolls.IsRunning)
+            var result = new PollResult()
             {
-                var sample = Convert.ToDecimal(timeBetweenPolls.ElapsedMilliseconds);
-                avgTimeBetweenPolls = avgTimeBetweenPolls * 0.9m + sample * 0.1m;
-                if (!logEvery5Secnds.IsRunning)
-                {
-                    logEvery5Secnds.Start();
-                }
-                else
-                {
-                    if (logEvery5Secnds.ElapsedMilliseconds > 5000)
-                    {
-                        logEvery5Secnds.Restart();
-                        Trace.WriteLine($"{ObjectId} polling at {avgTimeBetweenPolls} ms");
-                    }
-                }
-            }
-            var result = new PollResult() { Me = Object2DDto.CopyFrom(this) };
+                Me = Object2DDto.CopyFrom(this),
+                ServerTimeInSeconds = GlobalTimers.NowInMs/1000.0m,
+                ServerTimeRate = GlobalTimers.RateOfTime
+            };
 
             if (Container != null)
             {
                 result.Others = Container.Objects.Where(o => o != this).Select(Object2DDto.CopyFrom).ToList();
             }
-
-            timeBetweenPolls.Restart();
             return result;
         }
 
@@ -103,7 +85,11 @@ namespace DotNetMud.SpaceLib
             {
                 Others = new List<IObject2D>();
             }
+
             public IObject2D Me { get; set; }
+            public decimal ServerTimeInSeconds { get; set; }
+            public decimal ServerTimeRate { get; set; }
+
             public List<IObject2D> Others { get; set; }
         }
 
@@ -112,136 +98,6 @@ namespace DotNetMud.SpaceLib
             this.Container.Objects.Remove(this);
             this.Container = null;
             this.Destroy();
-        }
-    }
-
-    public class GlobalTimers
-    {
-        /// <summary>
-        /// number of milliseconds.   Can be slowed down. 
-        /// </summary>
-        public static decimal Now
-        {
-            get
-            {
-                var nowElapsedMillis = timer.ElapsedMilliseconds;
-                var numberOfMillisElapsedSinceLastCheck = nowElapsedMillis - elapsedMillisAtLasSample;
-                var result = nowAtLastSample + numberOfMillisElapsedSinceLastCheck * RateOfTime;
-                elapsedMillisAtLasSample = nowElapsedMillis;
-                nowAtLastSample = result;
-                return result;
-            }
-        }
-
-        public static decimal RateOfTime { get; private set; }
-
-        private static Stopwatch timer;
-        private static decimal nowAtLastSample;
-        private static long elapsedMillisAtLasSample;
-
-        const long DesiredHfUpdateIntervalInMs = 100;  
-
-        static GlobalTimers()
-        {
-            RateOfTime = 1.0m; // number of millis per second. 
-            timer = new Stopwatch();
-            hfUpdateSlownessTimer = new Stopwatch(); 
-            timer.Start();
-            nowAtLastSample = 0;
-            elapsedMillisAtLasSample = 0;
-
-            // TODO: High Frequency stuff probably should be its own class.
-            // except if its taking too long, probably want to slow time down. 
-            hfTargets = new List<WeakReference<IHighFrequencyUpdateTarget>>();
-
-            var time = Now;
-            hfTimer = new System.Timers.Timer();
-            hfTimer.AutoReset = false;
-            hfTimer.Interval = DesiredHfUpdateIntervalInMs;
-            hfTimer.Elapsed += HfTimerOnElapsed;
-            hfTimer.Start();
-        }
-
-        private static decimal hfLastNow = 0;
-        private static Stopwatch hfUpdateSlownessTimer;
-        private static void HfTimerOnElapsed(object sender, ElapsedEventArgs elapsedEventArgs)
-        {
-            hfUpdateSlownessTimer.Restart(); 
-            try
-            {
-                if (hfLastNow == 0)
-                {
-                    hfLastNow = Now;
-                    return; 
-                }
-                var thisNow = Now;
-                var info = new HighFrequencyUpdateInfo()
-                {
-                    LastNowInSeconds = hfLastNow / 1000.0m,
-                    ThisNowInSeconds = thisNow / 1000.0m,
-                    ElapsedSeconds = (thisNow - hfLastNow)/1000.0m,
-                    Rate = RateOfTime
-                };
-                hfLastNow = thisNow; 
-                for (int index = hfTargets.Count-1; index >=0; index--)
-                {
-                    var wr = hfTargets[index];
-                    IHighFrequencyUpdateTarget t;
-                    if (wr.TryGetTarget(out t))
-                    {
-                        t.HiFrequencyUpdate(info);
-                    }
-                    else
-                    {
-                        hfTargets.RemoveAt(index);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Trace.WriteLine($"Exception during HFupdate, ignored: {ex.Message}");
-                // really, do nothing. 
-            }
-            finally
-            {
-                hfUpdateSlownessTimer.Stop(); 
-                var myRunTime = hfUpdateSlownessTimer.ElapsedMilliseconds;
-                Trace.WriteLine($"HfUpdate took {myRunTime}ms");
-                var sleepTime = DesiredHfUpdateIntervalInMs - myRunTime;
-
-                if (sleepTime < 0)
-                {
-                    sleepTime = 1;
-                    // this is where rate decrease goes. 
-                }
-                else
-                {
-                    // this is where possible speed time back up again goes
-                }
-
-                hfTimer.Interval = sleepTime; 
-                hfTimer.Start();
-            }
-        }
-
-        private static System.Timers.Timer hfTimer;
-        private static List<WeakReference<IHighFrequencyUpdateTarget>> hfTargets;
-        public static void RegisterForHighFrequencyUpdate(IHighFrequencyUpdateTarget target)
-        {
-            hfTargets.Add(new WeakReference<IHighFrequencyUpdateTarget>(target));
-        }
-
-        public interface IHighFrequencyUpdateTarget
-        {
-            void HiFrequencyUpdate(HighFrequencyUpdateInfo info);
-        }
-
-        public class HighFrequencyUpdateInfo
-        {
-            public decimal LastNowInSeconds { get; set; }
-            public decimal ThisNowInSeconds { get; set; }
-            public decimal Rate { get; set; }
-            public decimal ElapsedSeconds { get; set; }
         }
     }
 }
