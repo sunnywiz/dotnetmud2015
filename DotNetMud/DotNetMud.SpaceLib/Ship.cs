@@ -134,6 +134,12 @@ namespace DotNetMud.SpaceLib
             {
                 DR = DR + Convert.ToDouble(DesiredRight*90m);  
             }
+            if (DesiredThrust > 0)
+            {
+                var angle = R*Math.PI/180.0;
+                DX = DX + Math.Cos(angle)*50.0*Convert.ToDouble(DesiredThrust * info.ElapsedSeconds);
+                DY = DY + Math.Sin(angle)*50.0*Convert.ToDouble(DesiredThrust * info.ElapsedSeconds);
+            }
             // thrust is harder, do that later. 
         }
     }
