@@ -6,7 +6,7 @@ using DotNetMud.Driver;
 
 namespace DotNetMud.SpaceLib
 {
-    public class Ship : StdObject, IObject2D
+    public class Ship : StdObject, IObject2D, GlobalTimers.IHighFrequencyUpdateTarget
     {
         private static int playerNumber = 0;
 
@@ -25,13 +25,15 @@ namespace DotNetMud.SpaceLib
             DX = 1;
             DY = 1;
             R = 45;
-            DR = 5;
+            DR = 0;
             Name = this.ObjectId;
             Image = shipImages[playerNumber % shipImages.Length];
 
             var space = Driver.GlobalObjects.FindSingleton(typeof(Space2D)) as Space2D;
             space.Objects.Add(this);
             this.Container = space;
+
+            GlobalTimers.RegisterForHighFrequencyUpdate(this);
 
             playerNumber++;
         }
@@ -62,9 +64,29 @@ namespace DotNetMud.SpaceLib
             }
         }
 
-        public object ClientRequestsPollFromServer()
-        {
+        public decimal DesiredThrust { get; set; }
+        public decimal DesiredLeft { get; set; }
+        public decimal DesiredRight { get; set; }
+
+        private Stopwatch t1 = new Stopwatch(); 
+        public object ClientRequestsPollFromServer(decimal thrustMs, decimal leftMs, decimal rightMs)
+        {            
             PerfLogging.SomethingHappened(Id+" ClientRequestPoll");
+
+            DesiredThrust = 0;
+            DesiredLeft = 0;
+            DesiredRight = 0;
+            if (t1.IsRunning)
+            {
+                var elapsedMs = t1.ElapsedMilliseconds;
+                if (elapsedMs > 0)
+                {
+                    DesiredThrust = thrustMs/elapsedMs;
+                    DesiredLeft = leftMs/elapsedMs;
+                    DesiredRight = rightMs/elapsedMs; 
+                }
+            }
+
             var result = new PollResult()
             {
                 Me = Object2DDto.CopyFrom(this),
@@ -76,7 +98,8 @@ namespace DotNetMud.SpaceLib
             {
                 result.Others = Container.Objects.Where(o => o != this).Select(Object2DDto.CopyFrom).ToList();
             }
-            return result;
+            t1.Restart();
+            return result;         
         }
 
         public class PollResult
@@ -98,6 +121,20 @@ namespace DotNetMud.SpaceLib
             this.Container.Objects.Remove(this);
             this.Container = null;
             this.Destroy();
+        }
+
+        public void HiFrequencyUpdate(GlobalTimers.HighFrequencyUpdateInfo info)
+        {
+            DR = 0;
+            if (DesiredLeft > 0)
+            {
+                DR = DR - Convert.ToDouble(DesiredLeft*90.0m);  // 90 degrees a second
+            }
+            if (DesiredRight > 0)
+            {
+                DR = DR + Convert.ToDouble(DesiredRight*90m);  
+            }
+            // thrust is harder, do that later. 
         }
     }
 }

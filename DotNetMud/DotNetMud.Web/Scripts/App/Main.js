@@ -34,6 +34,42 @@ var spaceMud = (function (spaceMud) {
         ServerTimeRate: 1
     };
 
+    var keyLastDownAt = {};  // high performance counter
+    var keyPressedLength = {};  // cumulates if not pressed
+
+    spaceMud.keyUpHandler = function() {
+        var kc = event.keyCode;
+
+        var ld = keyLastDownAt[kc];
+        keyLastDownAt[kc] = 0;
+        if (ld) {
+            var now = window.performance.now(); 
+            var ela = now - ld;
+            keyPressedLength[kc] = (keyPressedLength[kc]||0) + ela;
+        }
+    }
+
+    spaceMud.getKeyPressedLengthAndReset = function(kc) {
+        var l1 = keyPressedLength[kc] || 0;
+        keyPressedLength[kc] = 0;
+        var ld = keyLastDownAt[kc] || 0;
+        if (ld) {
+            // key is currently down, so read the value and reset it to look like it was just pressed
+            var now = window.performance.now(); 
+            var ela = now - ld;
+            l1 = l1 + ela;
+            keyLastDownAt[kc] = now;
+        }
+        return l1; 
+    }
+
+    spaceMud.keyDownHandler = function () {
+        var keyCode = event.keyCode;
+        if (!keyLastDownAt[keyCode]) {
+            keyLastDownAt[keyCode] = window.performance.now();
+        }
+    }
+
     var clientInfo = {
         MyTimeAtServerTimeInMs: window.performance.now()
     };
@@ -72,12 +108,14 @@ var spaceMud = (function (spaceMud) {
 
     }
 
+    var lastAnimate = 0; 
     spaceMud.animate = function animate(timestamp) {
 
         requestAnimationFrame(spaceMud.animate);
 
+        var now = window.performance.now();  // should be the same as timestamp.. almost
         clientInfo.ElapsedSecondsSinceServerRefresh =
-        (window.performance.now() - clientInfo.MyTimeAtServerTimeInMs) / (serverObjects.ServerTimeRate * 1000);
+        (now - clientInfo.MyTimeAtServerTimeInMs) / (serverObjects.ServerTimeRate * 1000);
 
         var desiredWidth = 700; // window.innerWidth - 200;
         var desiredHeight = 500; // window.innerHeight - 200;
@@ -104,7 +142,6 @@ var spaceMud = (function (spaceMud) {
                     Y: me.Y + me.DY * clientInfo.ElapsedSecondsSinceServerRefresh,
                     R: me.R + me.DR * clientInfo.ElapsedSecondsSinceServerRefresh
                 };
-                console.log(me2);
 
                 // drawing everything else
                 for (var i = 0; i < serverObjects.Others.length; i++) {
@@ -150,14 +187,26 @@ var spaceMud = (function (spaceMud) {
         context.restore();
     };
 
+    spaceMud.doClientRequestsPollFromServer = function() {
+        var thrust = 0, left = 0, right = 0;
+        thrust = spaceMud.getKeyPressedLengthAndReset(87);
+        left = spaceMud.getKeyPressedLengthAndReset(65);
+        right = spaceMud.getKeyPressedLengthAndReset(68);
+
+        chat.server.clientRequestsPollFromServer(thrust, left, right);
+    }
+
     spaceMud.main = function () {
         //Set the hubs URL for the connection
         $.connection.hub.url = "http://localhost:30518/signalr";
 
         // Start the connection.
         $.connection.hub.start().done(function () {
-            setInterval(function () { chat.server.clientRequestsPollFromServer(); }, 1000);
+            setInterval(function () { spaceMud.doClientRequestsPollFromServer(); }, 200);
             requestAnimationFrame(spaceMud.animate);
+
+            document.addEventListener("keydown", spaceMud.keyDownHandler, false);
+            document.addEventListener("keyup", spaceMud.keyUpHandler, false);
         });
     };
 

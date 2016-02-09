@@ -99,6 +99,8 @@ namespace DotNetMud.SpaceLib
                 hfUpdateSlownessTimer.Stop(); 
                 var myRunTime = hfUpdateSlownessTimer.ElapsedMilliseconds;
                 PerfLogging.SomethingIsCurrently("HfUpdate TimeTaken",myRunTime);
+                PerfLogging.SomethingIsCurrently("HfUpdate Q Length", hfTargets.Count);
+
                 var sleepTime = DesiredHfUpdateIntervalInMs - myRunTime;
 
                 if (sleepTime < 0)
