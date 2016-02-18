@@ -198,7 +198,7 @@ var spaceMud = (function (spaceMud) {
 
     spaceMud.main = function () {
         //Set the hubs URL for the connection
-        $.connection.hub.url = "http://localhost:30518/signalr";
+        $.connection.hub.url = window.location.origin + "/signalr";
 
         // Start the connection.
         $.connection.hub.start().done(function () {

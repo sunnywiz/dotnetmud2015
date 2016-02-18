@@ -14,7 +14,7 @@
 <script type="text/javascript">
     $(function() {
         //Set the hubs URL for the connection
-        $.connection.hub.url = "http://localhost:30518/signalr";
+        $.connection.hub.url = window.location.origin+"/signalr";
 
         // Declare a proxy to reference the hub.
         var chat = $.connection.mudHub;
