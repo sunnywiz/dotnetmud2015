@@ -20,11 +20,11 @@ namespace DotNetMud.SpaceLib
         public void WelcomeNewPlayer()
         {
             var r = new Random();
-            X = playerNumber * 100 + 100;
-            Y = 0;
-            DX = 1;
-            DY = 1;
-            R = 45;
+            X = r.NextDouble()*400.0 - 200.0;
+            Y = r.NextDouble()*400.0 - 200.0;
+            DX = 0;
+            DY = 0;
+            R = r.NextDouble() * 360.0;
             DR = 0;
             Name = this.ObjectId;
             Image = shipImages[playerNumber % shipImages.Length];

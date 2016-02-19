@@ -24,6 +24,8 @@ var spaceMud = (function (spaceMud) {
 
     var chat = $.connection.spaceHub;
     var canvas = document.getElementById("canvas");
+    var msBetweenServerUpdatesSpan = document.getElementById("msBetweenServerUpdates");
+    var msBetweenAnimatesSpan = document.getElementById("msBetweenAnimates");
     var context = canvas.getContext("2d");
     context.font = "20px Arial";
 
@@ -103,8 +105,12 @@ var spaceMud = (function (spaceMud) {
         serverObjects.Me.Image = data.Me.Image;
         serverObjects.ServerTimeInSeconds = data.ServerTimeInSeconds;
         serverObjects.ServerTimeRate = data.ServerTimeRate;
-        clientInfo.MyTimeAtServerTimeInMs = window.performance.now();
 
+        var previousMyTime = clientInfo.MyTimeAtServerTimeInMs; 
+        clientInfo.MyTimeAtServerTimeInMs = window.performance.now();
+        var msBetweenServerUpdates = clientInfo.MyTimeAtServerTimeInMs - previousMyTime;
+        msBetweenServerUpdatesSpan.textContent = msBetweenServerUpdates.toFixed(0);
+            
         serverObjects.Others = data.Others;
 
         spaceMud.doClientRequestsPollFromServer();  // ping! 
@@ -112,8 +118,11 @@ var spaceMud = (function (spaceMud) {
 
     var lastAnimate = 0; 
     spaceMud.animate = function animate(timestamp) {
-
         requestAnimationFrame(spaceMud.animate);
+
+        var elapsed = timestamp - lastAnimate;
+        lastAnimate = timestamp;
+        msBetweenAnimatesSpan.textContent = elapsed.toFixed(0); 
 
         var now = window.performance.now();  // should be the same as timestamp.. almost
         clientInfo.ElapsedSecondsSinceServerRefresh =
