@@ -92,7 +92,8 @@ var spaceMud = (function (spaceMud) {
     chat.client.serverSendsPollResultToClient = function (data) {
 
         // TODO: make this less chatty .. only things that update get sent. and shorter names
-        
+        // pong! 
+
         serverObjects.Me.X = data.Me.X;
         serverObjects.Me.Y = data.Me.Y;
         serverObjects.Me.R = data.Me.R;
@@ -106,6 +107,7 @@ var spaceMud = (function (spaceMud) {
 
         serverObjects.Others = data.Others;
 
+        spaceMud.doClientRequestsPollFromServer();  // ping! 
     }
 
     var lastAnimate = 0; 
@@ -193,7 +195,7 @@ var spaceMud = (function (spaceMud) {
         left = spaceMud.getKeyPressedLengthAndReset(65);
         right = spaceMud.getKeyPressedLengthAndReset(68);
 
-        chat.server.clientRequestsPollFromServer(thrust, left, right);
+        chat.server.clientRequestsPollFromServer(thrust, left, right);  // ping! 
     }
 
     spaceMud.main = function () {
@@ -202,7 +204,7 @@ var spaceMud = (function (spaceMud) {
 
         // Start the connection.
         $.connection.hub.start().done(function () {
-            setInterval(function () { spaceMud.doClientRequestsPollFromServer(); }, 200);
+            spaceMud.doClientRequestsPollFromServer();
             requestAnimationFrame(spaceMud.animate);
 
             document.addEventListener("keydown", spaceMud.keyDownHandler, false);
