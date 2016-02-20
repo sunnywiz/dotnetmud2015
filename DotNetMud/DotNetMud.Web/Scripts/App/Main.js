@@ -124,6 +124,24 @@ var spaceMud = (function (spaceMud) {
         spaceMud.doClientRequestsPollFromServer();  // ping! 
     }
 
+    spaceMud.drawDotBackground = function(context, shipx, shipy) {
+        context.save();
+        {
+            var w = context.canvas.width / 2 + 200;
+            var h = context.canvas.height / 2 + 200;
+            var absStartX = shipx - w;
+            var absStartY = shipy - h;
+            absStartX = Math.floor(absStartX / 100) * 100;
+            absStartY = Math.floor(absStartY / 100) * 100;
+            for (var x = absStartX; x < shipx + w; x += 100) {
+                for (var y = absStartY; y < shipy + h; y += 100) {
+                    context.fillRect(x - shipx, y - shipy, 1, 1);
+                }
+            }
+        }
+        context.restore();
+    }; 
+
     var lastAnimate = 0; 
     spaceMud.animate = function animate(timestamp) {
         requestAnimationFrame(spaceMud.animate);
@@ -164,7 +182,9 @@ var spaceMud = (function (spaceMud) {
                 spanLocationX.textContent = me2.X.toFixed(0);
                 spanLocationY.textContent = me2.Y.toFixed(0); 
 
-                // drawing everything else
+                spaceMud.drawDotBackground(context, me2.X, me2.Y);
+
+                // drawing everything else first so i can draw myself over everything later
                 for (var i = 0; i < serverObjects.Others.length; i++) {
                     var ob = serverObjects.Others[i];
                     if (ob) {
