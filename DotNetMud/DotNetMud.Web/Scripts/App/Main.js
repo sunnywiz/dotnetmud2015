@@ -24,8 +24,12 @@ var spaceMud = (function (spaceMud) {
 
     var chat = $.connection.spaceHub;
     var canvas = document.getElementById("canvas");
-    var msBetweenServerUpdatesSpan = document.getElementById("msBetweenServerUpdates");
-    var msBetweenAnimatesSpan = document.getElementById("msBetweenAnimates");
+    var spanMsBetweenServerUpdates = document.getElementById("msBetweenServerUpdates");
+    var spanMsBetweenAnimates = document.getElementById("msBetweenAnimates");
+    var spanMsToAnimate = document.getElementById("msToAnimate");
+    var spanLocationX = document.getElementById("locationX");
+    var spanLocationY = document.getElementById("locationY");
+    var spanSpeed = document.getElementById("speed");
     var context = canvas.getContext("2d");
     context.font = "20px Arial";
 
@@ -108,8 +112,12 @@ var spaceMud = (function (spaceMud) {
 
         var previousMyTime = clientInfo.MyTimeAtServerTimeInMs; 
         clientInfo.MyTimeAtServerTimeInMs = window.performance.now();
+        clientInfo.Velocity = Math.sqrt(serverObjects.Me.DX * serverObjects.Me.DX + serverObjects.Me.DY * serverObjects.Me.DY);
+
+        spanSpeed.textContent = clientInfo.Velocity.toFixed(0);  
+
         var msBetweenServerUpdates = clientInfo.MyTimeAtServerTimeInMs - previousMyTime;
-        msBetweenServerUpdatesSpan.textContent = msBetweenServerUpdates.toFixed(0);
+        spanMsBetweenServerUpdates.textContent = msBetweenServerUpdates.toFixed(0);
             
         serverObjects.Others = data.Others;
 
@@ -122,7 +130,7 @@ var spaceMud = (function (spaceMud) {
 
         var elapsed = timestamp - lastAnimate;
         lastAnimate = timestamp;
-        msBetweenAnimatesSpan.textContent = elapsed.toFixed(0); 
+        spanMsBetweenAnimates.textContent = elapsed.toFixed(0); 
 
         var now = window.performance.now();  // should be the same as timestamp.. almost
         clientInfo.ElapsedSecondsSinceServerRefresh =
@@ -153,6 +161,8 @@ var spaceMud = (function (spaceMud) {
                     Y: me.Y + me.DY * clientInfo.ElapsedSecondsSinceServerRefresh,
                     R: me.R + me.DR * clientInfo.ElapsedSecondsSinceServerRefresh
                 };
+                spanLocationX.textContent = me2.X.toFixed(0);
+                spanLocationY.textContent = me2.Y.toFixed(0); 
 
                 // drawing everything else
                 for (var i = 0; i < serverObjects.Others.length; i++) {
@@ -196,6 +206,11 @@ var spaceMud = (function (spaceMud) {
 
         }
         context.restore();
+
+        var now2 = window.performance.now();
+        var elapsed2 = now2 - now;
+        spanMsToAnimate.textContent = elapsed2.toFixed(0);
+
     };
 
     spaceMud.doClientRequestsPollFromServer = function() {
