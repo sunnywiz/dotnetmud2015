@@ -12,10 +12,16 @@ namespace DotNetMud.SpaceLib
 
         private string[] shipImages = new[]
         {
+            // Sorry and/or Thank you folks from google image search. 
+            // will replace with own artwork at some point. 
+
             "http://pixeljoint.com/files/icons/spaceship1_final.png",
-            "http://orig15.deviantart.net/0400/f/2014/172/0/d/spaceship_warp_animation_by_nnj3de-d7ncf40.gif",
+            "http://www.i2clipart.com/cliparts/8/b/7/1/clipart-spacecraft-ii-8b71.png",
             "http://pixeljoint.com/files/icons/spaceship.png",
-            "http://i24.photobucket.com/albums/c43/onlyeye/spaceship.gif"
+            "http://i24.photobucket.com/albums/c43/onlyeye/spaceship.gif",
+            "http://www.i2clipart.com/cliparts/b/5/5/b/clipart-spaceship-glider-b55b.png",
+            "http://www.pubzi.com/f/202060-sm-202053-Spaceship-Glider.png",
+            "http://livebooklet.com/userFiles/a/2/4/4/5/1/7/ZOVM1UUhhhS7Wm56NMYe3r/LYuCzKXZ.png"
         };
         public void WelcomeNewPlayer()
         {
