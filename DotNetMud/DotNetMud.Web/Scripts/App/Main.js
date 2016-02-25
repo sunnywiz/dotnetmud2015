@@ -154,15 +154,13 @@ var spaceMud = (function (spaceMud) {
         clientInfo.ElapsedSecondsSinceServerRefresh =
         (now - clientInfo.MyTimeAtServerTimeInMs) / (serverObjects.ServerTimeRate * 1000);
 
-        var desiredWidth = 700; // window.innerWidth - 200;
-        var desiredHeight = 500; // window.innerHeight - 200;
-
-        if (context.canvas.width !== desiredWidth) {
-            context.canvas.width = desiredWidth;
-        }
-        if (context.canvas.height !== desiredHeight) {
-            context.canvas.height = desiredHeight;
-        }
+        // from: http://stackoverflow.com/questions/10214873/make-canvas-as-wide-and-as-high-as-parent 
+        // Make it visually fill the positioned parent
+        canvas.style.width = "100%";
+        canvas.style.height = "100%";
+        // ...then set the internal size to match
+        canvas.width = canvas.offsetWidth;
+        canvas.height = canvas.offsetHeight;
 
         context.clearRect(0, 0, canvas.width, canvas.height);
         context.save();
