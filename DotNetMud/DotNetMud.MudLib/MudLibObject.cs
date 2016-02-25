@@ -29,9 +29,9 @@ namespace DotNetMud.Mudlib
             return _inventory.ToArray(); 
         }
 
+        // TODO -- i used to think that inventory was a mudlib thing but driver needed it too, so, should move it up. 
         public void MoveTo(MudLibObject target)
         {
-            // TODO: it feels like inventory, movement, etc - are all mudlib specific things, rather than Driver things.
             var oldParentOb = _parentObject; 
             if (_parentObject != null)
             {

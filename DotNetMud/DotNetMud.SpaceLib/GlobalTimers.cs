@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Timers;
 
 namespace DotNetMud.SpaceLib
@@ -118,10 +119,18 @@ namespace DotNetMud.SpaceLib
             }
         }
 
-        private static System.Timers.Timer hfTimer;
+        private static readonly System.Timers.Timer hfTimer;
         private static List<WeakReference<IHighFrequencyUpdateTarget>> hfTargets;
         public static void RegisterForHighFrequencyUpdate(IHighFrequencyUpdateTarget target)
         {
+            foreach (var weakRef in hfTargets)
+            {
+                IHighFrequencyUpdateTarget strongRef;
+                if (weakRef.TryGetTarget(out strongRef))
+                {
+                    if (strongRef == target) return; 
+                }
+            }
             hfTargets.Add(new WeakReference<IHighFrequencyUpdateTarget>(target));
         }
 

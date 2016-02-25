@@ -28,7 +28,6 @@ namespace DotNetMud.SpaceLib
 
         public Space2D Container { get; set; }
 
-        private bool _registered = false; 
         public decimal DurationRemainingInGameMs
         {
             get
@@ -39,13 +38,8 @@ namespace DotNetMud.SpaceLib
             set
             {
                 var now = GlobalTimers.NowInMs;
-                IWillExpireAtInSeconds = (now + value) / 1000m; // oo
-                if (!_registered)
-                {
-                    GlobalTimers.RegisterForHighFrequencyUpdate(this);
-                    // TODO: registration check should move to .Register() so you can't double-register? 
-                    _registered = true; 
-                }
+                IWillExpireAtInSeconds = (now + value) / 1000m; 
+                GlobalTimers.RegisterForHighFrequencyUpdate(this);
             }
         }
 
