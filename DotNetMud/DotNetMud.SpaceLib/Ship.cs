@@ -6,7 +6,7 @@ using DotNetMud.Driver;
 
 namespace DotNetMud.SpaceLib
 {
-    public class Ship : StdObject, IObject2D, GlobalTimers.IHighFrequencyUpdateTarget
+    public class Ship : StdObject, IObject2D,HighFrequencyUpdateTimer.IHighFrequencyUpdateTarget
     {
         private static int playerNumber = 0;
 
@@ -38,7 +38,7 @@ namespace DotNetMud.SpaceLib
             var space = Driver.GlobalObjects.FindSingleton(typeof(Space2D)) as Space2D;
             this.MoveTo(space);
 
-            GlobalTimers.RegisterForHighFrequencyUpdate(this);
+            HighFrequencyUpdateTimer.Register(this);
 
             playerNumber++;
         }
@@ -97,7 +97,7 @@ namespace DotNetMud.SpaceLib
 
             if (fireMs > 0)
             {
-                var serverTimeNowInGameMs = GlobalTimers.NowInMs;
+                var serverTimeNowInGameMs = GlobalTime.NowInMs;
                 var elapsed = serverTimeNowInGameMs - lastFireTimeInGameMs;
                 if (elapsed > FireSpeedInGameMs)
                 {
@@ -110,8 +110,8 @@ namespace DotNetMud.SpaceLib
             var result = new PollResult()
             {
                 Me = Object2DDto.CopyFrom(this),
-                ServerTimeInSeconds = GlobalTimers.NowInMs/1000.0m,
-                ServerTimeRate = GlobalTimers.RateOfTime
+                ServerTimeInSeconds = GlobalTime.NowInMs/1000.0m,
+                ServerTimeRate = GlobalTime.RateOfTime
             };
 
             if (Parent != null)
@@ -168,7 +168,7 @@ namespace DotNetMud.SpaceLib
             this.Destroy();
         }
 
-        public void HiFrequencyUpdate(GlobalTimers.HighFrequencyUpdateInfo info)
+        public void HiFrequencyUpdate(HighFrequencyUpdateTimer.HighFrequencyUpdateInfo info)
         {
             DR = 0;
             if (DesiredLeft > 0)

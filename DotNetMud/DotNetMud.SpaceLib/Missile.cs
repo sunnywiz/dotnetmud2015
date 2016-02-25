@@ -2,7 +2,7 @@ using DotNetMud.Driver;
 
 namespace DotNetMud.SpaceLib
 {
-    public class Missile: StdObject, IObject2D, GlobalTimers.IHighFrequencyUpdateTarget
+    public class Missile: StdObject, IObject2D, HighFrequencyUpdateTimer.IHighFrequencyUpdateTarget
     {
         private decimal IWillExpireAtInSeconds = 0m;
 
@@ -29,18 +29,18 @@ namespace DotNetMud.SpaceLib
         {
             get
             {
-                var now = GlobalTimers.NowInMs;
+                var now = GlobalTime.NowInMs;
                 return IWillExpireAtInSeconds * 1000m - now; 
             }
             set
             {
-                var now = GlobalTimers.NowInMs;
+                var now = GlobalTime.NowInMs;
                 IWillExpireAtInSeconds = (now + value) / 1000m; 
-                GlobalTimers.RegisterForHighFrequencyUpdate(this);
+                HighFrequencyUpdateTimer.Register(this);
             }
         }
 
-        public void HiFrequencyUpdate(GlobalTimers.HighFrequencyUpdateInfo info)
+        public void HiFrequencyUpdate(HighFrequencyUpdateTimer.HighFrequencyUpdateInfo info)
         {
             // TODO: this is where steering code would go if we have a target. 
 
@@ -48,7 +48,6 @@ namespace DotNetMud.SpaceLib
             {
                 // I have expired!
                 this.Destroy();
-                // TODO: Should deregister for hi-frequency update on destruct.  Make that part of GlobalObjects.RemoveStdObjectFromGame which means move globaltimers up to Driver.
             }
         }
     }

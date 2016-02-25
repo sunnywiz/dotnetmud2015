@@ -40,6 +40,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GlobalTime.cs" />
+    <Compile Include="HighFrequencyUpdateTimer.cs" />
+    <Compile Include="PerfLogging.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="GlobalObjects.cs" />
     <Compile Include="IGameSpecifics.cs" />

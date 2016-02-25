@@ -4,9 +4,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Timers;
 
-namespace DotNetMud.SpaceLib
+namespace DotNetMud.Driver
 {
-    // TODO: PerfLogging should probably be in Driver proper. 
     public class PerfLogging
     {
         private static System.Timers.Timer reportingTimer;

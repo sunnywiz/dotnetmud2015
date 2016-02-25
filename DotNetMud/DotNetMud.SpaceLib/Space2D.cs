@@ -5,7 +5,7 @@ using DotNetMud.Driver;
 
 namespace DotNetMud.SpaceLib
 {
-    public class Space2D : StdObject, GlobalTimers.IHighFrequencyUpdateTarget
+    public class Space2D : StdObject, HighFrequencyUpdateTimer.IHighFrequencyUpdateTarget
     {
         private readonly Stopwatch _measurer;
         private long _lastSampledMilli; 
@@ -19,10 +19,10 @@ namespace DotNetMud.SpaceLib
                 planet.Image = "https://cdn3.iconfinder.com/data/icons/nx11/Internet%20-%20Blue.png";
                 planet.MoveTo(this);
             }
-            GlobalTimers.RegisterForHighFrequencyUpdate(this);
+            HighFrequencyUpdateTimer.Register(this);
         }
 
-        public void HiFrequencyUpdate(GlobalTimers.HighFrequencyUpdateInfo info)
+        public void HiFrequencyUpdate(HighFrequencyUpdateTimer.HighFrequencyUpdateInfo info)
         {
             var dt = Convert.ToDouble(info.ElapsedSeconds);
             foreach (var ob in GetInventory<IObject2D>())
