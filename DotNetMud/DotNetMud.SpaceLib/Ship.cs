@@ -74,14 +74,18 @@ namespace DotNetMud.SpaceLib
         public decimal DesiredLeft { get; set; }
         public decimal DesiredRight { get; set; }
 
+        private decimal lastFireTimeInGameMs = 0; 
+        private const decimal FireSpeedInGameMs = 100.0m; 
+
         private Stopwatch t1 = new Stopwatch(); 
-        public object ClientRequestsPollFromServer(decimal thrustMs, decimal leftMs, decimal rightMs)
+        public object ClientRequestsPollFromServer(decimal thrustMs, decimal leftMs, decimal rightMs, decimal fireMs)
         {            
             PerfLogging.SomethingHappened(Id+" ClientRequestPoll");
 
             DesiredThrust = 0;
             DesiredLeft = 0;
             DesiredRight = 0;
+
             if (t1.IsRunning)
             {
                 var elapsedMs = t1.ElapsedMilliseconds;
@@ -90,6 +94,18 @@ namespace DotNetMud.SpaceLib
                     DesiredThrust = thrustMs/elapsedMs;
                     DesiredLeft = leftMs/elapsedMs;
                     DesiredRight = rightMs/elapsedMs; 
+                }
+            }
+
+            if (fireMs > 0)
+            {
+                var serverTimeNowInGameMs = GlobalTimers.NowInMs;
+                var elapsed = serverTimeNowInGameMs - lastFireTimeInGameMs;
+                if (elapsed > FireSpeedInGameMs)
+                {
+                    // do some firing! 
+                    FireMissile(); 
+                    lastFireTimeInGameMs = serverTimeNowInGameMs; 
                 }
             }
 
@@ -106,6 +122,34 @@ namespace DotNetMud.SpaceLib
             }
             t1.Restart();
             return result;         
+        }
+
+        const double MissileFIreSpeedInGameUnitsPerSec = 300.0;
+        private const decimal MissileDurationInGameMs = 5000m; 
+
+        public void FireMissile()
+        {
+            if (this.Container == null) return;   // we're not in space. 
+            var missile = Driver.GlobalObjects.CreateNewStdObject(typeof(Missile)) as Missile;
+            if (missile != null)
+            {
+                missile.Name = "Missile";
+                missile.Image = "http://userbag.co.uk/demo/g1_demo/g_7/missile.png"; 
+
+                missile.X = this.X;
+                missile.Y = this.Y;
+
+                missile.DX = this.DX;
+                missile.DY = this.DY;
+                missile.R = this.R;
+                var angle = R * Math.PI / 180.0;
+                missile.DX = missile.DX + Math.Cos(angle)*MissileFIreSpeedInGameUnitsPerSec;
+                missile.DY = missile.DY + Math.Sin(angle)*MissileFIreSpeedInGameUnitsPerSec;
+               
+                missile.DurationRemainingInGameMs = MissileDurationInGameMs; 
+                this.Container.Objects.Add(missile);
+                missile.Container = this.Container; 
+            }
         }
 
         public class PollResult

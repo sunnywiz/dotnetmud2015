@@ -234,12 +234,13 @@ var spaceMud = (function (spaceMud) {
     };
 
     spaceMud.doClientRequestsPollFromServer = function() {
-        var thrust = 0, left = 0, right = 0;
+        var thrust = 0, left = 0, right = 0, fire = 0;
         thrust = spaceMud.getKeyPressedLengthAndReset(87);
         left = spaceMud.getKeyPressedLengthAndReset(65);
         right = spaceMud.getKeyPressedLengthAndReset(68);
+        fire = spaceMud.getKeyPressedLengthAndReset(32);
 
-        chat.server.clientRequestsPollFromServer(thrust, left, right);  // ping! 
+        chat.server.clientRequestsPollFromServer(thrust, left, right, fire);  // ping! 
     }
 
     spaceMud.main = function () {

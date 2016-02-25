@@ -14,7 +14,14 @@ namespace DotNetMud.SpaceLib
         {
             Objects = new List<IObject2D>();
 
-            Objects.Add(new Planet() { Name="Planet1",X=0,Y=0,Image= "https://cdn3.iconfinder.com/data/icons/nx11/Internet%20-%20Blue.png" });
+            var planet = Driver.GlobalObjects.CreateNewStdObject(typeof (Planet)) as Planet;
+            if (planet != null)
+            {
+                planet.Name = "Planet1";
+                planet.Image = "https://cdn3.iconfinder.com/data/icons/nx11/Internet%20-%20Blue.png";
+                // TODO: i think inventory management should move back up to StdObject since both space and regular need it. 
+                Objects.Add(planet);
+            }
 
             GlobalTimers.RegisterForHighFrequencyUpdate(this);
         }

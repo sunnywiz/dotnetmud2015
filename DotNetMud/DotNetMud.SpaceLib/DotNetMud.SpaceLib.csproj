@@ -41,6 +41,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="GlobalTimers.cs" />
+    <Compile Include="Missile.cs" />
     <Compile Include="PerfLogging.cs" />
     <Compile Include="Planet.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

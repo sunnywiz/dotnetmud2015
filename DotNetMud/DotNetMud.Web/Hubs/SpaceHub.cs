@@ -29,12 +29,12 @@ namespace DotNetMud.Web.Hubs
             if (_playerToConnection == null) _playerToConnection = new Dictionary<Ship, string>();
         }
 
-        public void ClientRequestsPollFromServer(decimal thrustMs, decimal leftMs, decimal rightMs)
+        public void ClientRequestsPollFromServer(decimal thrustMs, decimal leftMs, decimal rightMs, decimal fireMs)
         {
             Ship player;
             if (_connectionToPlayer.TryGetValue(Context.ConnectionId, out player))
             {
-                var pollResult = player.ClientRequestsPollFromServer(thrustMs, leftMs, rightMs);
+                var pollResult = player.ClientRequestsPollFromServer(thrustMs, leftMs, rightMs, fireMs);
                 Clients.Caller.ServerSendsPollResultToClient(pollResult);
 
             }

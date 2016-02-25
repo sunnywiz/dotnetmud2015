@@ -21,4 +21,6 @@ namespace DotNetMud.SpaceLib
         public string Name { get; set; }
         public string Image { get; set; }
     }
+
+    // TODO: really shouldn't have to do this over and over.  But we don't have multi-inherit.. so... Object2dStdObject? 
 }
