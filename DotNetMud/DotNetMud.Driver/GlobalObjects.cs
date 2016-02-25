@@ -9,24 +9,36 @@ namespace DotNetMud.Driver
     /// </summary>
     public class GlobalObjects
     {
-        private static List<StdObject> _allObjects;
+        private readonly static List<StdObject> AllObjects;
 
         static GlobalObjects()
         {
-            _allObjects = new List<StdObject>();
+            AllObjects = new List<StdObject>();
         }
 
         public static StdObject FindSingleton(Type objectType)
         {
-            var alreadyExists = _allObjects.FirstOrDefault(x => x.GetType() == objectType);
+            var alreadyExists = AllObjects.FirstOrDefault(x => x.GetType() == objectType);
             if (alreadyExists != null)
             {
-                Console.WriteLine("FindSingleton(type): found {0}=>{1}", objectType.FullName, alreadyExists.ObjectId);
+                Console.WriteLine("FindSingleton(type): found {0}=>{1}", objectType.FullName, alreadyExists.ReadableId);
                 return alreadyExists;
             }
 
             Console.WriteLine("FindSingleton(type): {0} not found, creating new", objectType.FullName);
             return CreateNewStdObject(objectType);
+        }
+
+        public static T FindSingleton<T>() where T:StdObject
+        {
+            var x = FindSingleton(typeof (T)) as T;
+            return x; 
+        }
+
+        public static T CreateNewStdObject<T>() where T:StdObject, new()
+        {
+            var x = CreateNewStdObject(typeof (T)) as T;
+            return x; 
         }
 
         public static StdObject CreateNewStdObject(Type type)
@@ -40,8 +52,8 @@ namespace DotNetMud.Driver
                     type.FullName);
                 return null;
             }
-            _allObjects.Add(ob);
-            Console.WriteLine("CreateNewStdObject: {0} => created {1}", type.FullName, ob.ObjectId);
+            AllObjects.Add(ob);
+            Console.WriteLine("CreateNewStdObject: {0} => created {1}", type.FullName, ob.ReadableId);
             return ob;
         }
 
@@ -52,7 +64,7 @@ namespace DotNetMud.Driver
         public static void RemoveStdObjectFromGame(StdObject ob)
         {
             ob.Destroy();
-            _allObjects.Remove(ob);
+            AllObjects.Remove(ob);
         }
 
     }

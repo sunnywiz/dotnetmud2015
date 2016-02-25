@@ -14,21 +14,27 @@ namespace DotNetMud.Driver
         // and every object has an ID
 
         // TODO: maybe make an internal constructor? 
-        public string ObjectId { get; }  // set by driver on creation
-        public static long _idSequence = 0L;
+        public string ReadableId { get; }  
+        public long Id { get; }
 
-        private List<StdObject> _inventory;
-        private StdObject _parentObject = null;
+        private static long _idSequence;
 
+        private readonly List<StdObject> _inventory;
+        private StdObject _parentObject;
+        private static readonly object Lock = new object(); 
 
         public override string ToString()
         {
-            return ObjectId;
+            return ReadableId;
         }
 
         public StdObject()
         {
-            ObjectId = this.GetType().FullName +'#'+ (++_idSequence);
+            lock (Lock)
+            {
+                Id = ++_idSequence; 
+                ReadableId = this.GetType().FullName + '#' + Id;
+            }
             IsDestroyed = false;
             _inventory = new List<StdObject>();
             _parentObject = null; 

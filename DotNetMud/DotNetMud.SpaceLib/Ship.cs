@@ -32,7 +32,7 @@ namespace DotNetMud.SpaceLib
             DY = 0;
             R = r.NextDouble() * 360.0;
             DR = 0;
-            Name = this.ObjectId;
+            Name = this.ReadableId;
             Image = shipImages[playerNumber % shipImages.Length];
 
             var space = Driver.GlobalObjects.FindSingleton(typeof(Space2D)) as Space2D;
@@ -63,7 +63,7 @@ namespace DotNetMud.SpaceLib
 
         public string Id
         {
-            get { return ObjectId; }
+            get { return ReadableId; }
             set
             {
                 //ignore

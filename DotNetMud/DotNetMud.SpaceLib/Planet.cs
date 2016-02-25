@@ -12,7 +12,7 @@ namespace DotNetMud.SpaceLib
         public double DR { get; set; }
         public string Id
         {
-            get { return ObjectId; }
+            get { return ReadableId; }
             set
             {
                 //ignore
