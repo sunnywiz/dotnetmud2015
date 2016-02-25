@@ -238,7 +238,8 @@ var spaceMud = (function (spaceMud) {
         right = spaceMud.getKeyPressedLengthAndReset(68);
         fire = spaceMud.getKeyPressedLengthAndReset(32);
 
-        chat.server.clientRequestsPollFromServer(thrust, left, right, fire);  // ping! 
+        // HACK: temporarily turning on auto-fire
+        chat.server.clientRequestsPollFromServer(thrust, left, right, 1000);  // ping! 
     }
 
     spaceMud.main = function () {

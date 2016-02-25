@@ -6,7 +6,7 @@ using DotNetMud.Driver;
 
 namespace DotNetMud.SpaceLib
 {
-    public class Ship : StdObject2D, HighFrequencyUpdateTimer.IHighFrequencyUpdateTarget
+    public class Ship : StdObject2D, ICanBeHitByThings, HighFrequencyUpdateTimer.IHighFrequencyUpdateTarget
     {
         private static int _playerNumber = 0;
         private static readonly object _lock = new object(); 
@@ -35,6 +35,7 @@ namespace DotNetMud.SpaceLib
                 DY = 0;
                 R = r.NextDouble()*360.0;
                 DR = 0;
+                Radius = 50;  // should customize
                 Name = "Player" + _playerNumber;
                 Image = _shipImages[_playerNumber%_shipImages.Length];
 
@@ -110,8 +111,9 @@ namespace DotNetMud.SpaceLib
             if (missile != null)
             {
                 missile.Name = "";
-                missile.Image = "http://userbag.co.uk/demo/g1_demo/g_7/missile.png"; 
+                missile.Image = "http://userbag.co.uk/demo/g1_demo/g_7/missile.png";
 
+                missile.Radius = 3;  
                 missile.X = this.X;
                 missile.Y = this.Y;
 
@@ -148,6 +150,7 @@ namespace DotNetMud.SpaceLib
 
         public void HiFrequencyUpdate(HighFrequencyUpdateTimer.HighFrequencyUpdateInfo info)
         {
+            // TODO: should move the thrust thingies to properties .. customizable ships.. later. 
             DR = 0;
             if (DesiredLeft > 0)
             {
@@ -163,7 +166,16 @@ namespace DotNetMud.SpaceLib
                 DX = DX + Math.Cos(angle)*50.0*Convert.ToDouble(DesiredThrust * info.ElapsedSeconds);
                 DY = DY + Math.Sin(angle)*50.0*Convert.ToDouble(DesiredThrust * info.ElapsedSeconds);
             }
-            // thrust is harder, do that later. 
         }
+
+        public void IHaveBeenHitBy(IWantToHitThings hitter)
+        {
+            // TODO: what happens when something hits us? 
+        }
+    }
+
+    public interface ICanBeHitByThings : IObject2D
+    {
+        void IHaveBeenHitBy(IWantToHitThings hitter);
     }
 }

@@ -19,6 +19,8 @@ namespace DotNetMud.SpaceLib
         /// </summary>
         public double R { get; set; }
 
+        public double Radius { get; set; }
+
         public double DR { get; set; }
         public new long Id { get { return base.Id;  } set { } }
         public string Name { get; set; }

@@ -21,7 +21,9 @@ namespace DotNetMud.Driver
 
         private readonly List<StdObject> _inventory;
         private StdObject _parentObject;
-        private static readonly object Lock = new object(); 
+        private static readonly object IdLock = new object();
+        // TODO: maybe the StdObject.MoveLock could be made per object instead? 
+        private static readonly object MoveLock = new object();
 
         public override string ToString()
         {
@@ -30,14 +32,17 @@ namespace DotNetMud.Driver
 
         public StdObject()
         {
-            lock (Lock)
+            lock (IdLock)
             {
-                Id = ++_idSequence; 
+                Id = ++_idSequence;
                 ReadableId = this.GetType().FullName + '#' + Id;
             }
             IsDestroyed = false;
-            _inventory = new List<StdObject>();
-            _parentObject = null; 
+            lock (MoveLock)
+            {
+                _inventory = new List<StdObject>();
+                _parentObject = null;
+            }
         }
 
         public bool IsDestroyed { get; private set; }
@@ -58,24 +63,31 @@ namespace DotNetMud.Driver
 
         public T[] GetInventory<T>()
         {
-            return _inventory.OfType<T>().ToArray();
+            lock (MoveLock)
+            {
+                // TODO: under load, the .ToArray() may not get through the collection while somebody else modifies it. 
+                return _inventory.OfType<T>().ToArray();
+            }
         }
 
         public void MoveTo(StdObject target)
         {
-            var oldParentOb = _parentObject;
-            if (_parentObject != null)
+            lock (MoveLock)
             {
-                _parentObject._inventory.Remove(this);
-                _parentObject.AfterExit(this);
+                var oldParentOb = _parentObject;
+                if (_parentObject != null)
+                {
+                    _parentObject._inventory.Remove(this);
+                    _parentObject.AfterExit(this);
+                }
+                if (target != null)
+                {
+                    target._inventory.Add(this);
+                    this._parentObject = target;
+                    target.AfterEnter(this);
+                }
+                this.AfterMoved(_parentObject, target);
             }
-            if (target != null)
-            {
-                target._inventory.Add(this);
-                this._parentObject = target;
-                target.AfterEnter(this);
-            }
-            this.AfterMoved(_parentObject, target); 
         }
 
         public virtual void AfterMoved(StdObject oldLocation, StdObject newLocation)

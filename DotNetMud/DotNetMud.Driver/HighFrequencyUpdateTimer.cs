@@ -85,7 +85,7 @@ namespace DotNetMud.Driver
 
                     var sleepTime = DesiredHfUpdateIntervalInMs - myRunTime;
 
-                    if (sleepTime < 0)
+                    if (sleepTime < 1)
                     {
                         sleepTime = 1;
                         // this is where rate decrease goes. 

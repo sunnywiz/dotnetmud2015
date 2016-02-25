@@ -9,6 +9,7 @@ namespace DotNetMud.SpaceLib
         double DY { get; set; }
         double R { get; set; }
         double DR { get; set; }
+        double Radius { get; set; }
         long Id { get; set; }
         string Name { get; set; }
         string Image { get; set; }
@@ -22,6 +23,7 @@ namespace DotNetMud.SpaceLib
         public double DY { get; set; }
         public double R { get; set; }
         public double DR { get; set; }
+        public double Radius { get; set; }
         public string Name { get; set; }
         public string Image { get; set; }
         public long Id { get; set; }
@@ -38,7 +40,8 @@ namespace DotNetMud.SpaceLib
                 Image = t.Image,
                 DR = t.DR,
                 R = t.R,
-                Id = t.Id
+                Id = t.Id, 
+                Radius = t.Radius
             };
         }
     }
