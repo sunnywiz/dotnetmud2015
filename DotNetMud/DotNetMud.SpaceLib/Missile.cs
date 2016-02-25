@@ -47,8 +47,7 @@ namespace DotNetMud.SpaceLib
             if (info.ThisNowInSeconds > IWillExpireAtInSeconds)
             {
                 // I have expired!
-                this.Container.Objects.Remove(this); 
-                Driver.GlobalObjects.RemoveStdObjectFromGame(this);
+                this.Destroy();
                 // TODO: Should deregister for hi-frequency update on destruct.  Make that part of GlobalObjects.RemoveStdObjectFromGame which means move globaltimers up to Driver.
             }
         }

@@ -36,15 +36,13 @@ namespace DotNetMud.SpaceLib
             Image = shipImages[playerNumber % shipImages.Length];
 
             var space = Driver.GlobalObjects.FindSingleton(typeof(Space2D)) as Space2D;
-            space.Objects.Add(this);
-            this.Container = space;
+            this.MoveTo(space);
 
             GlobalTimers.RegisterForHighFrequencyUpdate(this);
 
             playerNumber++;
         }
 
-        public Space2D Container { get; set; }
         public double X { get; set; }
         public double Y { get; set; }
         /// <summary>
@@ -116,9 +114,9 @@ namespace DotNetMud.SpaceLib
                 ServerTimeRate = GlobalTimers.RateOfTime
             };
 
-            if (Container != null)
+            if (Parent != null)
             {
-                result.Others = Container.Objects.Where(o => o != this).Select(Object2DDto.CopyFrom).ToList();
+                result.Others = Parent.GetInventory<IObject2D>().Where(o => o != this).Select(Object2DDto.CopyFrom).ToList();
             }
             t1.Restart();
             return result;         
@@ -129,11 +127,11 @@ namespace DotNetMud.SpaceLib
 
         public void FireMissile()
         {
-            if (this.Container == null) return;   // we're not in space. 
-            var missile = Driver.GlobalObjects.CreateNewStdObject(typeof(Missile)) as Missile;
+            if (this.Parent == null) return;   // we're not in space. 
+            var missile = Driver.GlobalObjects.CreateNewStdObject<Missile>();
             if (missile != null)
             {
-                missile.Name = "Missile";
+                missile.Name = "";
                 missile.Image = "http://userbag.co.uk/demo/g1_demo/g_7/missile.png"; 
 
                 missile.X = this.X;
@@ -147,8 +145,7 @@ namespace DotNetMud.SpaceLib
                 missile.DY = missile.DY + Math.Sin(angle)*MissileFIreSpeedInGameUnitsPerSec;
                
                 missile.DurationRemainingInGameMs = MissileDurationInGameMs; 
-                this.Container.Objects.Add(missile);
-                missile.Container = this.Container; 
+                missile.MoveTo(this.Parent);
             }
         }
 
@@ -168,8 +165,6 @@ namespace DotNetMud.SpaceLib
 
         public void ShipDisconnected(bool stopCalled)
         {
-            this.Container.Objects.Remove(this);
-            this.Container = null;
             this.Destroy();
         }
 
