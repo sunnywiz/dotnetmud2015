@@ -29,6 +29,7 @@ namespace DotNetMud.Driver
             TickyTimer.Elapsed += TickyTimerOnElapsed;
             TickyTimer.Start();
         }
+
         private static void TickyTimerOnElapsed(object sender, ElapsedEventArgs elapsedEventArgs)
         {
             lock (_lock)

@@ -113,14 +113,15 @@ namespace DotNetMud.SpaceLib
                 missile.Name = "";
                 missile.Image = "http://userbag.co.uk/demo/g1_demo/g_7/missile.png";
 
-                missile.Radius = 3;  
-                missile.X = this.X;
-                missile.Y = this.Y;
+                missile.Radius = 3;
+                var angle = R * Math.PI / 180.0;
+                var initialDistanceSoIDontHitMyself = this.Radius+missile.Radius+5;
+                missile.X = this.X + Math.Cos(angle) * initialDistanceSoIDontHitMyself;
+                missile.Y = this.Y + Math.Sin(angle) * initialDistanceSoIDontHitMyself;
 
                 missile.DX = this.DX;
                 missile.DY = this.DY;
                 missile.R = this.R;
-                var angle = R * Math.PI / 180.0;
                 missile.DX = missile.DX + Math.Cos(angle)*MissileFIreSpeedInGameUnitsPerSec;
                 missile.DY = missile.DY + Math.Sin(angle)*MissileFIreSpeedInGameUnitsPerSec;
                

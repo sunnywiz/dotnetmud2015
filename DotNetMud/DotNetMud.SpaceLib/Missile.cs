@@ -1,11 +1,16 @@
+using System;
+using System.Timers;
 using DotNetMud.Driver;
 
 namespace DotNetMud.SpaceLib
 {
-    public class Missile: StdObject2D, HighFrequencyUpdateTimer.IHighFrequencyUpdateTarget, IWantToHitThings
+    public class Missile: StdObject2D, IWantToHitThings
     {
         private decimal IWillExpireAtInSeconds = 0m;
+        private System.Timers.Timer _expirationTimer = null; 
 
+
+        // TODO: probably need to make a Game-time timer so that in x Game-TIme-ms something fires. 
         public decimal DurationRemainingInGameMs
         {
             get
@@ -16,31 +21,69 @@ namespace DotNetMud.SpaceLib
             set
             {
                 var now = GlobalTime.NowInMs;
-                IWillExpireAtInSeconds = (now + value) / 1000m; 
-                HighFrequencyUpdateTimer.Register(this);
+                IWillExpireAtInSeconds = (now + value)/1000m;
+                if (_expirationTimer != null)
+                {
+                    _expirationTimer.Stop();
+                    _expirationTimer = null;
+                }
+                _expirationTimer = new Timer()
+                {
+                    Interval = Convert.ToDouble(value),
+                    AutoReset = false,
+                };
+                _expirationTimer.Elapsed += ExpirationTimerOnElapsed;
+                _expirationTimer.Start();
             }
         }
 
-        public void HiFrequencyUpdate(HighFrequencyUpdateTimer.HighFrequencyUpdateInfo info)
+        private void ExpirationTimerOnElapsed(object sender, ElapsedEventArgs elapsedEventArgs)
         {
-            // TODO: this is where steering code would go if we have a target.   But in the mean time, the expiration check should be a low freq. 
-
-            if (info.ThisNowInSeconds > IWillExpireAtInSeconds)
+            // there's a possibility if game time stops, that time will not have yet elapsed. If so, go ahead and overshoot. 
+            var now = GlobalTime.NowInMs;
+            var timeToGo = IWillExpireAtInSeconds*1000 - now;
+            if (timeToGo > 0)
             {
-                // I have expired!
-                this.Destroy();
+                _expirationTimer.Interval = Convert.ToDouble(timeToGo)*1.5;
+                _expirationTimer.Start();
+                return; 
             }
+            // otherwise, time has expired. 
+            this.Destroy(); 
         }
 
         public void IHaveHit(ICanBeHitByThings target)
         {
-            // TODO: what happens when a missile hits something?  
+            if (this.Parent is Space2D)
+            {
+                var explosion = new Explosion() {X = this.X, Y = this.Y, DX = target.DX, DY = target.DY};
+                explosion.MoveTo(this.Parent);
+                explosion.StartExpirationTimer();
+            }
+            this.Destroy();
         }
         
     }
 
-    public interface IWantToHitThings : IObject2D
+    public class Explosion : StdObject2D
     {
-        void IHaveHit(ICanBeHitByThings target);
+        public Explosion()
+        {
+            Image = "http://i87.servimg.com/u/f87/12/97/11/39/small_10.gif";
+            DR = 360; 
+        }
+
+        private System.Timers.Timer _expirationTimer; 
+
+        public void StartExpirationTimer()
+        {
+            _expirationTimer = new System.Timers.Timer()
+            {
+                Interval = 1000.0, 
+                AutoReset = false
+            };
+            _expirationTimer.Elapsed += (sender, args) => { this.Destroy(); };
+            _expirationTimer.Start(); 
+        }
     }
 }
