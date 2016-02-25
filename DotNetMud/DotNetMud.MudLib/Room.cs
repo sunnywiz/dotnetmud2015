@@ -66,7 +66,7 @@ namespace DotNetMud.Mudlib
                 var targetRoom = GlobalObjects.FindSingleton(locator) as MudLibObject;
                 if (targetRoom != null)
                 {
-                    var userPreviousRoom = uaec.Player.Parent;
+                    var userPreviousRoom = uaec.Player.Parent as MudLibObject;
                     MudLibObject.TellRoom(targetRoom,$"{uaec.Player.Short} arrives.");
                     // TODO: will have complications with messaging if move is blocked. need a better TellRoom which can exclude user.
                     uaec.Player.ServerSendsTextToClient($"You travel {uaec.Verb}");

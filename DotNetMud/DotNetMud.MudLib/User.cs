@@ -82,7 +82,7 @@ namespace DotNetMud.Mudlib
         public PollResult ClientRequestsPollFromServer()
         {
             var result = new PollResult();
-            var parent = this.Parent;
+            var parent = this.Parent as MudLibObject;
             if (parent == null)
             {
                 result.RoomDescription = "You are floating in the void.";
@@ -94,7 +94,7 @@ namespace DotNetMud.Mudlib
                 sb.AppendLine(parent.Long);
                 result.RoomDescription = sb.ToString();
 
-                foreach (var obj in parent.GetInventory())
+                foreach (var obj in parent.GetInventory<MudLibObject>())
                 {
                     if (obj == this) continue;
                     result.RoomInventory.Add(obj.Short);
@@ -131,7 +131,8 @@ namespace DotNetMud.Mudlib
 
         public void PlayerGotDisconnected(bool wasItIntentional)
         {
-            if (this.Parent != null) MudLibObject.TellRoom(this.Parent, $"{Short} vanishes in a puff of smoke.");
+            var playerRoom = this.Parent as MudLibObject; 
+            if (playerRoom != null) MudLibObject.TellRoom(playerRoom, $"{Short} vanishes in a puff of smoke.");
             GlobalObjects.RemoveStdObjectFromGame(this);
         }
 
@@ -142,7 +143,7 @@ namespace DotNetMud.Mudlib
             _registeredNextInputRedirects[this] = action;
         }
 
-        public override void OnMoved(MudLibObject oldLocation, MudLibObject newLocation)
+        public override void AfterMoved(StdObject oldLocation, StdObject newLocation)
         {
             _verbs = null;
         }
@@ -207,22 +208,20 @@ namespace DotNetMud.Mudlib
             // things in your inventory override things in your environment override things in the room override things built in to you. 
             _verbs = new Dictionary<string, UserAction>();
             GetMoreVerbs(this);
-            foreach (var ob in this.GetInventory())
+            foreach (var ob in this.GetInventory<IProvideUserActions>())
             {
-                var x = ob as IProvideUserActions;
-                if (x != null)
+                if (ob != null)
                 {
-                    GetMoreVerbs(x);
+                    GetMoreVerbs(ob);
                 }
             }
             if (this.Parent != null)
             {
-                foreach (var ob in this.Parent.GetInventory())
+                foreach (var ob in this.Parent.GetInventory<IProvideUserActions>())
                 {
-                    var x = ob as IProvideUserActions;
-                    if (x != null && x != this)
+                    if (ob != null && ob != this)
                     {
-                        GetMoreVerbs(x);
+                        GetMoreVerbs(ob);
                     }
                 }
                 var y = this.Parent as IProvideUserActions; 
@@ -251,20 +250,16 @@ namespace DotNetMud.Mudlib
                 uaec.Player.ServerSendsTextToClient("Your words fall into the void.");
                 return; 
             }
-            foreach (var ob in parent.GetInventory())
+            foreach (var ob in parent.GetInventory<User>())
             {
-                var x = ob as User;
-                if (x != null)
+                // TODO: should probably have a raw string rather than string.join of an array here. 
+                if (ob == uaec.Player)
                 {
-                    // TODO: should probably have a raw string rather than string.join of an array here. 
-                    if (x == uaec.Player)
-                    {
-                        x.ServerSendsTextToClient("You say: " + String.Join(" ", uaec.Parameters));
-                    }
-                    else
-                    {
-                        x.ServerSendsTextToClient($"{uaec.Player.Short} says: {String.Join(" ",uaec.Parameters)}");
-                    }
+                    ob.ServerSendsTextToClient("You say: " + String.Join(" ", uaec.Parameters));
+                }
+                else
+                {
+                    ob.ServerSendsTextToClient($"{uaec.Player.Short} says: {String.Join(" ", uaec.Parameters)}");
                 }
             }
         }
@@ -272,7 +267,7 @@ namespace DotNetMud.Mudlib
         private void DoLook(UserActionExecutionContext uaec)
         {
             // TODO: needs to add look at a player / object
-            var parent = uaec.Player.Parent;
+            var parent = uaec.Player.Parent as MudLibObject;
             if (parent == null)
             {
                 uaec.Player.ServerSendsTextToClient("You are hanging in the void.");
@@ -281,8 +276,8 @@ namespace DotNetMud.Mudlib
             uaec.Player.ServerSendsTextToClient(parent.Short);
             uaec.Player.ServerSendsTextToClient(parent.Long);
             var first = true; 
-            foreach (var obj in parent.GetInventory())
-            {
+            foreach (var obj in parent.GetInventory<MudLibObject>())
+            {                
                 if (obj == uaec.Player) continue;
                 if (first)
                 {

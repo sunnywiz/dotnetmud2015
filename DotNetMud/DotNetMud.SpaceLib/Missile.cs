@@ -5,10 +5,7 @@ namespace DotNetMud.SpaceLib
     public class Missile: StdObject, IObject2D, GlobalTimers.IHighFrequencyUpdateTarget
     {
         private decimal IWillExpireAtInSeconds = 0m;
-        public Missile()
-        {
-            _registered = false; 
-        }
+
         public double X { get; set; }
         public double Y { get; set; }
         public double DX { get; set; }
