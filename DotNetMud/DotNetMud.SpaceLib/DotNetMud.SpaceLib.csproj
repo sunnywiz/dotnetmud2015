@@ -48,6 +48,7 @@
     <Compile Include="PollResult1.cs" />
     <Compile Include="Space2D.cs" />
     <Compile Include="Ship.cs" />
+    <Compile Include="StdObject2D.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DotNetMud.Driver\DotNetMud.Driver.csproj">

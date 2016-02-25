@@ -6,11 +6,12 @@ using DotNetMud.Driver;
 
 namespace DotNetMud.SpaceLib
 {
-    public class Ship : StdObject, IObject2D,HighFrequencyUpdateTimer.IHighFrequencyUpdateTarget
+    public class Ship : StdObject2D, HighFrequencyUpdateTimer.IHighFrequencyUpdateTarget
     {
-        private static int playerNumber = 0;
+        private static int _playerNumber = 0;
+        private static readonly object _lock = new object(); 
 
-        private string[] shipImages = new[]
+        private readonly string[] _shipImages = new[]
         {
             // Sorry and/or Thank you folks from google image search. 
             // will replace with own artwork at some point. 
@@ -25,46 +26,23 @@ namespace DotNetMud.SpaceLib
         };
         public void WelcomeNewPlayer()
         {
-            var r = new Random();
-            X = r.NextDouble()*400.0 - 200.0;
-            Y = r.NextDouble()*400.0 - 200.0;
-            DX = 0;
-            DY = 0;
-            R = r.NextDouble() * 360.0;
-            DR = 0;
-            Name = this.ReadableId;
-            Image = shipImages[playerNumber % shipImages.Length];
-
-            var space = Driver.GlobalObjects.FindSingleton(typeof(Space2D)) as Space2D;
-            this.MoveTo(space);
-
-            HighFrequencyUpdateTimer.Register(this);
-
-            playerNumber++;
-        }
-
-        public double X { get; set; }
-        public double Y { get; set; }
-        /// <summary>
-        /// per second
-        /// </summary>
-        public double DX { get; set; }
-        public double DY { get; set; }
-
-        /// <summary>
-        /// Degrees
-        /// </summary>
-        public double R { get; set; }
-        public double DR { get; set; }
-        public string Name { get; set; }
-        public string Image { get; set; }
-
-        public string Id
-        {
-            get { return ReadableId; }
-            set
+            lock (_lock)
             {
-                //ignore
+                var r = new Random();
+                X = r.NextDouble()*400.0 - 200.0;
+                Y = r.NextDouble()*400.0 - 200.0;
+                DX = 0;
+                DY = 0;
+                R = r.NextDouble()*360.0;
+                DR = 0;
+                Name = "Player" + _playerNumber;
+                Image = _shipImages[_playerNumber%_shipImages.Length];
+
+                var space = Driver.GlobalObjects.FindSingleton(typeof (Space2D)) as Space2D;
+                this.MoveTo(space);
+
+                HighFrequencyUpdateTimer.Register(this);
+                _playerNumber++;
             }
         }
 
@@ -72,10 +50,10 @@ namespace DotNetMud.SpaceLib
         public decimal DesiredLeft { get; set; }
         public decimal DesiredRight { get; set; }
 
-        private decimal lastFireTimeInGameMs = 0; 
+        private decimal _lastFireTimeInGameMs = 0; 
         private const decimal FireSpeedInGameMs = 100.0m; 
 
-        private Stopwatch t1 = new Stopwatch(); 
+        private readonly Stopwatch _timerBetweenClientRequestsPollFromServer = new Stopwatch(); 
         public object ClientRequestsPollFromServer(decimal thrustMs, decimal leftMs, decimal rightMs, decimal fireMs)
         {            
             PerfLogging.SomethingHappened(Id+" ClientRequestPoll");
@@ -84,9 +62,9 @@ namespace DotNetMud.SpaceLib
             DesiredLeft = 0;
             DesiredRight = 0;
 
-            if (t1.IsRunning)
+            if (_timerBetweenClientRequestsPollFromServer.IsRunning)
             {
-                var elapsedMs = t1.ElapsedMilliseconds;
+                var elapsedMs = _timerBetweenClientRequestsPollFromServer.ElapsedMilliseconds;
                 if (elapsedMs > 0)
                 {
                     DesiredThrust = thrustMs/elapsedMs;
@@ -98,12 +76,12 @@ namespace DotNetMud.SpaceLib
             if (fireMs > 0)
             {
                 var serverTimeNowInGameMs = GlobalTime.NowInMs;
-                var elapsed = serverTimeNowInGameMs - lastFireTimeInGameMs;
+                var elapsed = serverTimeNowInGameMs - _lastFireTimeInGameMs;
                 if (elapsed > FireSpeedInGameMs)
                 {
                     // do some firing! 
                     FireMissile(); 
-                    lastFireTimeInGameMs = serverTimeNowInGameMs; 
+                    _lastFireTimeInGameMs = serverTimeNowInGameMs; 
                 }
             }
 
@@ -118,7 +96,7 @@ namespace DotNetMud.SpaceLib
             {
                 result.Others = Parent.GetInventory<IObject2D>().Where(o => o != this).Select(Object2DDto.CopyFrom).ToList();
             }
-            t1.Restart();
+            _timerBetweenClientRequestsPollFromServer.Restart();
             return result;         
         }
 
