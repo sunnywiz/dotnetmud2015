@@ -24,6 +24,7 @@ namespace DotNetMud.SpaceLib
             "http://www.pubzi.com/f/202060-sm-202053-Spaceship-Glider.png",
             "http://livebooklet.com/userFiles/a/2/4/4/5/1/7/ZOVM1UUhhhS7Wm56NMYe3r/LYuCzKXZ.png"
         };
+
         public void WelcomeNewPlayer()
         {
             lock (_lock)
@@ -90,7 +91,9 @@ namespace DotNetMud.SpaceLib
             {
                 Me = Object2DDto.CopyFrom(this),
                 ServerTimeInSeconds = GlobalTime.NowInMs/1000.0m,
-                ServerTimeRate = GlobalTime.RateOfTime
+                ServerTimeRate = GlobalTime.RateOfTime, 
+                MeHasBeenHitCount = this.MeHasBeenHitCount, 
+                MeHasHitSomeoneCount = this.MeHasHitSomeoneCount
             };
 
             if (Parent != null)
@@ -110,14 +113,13 @@ namespace DotNetMud.SpaceLib
             var missile = Driver.GlobalObjects.CreateNewStdObject<Missile>();
             if (missile != null)
             {
-                missile.Name = "";
+                missile.Name = " ";
                 missile.Image = "http://userbag.co.uk/demo/g1_demo/g_7/missile.png";
 
                 missile.Radius = 3;
                 var angle = R * Math.PI / 180.0;
-                var initialDistanceSoIDontHitMyself = this.Radius+missile.Radius+5;
-                missile.X = this.X + Math.Cos(angle) * initialDistanceSoIDontHitMyself;
-                missile.Y = this.Y + Math.Sin(angle) * initialDistanceSoIDontHitMyself;
+                missile.X = this.X ;
+                missile.Y = this.Y ;
 
                 missile.DX = this.DX;
                 missile.DY = this.DY;
@@ -125,7 +127,8 @@ namespace DotNetMud.SpaceLib
                 missile.DX = missile.DX + Math.Cos(angle)*MissileFIreSpeedInGameUnitsPerSec;
                 missile.DY = missile.DY + Math.Sin(angle)*MissileFIreSpeedInGameUnitsPerSec;
                
-                missile.DurationRemainingInGameMs = MissileDurationInGameMs; 
+                missile.DurationRemainingInGameMs = MissileDurationInGameMs;
+                missile.Launcher = this; 
                 missile.MoveTo(this.Parent);
             }
         }
@@ -142,6 +145,8 @@ namespace DotNetMud.SpaceLib
             public decimal ServerTimeRate { get; set; }
 
             public List<IObject2D> Others { get; set; }
+            public int MeHasBeenHitCount { get; set; }
+            public int MeHasHitSomeoneCount { get; set; }
         }
 
         public void ShipDisconnected(bool stopCalled)
@@ -169,14 +174,23 @@ namespace DotNetMud.SpaceLib
             }
         }
 
-        public void IHaveBeenHitBy(IWantToHitThings hitter)
-        {
-            // TODO: what happens when something hits us? 
-        }
-    }
+        // Can't start with I, Resharper complains :) 
+        public int MeHasBeenHitCount { get; set; }
+        public int MeHasHitSomeoneCount { get; set; }
 
-    public interface ICanBeHitByThings : IObject2D
-    {
-        void IHaveBeenHitBy(IWantToHitThings hitter);
+        public bool AcceptHasBeenHitBy(IWantToHitThings hitter)
+        {
+            return true; 
+        }
+
+        public void MeHasBeenHitBy(IWantToHitThings hitter)
+        {
+            MeHasBeenHitCount++; 
+        }
+
+        public void CountAHitAgainst(Ship target)
+        {
+            MeHasHitSomeoneCount++; 
+        }
     }
 }

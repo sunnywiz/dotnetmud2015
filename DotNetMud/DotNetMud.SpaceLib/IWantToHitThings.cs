@@ -2,6 +2,7 @@ namespace DotNetMud.SpaceLib
 {
     public interface IWantToHitThings : IObject2D
     {
-        void IHaveHit(ICanBeHitByThings target);
+        bool AcceptMeHasHit(ICanBeHitByThings target);
+        void MeHasHit(ICanBeHitByThings target);
     }
 }

@@ -30,6 +30,8 @@ var spaceMud = (function (spaceMud) {
     var spanLocationX = document.getElementById("locationX");
     var spanLocationY = document.getElementById("locationY");
     var spanSpeed = document.getElementById("speed");
+    var spanMeHasBeenHitCount = document.getElementById("meHasBeenHitCount");
+    var spanMeHasHitSomeoneCount = document.getElementById("meHasHitSomeoneCount");
     var context = canvas.getContext("2d");
     context.font = "20px Arial";
 
@@ -109,6 +111,8 @@ var spaceMud = (function (spaceMud) {
         serverObjects.Me.Image = data.Me.Image;
         serverObjects.ServerTimeInSeconds = data.ServerTimeInSeconds;
         serverObjects.ServerTimeRate = data.ServerTimeRate;
+        spanMeHasBeenHitCount.textContent = data.MeHasBeenHitCount;
+        spanMeHasHitSomeoneCount.textContent = data.MeHasHitSomeoneCount; 
 
         var previousMyTime = clientInfo.MyTimeAtServerTimeInMs; 
         clientInfo.MyTimeAtServerTimeInMs = window.performance.now();

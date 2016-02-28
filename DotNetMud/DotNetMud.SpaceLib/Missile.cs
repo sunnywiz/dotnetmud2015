@@ -6,9 +6,10 @@ namespace DotNetMud.SpaceLib
 {
     public class Missile: StdObject2D, IWantToHitThings
     {
-        private decimal IWillExpireAtInSeconds = 0m;
+        private decimal _willExpireAtInGameSeconds = 0m;
         private System.Timers.Timer _expirationTimer = null; 
 
+        public Ship Launcher { get; set; }
 
         // TODO: probably need to make a Game-time timer so that in x Game-TIme-ms something fires. 
         public decimal DurationRemainingInGameMs
@@ -16,12 +17,12 @@ namespace DotNetMud.SpaceLib
             get
             {
                 var now = GlobalTime.NowInMs;
-                return IWillExpireAtInSeconds * 1000m - now; 
+                return _willExpireAtInGameSeconds * 1000m - now; 
             }
             set
             {
                 var now = GlobalTime.NowInMs;
-                IWillExpireAtInSeconds = (now + value)/1000m;
+                _willExpireAtInGameSeconds = (now + value)/1000m;
                 if (_expirationTimer != null)
                 {
                     _expirationTimer.Stop();
@@ -41,7 +42,7 @@ namespace DotNetMud.SpaceLib
         {
             // there's a possibility if game time stops, that time will not have yet elapsed. If so, go ahead and overshoot. 
             var now = GlobalTime.NowInMs;
-            var timeToGo = IWillExpireAtInSeconds*1000 - now;
+            var timeToGo = _willExpireAtInGameSeconds*1000 - now;
             if (timeToGo > 0)
             {
                 _expirationTimer.Interval = Convert.ToDouble(timeToGo)*1.5;
@@ -52,7 +53,14 @@ namespace DotNetMud.SpaceLib
             this.Destroy(); 
         }
 
-        public void IHaveHit(ICanBeHitByThings target)
+        public bool AcceptMeHasHit(ICanBeHitByThings target)
+        {
+            if (Launcher == null) return false;  // not armed yet. 
+            if (target == Launcher) return false;  // can't hit myself. 
+            return true; 
+        }
+
+        public void MeHasHit(ICanBeHitByThings target)
         {
             if (this.Parent is Space2D)
             {
@@ -60,30 +68,14 @@ namespace DotNetMud.SpaceLib
                 explosion.MoveTo(this.Parent);
                 explosion.StartExpirationTimer();
             }
+
+            if (Launcher != null && !Launcher.IsDestroyed && target is Ship)
+            {
+                Launcher.CountAHitAgainst((Ship)target);
+            }
+
             this.Destroy();
         }
         
-    }
-
-    public class Explosion : StdObject2D
-    {
-        public Explosion()
-        {
-            Image = "http://i87.servimg.com/u/f87/12/97/11/39/small_10.gif";
-            DR = 360; 
-        }
-
-        private System.Timers.Timer _expirationTimer; 
-
-        public void StartExpirationTimer()
-        {
-            _expirationTimer = new System.Timers.Timer()
-            {
-                Interval = 1000.0, 
-                AutoReset = false
-            };
-            _expirationTimer.Elapsed += (sender, args) => { this.Destroy(); };
-            _expirationTimer.Start(); 
-        }
     }
 }

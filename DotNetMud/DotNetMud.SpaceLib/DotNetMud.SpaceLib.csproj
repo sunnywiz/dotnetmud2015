@@ -40,6 +40,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Explosion.cs" />
+    <Compile Include="ICanBeHitByThings.cs" />
     <Compile Include="IWantToHitThings.cs" />
     <Compile Include="Missile.cs" />
     <Compile Include="Planet.cs" />
