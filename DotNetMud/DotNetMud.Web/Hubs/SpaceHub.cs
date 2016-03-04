@@ -36,7 +36,6 @@ namespace DotNetMud.Web.Hubs
             {
                 var pollResult = player.ClientRequestsPollFromServer(thrustMs, leftMs, rightMs, fireMs);
                 Clients.Caller.ServerSendsPollResultToClient(pollResult);
-
             }
         }
 

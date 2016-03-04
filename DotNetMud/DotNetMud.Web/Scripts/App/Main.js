@@ -79,7 +79,9 @@ var spaceMud = (function (spaceMud) {
     }
 
     var clientInfo = {
-        MyTimeAtServerTimeInMs: window.performance.now()
+        MyTimeAtServerTimeInMs: window.performance.now(),
+        avgTimeBetweenServerUpdatesInMs: 500,
+        avgClientServerDrift: 500
     };
 
     var loadedImages = {};
@@ -109,6 +111,7 @@ var spaceMud = (function (spaceMud) {
         serverObjects.Me.DY = data.Me.DY;
         serverObjects.Me.DR = data.Me.DR; 
         serverObjects.Me.Image = data.Me.Image;
+
         serverObjects.ServerTimeInSeconds = data.ServerTimeInSeconds;
         serverObjects.ServerTimeRate = data.ServerTimeRate;
         spanMeHasBeenHitCount.textContent = data.MeHasBeenHitCount;
@@ -116,13 +119,29 @@ var spaceMud = (function (spaceMud) {
 
         var previousMyTime = clientInfo.MyTimeAtServerTimeInMs; 
         clientInfo.MyTimeAtServerTimeInMs = window.performance.now();
+        var msBetweenServerUpdates = clientInfo.MyTimeAtServerTimeInMs - previousMyTime;
+
+        // TODO: client drift calculation will have to change  if we ever do game slowdown. 
+        var currentClientServerDrift = clientInfo.MyTimeAtServerTimeInMs - serverObjects.ServerTimeInSeconds * 1000;
+        clientInfo.avgClientServerDrift = clientInfo.avgClientServerDrift * 0.9 + currentClientServerDrift * 0.1;  // rolling average of 10
+
+        // check to see if we got a packet that's later than average.  If so, correct for that
+        if (currentClientServerDrift > clientInfo.avgClientServerDrift) {
+            // try to figure out when it ought to have been.   set MyTimeAtServerTimeInMs accordingly
+            // console.log("Adjusting time curDrift:"+currentClientServerDrift+" avgDrift:"+ clientInfo.avgClientServerDrift+ " backwards by " + (currentClientServerDrift - clientInfo.avgClientServerDrift));
+            clientInfo.MyTimeAtServerTimeInMs = clientInfo.MyTimeAtServerTimeInMs - (currentClientServerDrift - clientInfo.avgClientServerDrift);
+        }
+
         clientInfo.Velocity = Math.sqrt(serverObjects.Me.DX * serverObjects.Me.DX + serverObjects.Me.DY * serverObjects.Me.DY);
 
         spanSpeed.textContent = clientInfo.Velocity.toFixed(0);  
 
-        var msBetweenServerUpdates = clientInfo.MyTimeAtServerTimeInMs - previousMyTime;
+        
         spanMsBetweenServerUpdates.textContent = msBetweenServerUpdates.toFixed(0);
-            
+
+        // keep a rolling average of update speed from server. 
+        clientInfo.avgTimeBetweenServerUpdatesInMs = clientInfo.avgTimeBetweenServerUpdatesInMs * 0.9 + msBetweenServerUpdates;
+
         serverObjects.Others = data.Others;
 
         spaceMud.doClientRequestsPollFromServer();  // ping! 
@@ -158,6 +177,15 @@ var spaceMud = (function (spaceMud) {
         clientInfo.ElapsedSecondsSinceServerRefresh =
         (now - clientInfo.MyTimeAtServerTimeInMs) / (serverObjects.ServerTimeRate * 1000);
 
+        // we don't want ElapsedSecondsSinceServerRefresh to get too much past actual time between server updates
+        // this way if we're lagging, we don't get a "run ahead and then correct back"
+        // instead would rather see a "hang" and then forward update. 
+        var uncle = clientInfo.ElapsedSecondsSinceServerRefresh;
+        if (uncle * 500 > clientInfo.avgTimeBetweenServerUpdatesInMs) {
+            // * 1000 > x * 2 => *500 - ish
+            uncle = clientInfo.avgTimeBetweenServerUpdatesInMs / 500; 
+        }
+        
         // from: http://stackoverflow.com/questions/10214873/make-canvas-as-wide-and-as-high-as-parent 
         // Make it visually fill the positioned parent
         canvas.style.width = "100%";
@@ -177,9 +205,9 @@ var spaceMud = (function (spaceMud) {
             if (me) {
 
                 var me2 = {
-                    X: me.X + me.DX * clientInfo.ElapsedSecondsSinceServerRefresh,
-                    Y: me.Y + me.DY * clientInfo.ElapsedSecondsSinceServerRefresh,
-                    R: me.R + me.DR * clientInfo.ElapsedSecondsSinceServerRefresh
+                    X: me.X + me.DX * uncle,
+                    Y: me.Y + me.DY * uncle,
+                    R: me.R + me.DR * uncle
                 };
                 spanLocationX.textContent = me2.X.toFixed(0);
                 spanLocationY.textContent = me2.Y.toFixed(0); 
@@ -193,9 +221,9 @@ var spaceMud = (function (spaceMud) {
                         context.save();
                         {
                             var ob2 = {
-                                X: ob.X + ob.DX * clientInfo.ElapsedSecondsSinceServerRefresh,
-                                Y: ob.Y + ob.DY * clientInfo.ElapsedSecondsSinceServerRefresh,
-                                R: ob.R + ob.DR * clientInfo.ElapsedSecondsSinceServerRefresh
+                                X: ob.X + ob.DX * uncle,
+                                Y: ob.Y + ob.DY * uncle,
+                                R: ob.R + ob.DR * uncle
                             }
                             context.translate(ob2.X-me2.X, ob2.Y-me2.Y);
                             var theirImage = spaceMud.getImageForUrl(ob.Image);
