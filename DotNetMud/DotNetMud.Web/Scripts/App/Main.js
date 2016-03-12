@@ -115,7 +115,8 @@ var spaceMud = (function (spaceMud) {
         return ob; 
     }
 
-    chat.client.serverSendsPollResultToClient = function (data) {
+    // renamed to be shorter.  used to be "serverSendsPollResultToClient" 
+    chat.client.p2 = function (data) {
 
         // TODO: make this less chatty .. only things that update get sent. and shorter names
         // pong! 
@@ -286,7 +287,7 @@ var spaceMud = (function (spaceMud) {
         fire = spaceMud.getKeyPressedLengthAndReset(32);
 
         // HACK: temporarily turning on auto-fire
-        chat.server.clientRequestsPollFromServer(thrust, left, right, fire);  // ping! 
+        chat.server.p1(thrust, left, right, fire);  // ping! 
     }
 
     spaceMud.main = function () {
