@@ -99,7 +99,7 @@ var spaceMud = (function (spaceMud) {
         }
     };
 
-    spaceMud.hydrate1 = function(d) {
+    spaceMud.hydrate1 = function(p,d) {
         var ob = {
             DR: d.DR,
             DX: d.DX,
@@ -112,6 +112,10 @@ var spaceMud = (function (spaceMud) {
             X: d.X,
             Y: d.Y
         };
+        if (p) {
+            if (!ob.Image && p.Image) ob.Image = p.Image;
+            if (!ob.Name && p.Name) ob.Name = p.Name;
+        }
         return ob; 
     }
 
@@ -121,7 +125,7 @@ var spaceMud = (function (spaceMud) {
         // TODO: make this less chatty .. only things that update get sent. and shorter names
         // pong! 
 
-        serverObjects.Me = spaceMud.hydrate1(data.A);
+        serverObjects.Me = spaceMud.hydrate1(serverObjects.Me, data.A);
 
         serverObjects.ServerTimeInSeconds = data.SS;
         serverObjects.ServerTimeRate = data.SR;
@@ -153,10 +157,14 @@ var spaceMud = (function (spaceMud) {
         // keep a rolling average of update speed from server. 
         clientInfo.avgTimeBetweenServerUpdatesInMs = clientInfo.avgTimeBetweenServerUpdatesInMs * 0.9 + msBetweenServerUpdates;
 
+        var prevOthers = serverObjects.Others; 
         serverObjects.Others = {};
-        for (var i = 0; i < data.O.length; i++) {
-            var ob = spaceMud.hydrate1(data.O[i]);
-            serverObjects.Others[ob.Id] = ob; 
+        for (var id in data.O) {
+            if (data.O.hasOwnProperty(id)) {
+                var po = prevOthers[id];
+                var ob = spaceMud.hydrate1(po,data.O[id]);
+                serverObjects.Others[id] = ob;
+            }
         }
 
         spaceMud.doClientRequestsPollFromServer();  // ping! 

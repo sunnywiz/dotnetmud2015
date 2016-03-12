@@ -54,7 +54,9 @@ namespace DotNetMud.SpaceLib
         private decimal _lastFireTimeInGameMs = 0; 
         private const decimal FireSpeedInGameMs = 100.0m; 
 
-        private readonly Stopwatch _timerBetweenClientRequestsPollFromServer = new Stopwatch(); 
+        private readonly Stopwatch _timerBetweenClientRequestsPollFromServer = new Stopwatch();
+        private PollResult previousPollResult = null;
+        private int needFullPollAgain = 0; 
         public object ClientRequestsPollFromServer(decimal thrustMs, decimal leftMs, decimal rightMs, decimal fireMs)
         {            
             PerfLogging.SomethingHappened(Id+" ClientRequestPoll");
@@ -97,10 +99,27 @@ namespace DotNetMud.SpaceLib
 
             if (Parent != null)
             {
-                result.Others = Parent.GetInventory<IObject2D>().Where(o => o != this).Select(x=>new PollResult2DDto(x)).ToList();
+                result.Others = Parent
+                    .GetInventory<IObject2D>()
+                    .Where(o => o != this)
+                    .Select(x => new PollResult2DDto(x))
+                    .ToDictionary(x => x.Id, x => x);
             }
             _timerBetweenClientRequestsPollFromServer.Restart();
-            return result;         
+
+
+            if (previousPollResult == null || -- needFullPollAgain < 0)
+            {
+                previousPollResult = result;
+                needFullPollAgain = 10;
+                return result;
+            }
+            else
+            {
+                var diff = result.CreateDiffFrom(previousPollResult);
+                previousPollResult = result;
+                return diff;
+            }
         }
 
         const double MissileFIreSpeedInGameUnitsPerSec = 300.0;

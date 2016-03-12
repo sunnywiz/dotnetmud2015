@@ -54,5 +54,25 @@ namespace DotNetMud.SpaceLib
             Radius = Math.Round(Convert.ToDecimal(t.Radius),PositionalPrecision);
         }
 
+        private PollResult2DDto()
+        {
+            
+        }
+
+        public PollResult2DDto CreateDiffFrom(PollResult2DDto p)
+        {
+            return new PollResult2DDto()
+            {
+                X = X,
+                Y = Y,
+                DX = DX,
+                DY = DY,
+                R = R,
+                DR = DR,
+                Radius = Radius,
+                Name = (p.Name == Name ? null : Name),
+                Image = (p.Image == Image ? null : Image)
+            };
+        }
     }
 }
