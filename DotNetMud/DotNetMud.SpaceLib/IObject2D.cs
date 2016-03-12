@@ -1,4 +1,7 @@
 // ReSharper disable InconsistentNaming
+
+using Newtonsoft.Json.Serialization;
+
 namespace DotNetMud.SpaceLib
 {
     public interface IObject2D
@@ -13,36 +16,5 @@ namespace DotNetMud.SpaceLib
         long Id { get; set; }
         string Name { get; set; }
         string Image { get; set; }
-    }
-
-    public class Object2DDto : IObject2D
-    {
-        public double X { get; set; }
-        public double Y { get; set; }
-        public double DX { get; set; }
-        public double DY { get; set; }
-        public double R { get; set; }
-        public double DR { get; set; }
-        public double Radius { get; set; }
-        public string Name { get; set; }
-        public string Image { get; set; }
-        public long Id { get; set; }
-
-        public static IObject2D CopyFrom(IObject2D t)
-        {
-            return new Object2DDto()
-            {
-                X = t.X,
-                Y = t.Y,
-                DX = t.DX,
-                DY = t.DY,
-                Name = t.Name,
-                Image = t.Image,
-                DR = t.DR,
-                R = t.R,
-                Id = t.Id, 
-                Radius = t.Radius
-            };
-        }
     }
 }

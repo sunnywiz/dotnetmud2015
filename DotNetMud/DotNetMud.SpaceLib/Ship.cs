@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using DotNetMud.Driver;
@@ -89,7 +88,7 @@ namespace DotNetMud.SpaceLib
 
             var result = new PollResult()
             {
-                Me = Object2DDto.CopyFrom(this),
+                Me = new PollResult2DDto(this),
                 ServerTimeInSeconds = GlobalTime.NowInMs/1000.0m,
                 ServerTimeRate = GlobalTime.RateOfTime, 
                 MeHasBeenHitCount = this.MeHasBeenHitCount, 
@@ -98,7 +97,7 @@ namespace DotNetMud.SpaceLib
 
             if (Parent != null)
             {
-                result.Others = Parent.GetInventory<IObject2D>().Where(o => o != this).Select(Object2DDto.CopyFrom).ToList();
+                result.Others = Parent.GetInventory<IObject2D>().Where(o => o != this).Select(x=>new PollResult2DDto(x)).ToList();
             }
             _timerBetweenClientRequestsPollFromServer.Restart();
             return result;         
@@ -131,22 +130,6 @@ namespace DotNetMud.SpaceLib
                 missile.Launcher = this; 
                 missile.MoveTo(this.Parent);
             }
-        }
-
-        public class PollResult
-        {
-            public PollResult()
-            {
-                Others = new List<IObject2D>();
-            }
-
-            public IObject2D Me { get; set; }
-            public decimal ServerTimeInSeconds { get; set; }
-            public decimal ServerTimeRate { get; set; }
-
-            public List<IObject2D> Others { get; set; }
-            public int MeHasBeenHitCount { get; set; }
-            public int MeHasHitSomeoneCount { get; set; }
         }
 
         public void ShipDisconnected(bool stopCalled)

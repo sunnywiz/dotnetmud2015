@@ -37,7 +37,7 @@ var spaceMud = (function (spaceMud) {
 
     var serverObjects = {
         Me: { X: 0, Y: 0, DX: 0, DY: 0, R: 0, DR: 0, Name: "", Image: "" },
-        Others: [],
+        Others: {},
         ServerTimeInSeconds: 0,
         ServerTimeRate: 1
     };
@@ -99,23 +99,33 @@ var spaceMud = (function (spaceMud) {
         }
     };
 
+    spaceMud.hydrate1 = function(d) {
+        var ob = {
+            DR: d.DR,
+            DX: d.DX,
+            DY: d.DY,
+            Id: d.ID,
+            Image: d.IM,
+            Name: d.N,
+            R: d.R,
+            Radius: d.RA,
+            X: d.X,
+            Y: d.Y
+        };
+        return ob; 
+    }
+
     chat.client.serverSendsPollResultToClient = function (data) {
 
         // TODO: make this less chatty .. only things that update get sent. and shorter names
         // pong! 
 
-        serverObjects.Me.X = data.Me.X;
-        serverObjects.Me.Y = data.Me.Y;
-        serverObjects.Me.R = data.Me.R;
-        serverObjects.Me.DX = data.Me.DX;
-        serverObjects.Me.DY = data.Me.DY;
-        serverObjects.Me.DR = data.Me.DR; 
-        serverObjects.Me.Image = data.Me.Image;
+        serverObjects.Me = spaceMud.hydrate1(data.A);
 
-        serverObjects.ServerTimeInSeconds = data.ServerTimeInSeconds;
-        serverObjects.ServerTimeRate = data.ServerTimeRate;
-        spanMeHasBeenHitCount.textContent = data.MeHasBeenHitCount;
-        spanMeHasHitSomeoneCount.textContent = data.MeHasHitSomeoneCount; 
+        serverObjects.ServerTimeInSeconds = data.SS;
+        serverObjects.ServerTimeRate = data.SR;
+        spanMeHasBeenHitCount.textContent = data.H1;
+        spanMeHasHitSomeoneCount.textContent = data.H2; 
 
         var previousMyTime = clientInfo.MyTimeAtServerTimeInMs; 
         clientInfo.MyTimeAtServerTimeInMs = window.performance.now();
@@ -142,7 +152,11 @@ var spaceMud = (function (spaceMud) {
         // keep a rolling average of update speed from server. 
         clientInfo.avgTimeBetweenServerUpdatesInMs = clientInfo.avgTimeBetweenServerUpdatesInMs * 0.9 + msBetweenServerUpdates;
 
-        serverObjects.Others = data.Others;
+        serverObjects.Others = {};
+        for (var i = 0; i < data.O.length; i++) {
+            var ob = spaceMud.hydrate1(data.O[i]);
+            serverObjects.Others[ob.Id] = ob; 
+        }
 
         spaceMud.doClientRequestsPollFromServer();  // ping! 
     }
@@ -215,9 +229,10 @@ var spaceMud = (function (spaceMud) {
                 spaceMud.drawDotBackground(context, me2.X, me2.Y);
 
                 // drawing everything else first so i can draw myself over everything later
-                for (var i = 0; i < serverObjects.Others.length; i++) {
-                    var ob = serverObjects.Others[i];
-                    if (ob) {
+                // http://stackoverflow.com/questions/684672/loop-through-javascript-object
+                for (var id in serverObjects.Others) {
+                    if (serverObjects.Others.hasOwnProperty(id)) {
+                        var ob = serverObjects.Others[id];
                         context.save();
                         {
                             var ob2 = {
@@ -225,12 +240,12 @@ var spaceMud = (function (spaceMud) {
                                 Y: ob.Y + ob.DY * uncle,
                                 R: ob.R + ob.DR * uncle
                             }
-                            context.translate(ob2.X-me2.X, ob2.Y-me2.Y);
+                            context.translate(ob2.X - me2.X, ob2.Y - me2.Y);
                             var theirImage = spaceMud.getImageForUrl(ob.Image);
                             if (theirImage.complete) {
                                 context.save();
                                 {
-                                    context.rotate((ob2.R+90) * Math.PI / 180);
+                                    context.rotate((ob2.R + 90) * Math.PI / 180);
                                     context.drawImage(theirImage, -theirImage.width / 2, -theirImage.height / 2);
                                 }
                                 context.restore();

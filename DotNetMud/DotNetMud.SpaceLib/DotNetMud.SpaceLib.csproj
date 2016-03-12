@@ -30,6 +30,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.6.0.4\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -45,6 +49,8 @@
     <Compile Include="IWantToHitThings.cs" />
     <Compile Include="Missile.cs" />
     <Compile Include="Planet.cs" />
+    <Compile Include="PollResult.cs" />
+    <Compile Include="PollResult2DDto.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="IObject2D.cs" />
     <Compile Include="Object2D.cs" />
@@ -58,6 +64,9 @@
       <Project>{a23b40b2-593e-4fdd-a5a5-24a9fa25594d}</Project>
       <Name>DotNetMud.Driver</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

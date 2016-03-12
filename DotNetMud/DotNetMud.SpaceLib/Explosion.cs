@@ -4,6 +4,7 @@ namespace DotNetMud.SpaceLib
     {
         public Explosion()
         {
+            Name = " ";
             Image = "http://i87.servimg.com/u/f87/12/97/11/39/small_10.gif";
             DR = 360; 
         }
